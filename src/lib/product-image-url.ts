@@ -5,11 +5,11 @@ import type { ProductImageSizeName } from "@/lib/process-product-image";
  * قرارداد: .../{ts}-large.webp → .../{ts}-{size}.webp
  */
 export function productImageUrlForSize(
-  largeUrlOrKey: string,
-  size: ProductImageSizeName,
+ largeUrlOrKey: string,
+ size: ProductImageSizeName,
 ): string {
-  return largeUrlOrKey.replace(
-    /-(thumb|small|medium|large)\.webp(\?.*)?$/,
-    `-${size}.webp`,
-  );
+ return largeUrlOrKey.replace(
+ /-(thumb|small|medium|large)\.webp(\?.*)?$/,
+ `-${size}.webp`,
+ );
 }

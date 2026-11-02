@@ -5,118 +5,118 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface FooterLink {
-  label: string;
-  href: string;
+ label: string;
+ href: string;
 }
 
 interface SocialLink {
-  icon: React.ReactNode;
-  href: string;
-  label: string;
+ icon: React.ReactNode;
+ href: string;
+ label: string;
 }
 
 interface FooterProps {
-  brandName?: string;
-  watermarkName?: string;
-  brandDescription?: string;
-  socialLinks?: SocialLink[];
-  navLinks?: FooterLink[];
-  creatorName?: string;
-  creatorUrl?: string;
-  brandIcon?: React.ReactNode;
-  className?: string;
+ brandName?: string;
+ watermarkName?: string;
+ brandDescription?: string;
+ socialLinks?: SocialLink[];
+ navLinks?: FooterLink[];
+ creatorName?: string;
+ creatorUrl?: string;
+ brandIcon?: React.ReactNode;
+ className?: string;
 }
 
 export function Footer({
-  brandName = "پیراهن مردانه",
-  watermarkName = "PirahanMardane",
-  brandDescription = "فروشگاه تخصصی پیراهن مردانه — رسمی، اسپرت، کروات، پاپیون و اکسسوری",
-  socialLinks = [],
-  navLinks = [],
-  creatorName,
-  creatorUrl,
-  brandIcon,
-  className,
+ brandName = "جواهر شاد",
+ watermarkName = "ShadJewel",
+ brandDescription = "فروشگاه تخصصی زیورآلات و اکسسوری — رسمی، اسپرت، دستبند، ست و اکسسوری",
+ socialLinks = [],
+ navLinks = [],
+ creatorName,
+ creatorUrl,
+ brandIcon,
+ className,
 }: FooterProps) {
-  return (
-    <section className={cn("relative mt-0 w-full overflow-hidden", className)}>
-      <footer className="border-t bg-background relative mt-20">
-        <div className="relative mx-auto flex min-h-[26rem] w-full max-w-7xl flex-col justify-between p-4 py-8 sm:min-h-[28rem] md:min-h-[30rem] md:py-10">
-          <div className="mb-8 flex w-full flex-col sm:mb-10 md:mb-6">
-            <div className="flex w-full flex-col items-center">
-              <div className="flex flex-1 flex-col items-center space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-primary whitespace-nowrap text-6xl font-thin tracking-tight">
-                    {brandName}
-                  </span>
-                </div>
-                <p className="text-muted-foreground max-w-4xl px-4 text-center text-sm font-semibold whitespace-nowrap sm:text-base">
-                  {brandDescription}
-                </p>
-              </div>
+ return (
+ <section className={cn("relative mt-0 w-full overflow-hidden", className)}>
+ <footer className="border-t bg-background relative mt-20">
+ <div className="relative mx-auto flex min-h-[26rem] w-full max-w-7xl flex-col justify-between p-4 py-8 sm:min-h-[28rem] md:min-h-[30rem] md:py-10">
+ <div className="mb-8 flex w-full flex-col sm:mb-10 md:mb-6">
+ <div className="flex w-full flex-col items-center">
+ <div className="flex flex-1 flex-col items-center space-y-2">
+ <div className="flex items-center gap-2">
+ <span className="text-primary whitespace-nowrap text-6xl font-thin tracking-tight">
+ {brandName}
+ </span>
+ </div>
+ <p className="text-muted-foreground max-w-4xl px-4 text-center text-sm font-semibold whitespace-nowrap sm:text-base">
+ {brandDescription}
+ </p>
+ </div>
 
-              {socialLinks.length > 0 && (
-                <div className="mt-3 mb-8 flex gap-4">
-                  {socialLinks.map((link, index) => (
-                    <Link
-                      key={index}
-                      href={link.href}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className="h-6 w-6 duration-300 hover:scale-110">
-                        {link.icon}
-                      </div>
-                      <span className="sr-only">{link.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
+ {socialLinks.length > 0 && (
+ <div className="mt-3 mb-8 flex gap-4">
+ {socialLinks.map((link, index) => (
+ <Link
+ key={index}
+ href={link.href}
+ className="text-muted-foreground hover:text-foreground transition-colors"
+ target="_blank"
+ rel="noopener noreferrer"
+ >
+ <div className="h-6 w-6 duration-300 hover:scale-110">
+ {link.icon}
+ </div>
+ <span className="sr-only">{link.label}</span>
+ </Link>
+ ))}
+ </div>
+ )}
 
-              {navLinks.length > 0 && (
-                <div className="text-muted-foreground relative z-20 mx-auto grid w-full max-w-4xl grid-cols-4 gap-x-2 gap-y-2.5 px-4 pb-10 text-center text-xs font-medium sm:text-sm md:flex md:flex-wrap md:justify-center md:gap-x-5 md:gap-y-0 md:pb-36 md:text-sm">
-                  {navLinks.map((link, index) => (
-                    <Link
-                      key={index}
-                      className="hover:text-foreground duration-300 hover:font-semibold"
-                      href={link.href}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+ {navLinks.length > 0 && (
+ <div className="text-muted-foreground relative z-20 mx-auto grid w-full max-w-4xl grid-cols-4 gap-x-2 gap-y-2.5 px-4 pb-10 text-center text-xs font-medium sm:text-sm md:flex md:flex-wrap md:justify-center md:gap-x-5 md:gap-y-0 md:pb-36 md:text-sm">
+ {navLinks.map((link, index) => (
+ <Link
+ key={index}
+ className="hover:text-foreground duration-300 hover:font-semibold"
+ href={link.href}
+ >
+ {link.label}
+ </Link>
+ ))}
+ </div>
+ )}
+ </div>
+ </div>
+ </div>
 
-        {/* Large background text */}
-        <div
-          className="text-primary/35 pointer-events-none absolute bottom-8 left-1/2 z-0 max-w-[95vw] -translate-x-1/2 whitespace-nowrap px-4 text-center leading-none font-extrabold select-none sm:bottom-8 md:bottom-0"
-          style={{
-            fontSize: "clamp(1.35rem, 9vw, 9.5rem)",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {watermarkName}
-        </div>
+ {/* Large background text */}
+ <div
+ className="text-primary/35 pointer-events-none absolute bottom-8 left-1/2 z-0 max-w-[95vw] -translate-x-1/2 whitespace-nowrap px-4 text-center leading-none font-extrabold select-none sm:bottom-8 md:bottom-0"
+ style={{
+ fontSize: "clamp(1.35rem, 9vw, 9.5rem)",
+ letterSpacing: "-0.02em",
+ }}
+ >
+ {watermarkName}
+ </div>
 
-        {/* Logo + side borders — خط‌ها حذف نشوند؛ نزدیک لوگو پررنگ، لبه محو */}
-        <div
-          dir="ltr"
-          className="pointer-events-none absolute bottom-12 left-1/2 z-10 flex w-[min(100%,42rem)] -translate-x-1/2 items-center px-4 sm:bottom-14 md:bottom-20 md:w-[min(100%,56rem)] lg:w-[min(100%,64rem)]"
-        >
-          <div className="bg-gradient-to-r from-transparent to-primary/70 h-px min-w-0 flex-1" />
-          <div
-            className="border-border/60 bg-background/70 pointer-events-auto relative mx-0 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border p-2 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary supports-[backdrop-filter]:bg-background/60 sm:h-20 sm:w-20 md:h-24 md:w-24"
-          >
-            {brandIcon}
-          </div>
-          <div className="bg-gradient-to-l from-transparent to-primary/70 h-px min-w-0 flex-1" />
-        </div>
-        <div className="from-background via-background/80 to-background/40 absolute bottom-28 h-24 w-full bg-gradient-to-t blur-[1em]" />
-      </footer>
-    </section>
-  );
+ {/* Logo + side borders — خط‌ها حذف نشوند؛ نزدیک لوگو پررنگ، لبه محو */}
+ <div
+ dir="ltr"
+ className="pointer-events-none absolute bottom-12 left-1/2 z-10 flex w-[min(100%,42rem)] -translate-x-1/2 items-center px-4 sm:bottom-14 md:bottom-20 md:w-[min(100%,56rem)] lg:w-[min(100%,64rem)]"
+ >
+ <div className="bg-gradient-to-r from-transparent to-primary/70 h-px min-w-0 flex-1" />
+ <div
+ className="border-border/60 bg-background/70 pointer-events-auto relative mx-0 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border p-2 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary supports-[backdrop-filter]:bg-background/60 sm:h-20 sm:w-20 md:h-24 md:w-24"
+ >
+ {brandIcon}
+ </div>
+ <div className="bg-gradient-to-l from-transparent to-primary/70 h-px min-w-0 flex-1" />
+ </div>
+ <div className="from-background via-background/80 to-background/40 absolute bottom-28 h-24 w-full bg-gradient-to-t blur-[1em]" />
+ </footer>
+ </section>
+ );
 }

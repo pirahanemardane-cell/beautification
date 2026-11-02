@@ -3,16 +3,16 @@
 import { AuthForm } from "@/components/ui/premium-auth";
 
 export default function RegisterPage() {
-  return (
-    <div className="bg-background flex min-h-[70vh] w-full items-center justify-center px-4 py-10" dir="rtl">
-      <div className="border-border bg-card w-full max-w-md rounded-2xl border shadow-sm">
-        <AuthForm
-          initialMode="signup"
-          onSuccess={() => {
-            window.location.href = "/dashboard";
-          }}
-        />
-      </div>
-    </div>
-  );
+ return (
+ <div className="bg-background flex min-h-[70vh] w-full items-center justify-center px-4 py-10" dir="rtl">
+ <div className="border-border bg-card w-full max-w-md rounded-2xl border shadow-sm">
+ <AuthForm
+ initialMode="signup"
+ onSuccess={() => {
+ window.location.href = "/dashboard";
+ }}
+ />
+ </div>
+ </div>
+ );
 }

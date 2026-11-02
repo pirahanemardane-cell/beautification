@@ -1,4 +1,4 @@
-# Testing Strategy — پیراهن مردانه
+# Testing Strategy — جواهر شاد
 
 نسخه: ۲.۰ | ۲۰۲۶-۱۰-۲۴
 

@@ -1,6 +1,6 @@
-# پیراهن مردانه | pirahanmardane.ir
+# جواهر شاد | shadjewel.ir
 
-فروشگاه تخصصی پیراهن مردانه – ساخته‌شده با Next.js 15 + Supabase + Vercel + Cloudflare + R2
+فروشگاه تخصصی زیورآلات و اکسسوری – ساخته‌شده با Next.js 15 + Supabase + Vercel + Cloudflare + R2
 
 ## تکنولوژی‌ها
 - **Frontend**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui
@@ -39,7 +39,7 @@ npm run dev
 
 ## وضعیت فعلی (۲۵ اکتبر ۲۰۲۶)
 
-- Production: https://pirahanmardane.ir — از `main` روی Vercel
+- Production: https://shadjewel.ir — از `main` روی Vercel
 - QA Formal: unit + security-smoke + smoke دستی + QA دستی کوتاه → **PASS** (2026-10-25)
 - Backup: cron روزانه + تأیید دستی curl → فایل R2 `backups/db/…` (2026-10-25)
 - پیش‌انتشار: `noindex` تا تصمیم مالک برای ایندکس

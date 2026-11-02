@@ -1,11 +1,11 @@
 # بستن رسمی فاز ۰ تا ۴ (پیش‌انتشار)
 
-تاریخ: ۲۰۲۶-۱۰-۰۷  
-سطح: Pre-launch / Production-ready skeleton  
+تاریخ: ۲۰۲۶-۱۰-۰۷ 
+سطح: Pre-launch / Production-ready skeleton 
 وضعیت: آماده برای تأیید نهایی مالک پروژه
 
 ## تعریف «تکمیل» در این سند
-معنی تکمیل = قابل اتکا برای ادامه فاز ۵ و پیش‌انتشار عمومی محتوا.  
+معنی تکمیل = قابل اتکا برای ادامه فاز ۵ و پیش‌انتشار عمومی محتوا. 
 معنی تکمیل ≠ ۱۰۰٪ استاندارد جهانی لانچ نهایی (OTP، تست امنیتی اتوماتیک، Design System سازمانی، درگاه پرداخت).
 
 ## فاز ۰ — پایه پروژه
@@ -57,11 +57,11 @@
 | OTP / permission ریزدانه | ⏸ عمداً بعداً |
 
 ## معیار پذیرش بستن (باید توسط مالک تأیید شود)
-- [ ] https://pirahanmardane.ir بالا است
-- [ ] https://pirahanmardane.ir/api/health → ok
-- [ ] https://pirahanmardane.ir/about بدون «خطا در این بخش»
-- [ ] https://pirahanmardane.ir/products لیست می‌دهد
-- [ ] https://pirahanmardane.ir/admin/products لیست می‌دهد (با لاگین ادمین)
+- [ ] https://shadjewel.ir بالا است
+- [ ] https://shadjewel.ir/api/health → ok
+- [ ] https://shadjewel.ir/about بدون «خطا در این بخش»
+- [ ] https://shadjewel.ir/products لیست می‌دهد
+- [ ] https://shadjewel.ir/admin/products لیست می‌دهد (با لاگین ادمین)
 - [ ] بیلد آخرین commit روی Vercel = Ready
 
 ## ضمانت این سند

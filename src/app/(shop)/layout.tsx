@@ -8,33 +8,33 @@ import { SiteLoaderProvider } from "@/components/layout/site-loader";
 import { AppBreadcrumb } from "@/components/ui/app-breadcrumb";
 
 export default function ShopLayout({
-  children,
+ children,
 }: {
-  children: React.ReactNode;
+ children: React.ReactNode;
 }) {
-  return (
-    <SiteLoaderProvider>
-      <NotificationsProvider>
-        <div className="flex min-h-screen flex-col">
+ return (
+ <SiteLoaderProvider>
+ <NotificationsProvider>
+ <div className="flex min-h-screen flex-col">
 <SiteHeader />
-          <div className="flex-1">
-            <div className="w-full max-w-none">
-              <AppBreadcrumb />
-              <ScrollToTop />
-              <main id="main-content" tabIndex={-1} className="outline-none">
-                {children}
-              </main>
-            </div>
-          </div>
-          <div className="border-border border-t">
-            <div className="mx-auto flex w-full max-w-6xl flex-wrap items-start justify-between gap-4 px-4 py-4">
-              <FooterContact />
-            </div>
-            <SiteFooter />
-          </div>
-          <BackToTop />
-        </div>
-      </NotificationsProvider>
-    </SiteLoaderProvider>
-  );
+ <div className="flex-1">
+ <div className="w-full max-w-none">
+ <AppBreadcrumb />
+ <ScrollToTop />
+ <main id="main-content" tabIndex={-1} className="outline-none">
+ {children}
+ </main>
+ </div>
+ </div>
+ <div className="border-border border-t">
+ <div className="mx-auto flex w-full max-w-6xl flex-wrap items-start justify-between gap-4 px-4 py-4">
+ <FooterContact />
+ </div>
+ <SiteFooter />
+ </div>
+ <BackToTop />
+ </div>
+ </NotificationsProvider>
+ </SiteLoaderProvider>
+ );
 }

@@ -2,18 +2,18 @@ import { cn } from "@/lib/utils";
 
 /** اسپینر — رنگ حلقه = primary برند (لایت/دارک) */
 export function LumaSpin({ className }: { className?: string }) {
-  return (
-    <div className={cn("relative aspect-square w-[65px]", className)} aria-hidden>
-      <span
-        className="animate-loaderAnim absolute rounded-[50px]"
-        style={{ boxShadow: "inset 0 0 0 3px var(--pm-loader-spin)" }}
-      />
-      <span
-        className="animate-loaderAnim animation-delay-loader absolute rounded-[50px]"
-        style={{ boxShadow: "inset 0 0 0 3px var(--pm-loader-spin)" }}
-      />
-    </div>
-  );
+ return (
+ <div className={cn("relative aspect-square w-[65px]", className)} aria-hidden>
+ <span
+ className="animate-loaderAnim absolute rounded-[50px]"
+ style={{ boxShadow: "inset 0 0 0 3px var(--pm-loader-spin)" }}
+ />
+ <span
+ className="animate-loaderAnim animation-delay-loader absolute rounded-[50px]"
+ style={{ boxShadow: "inset 0 0 0 3px var(--pm-loader-spin)" }}
+ />
+ </div>
+ );
 }
 
 export const Component = LumaSpin;

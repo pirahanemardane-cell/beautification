@@ -19,398 +19,398 @@ import { ProductWishCompareInline } from "@/components/product/product-wish-comp
 import { track } from "@/lib/analytics/track";
 
 export type VariantOpt = {
-  id: string;
-  size?: string | null;
-  color?: string | null;
-  price?: number;
-  original_price?: number | null;
-  stock?: number;
+ id: string;
+ size?: string | null;
+ color?: string | null;
+ price?: number;
+ original_price?: number | null;
+ stock?: number;
 };
 
 /** alias used by pdp-media */
 export type BuyVariant = VariantOpt;
 
 type Props = {
-  productId: string;
-  title: string;
-  image?: string;
-  href?: string;
-  variants: VariantOpt[];
-  /** وقتی رنگ عوض می‌شود (برای همگام‌سازی گالری) */
-  onColorChange?: (color: string) => void;
+ productId: string;
+ title: string;
+ image?: string;
+ href?: string;
+ variants: VariantOpt[];
+ /** وقتی رنگ عوض می‌شود (برای همگام‌سازی گالری) */
+ onColorChange?: (color: string) => void;
 };
 
 export function ProductBuyBox({
-  productId,
-  title,
-  image,
-  href,
-  variants: variantsProp,
-  onColorChange,
+ productId,
+ title,
+ image,
+ href,
+ variants: variantsProp,
+ onColorChange,
 }: Props) {
-  const addToCartStore = useShopStore((s) => s.addToCart);
-  const refreshServerCart = useServerCartStore((s) => s.refresh);
+ const addToCartStore = useShopStore((s) => s.addToCart);
+ const refreshServerCart = useServerCartStore((s) => s.refresh);
 
-  // موجودی زنده — بدون reload صفحه
-  const [variants, setVariants] = useState<VariantOpt[]>(variantsProp);
+ // موجودی زنده — بدون reload صفحه
+ const [variants, setVariants] = useState<VariantOpt[]>(variantsProp);
 
-  useEffect(() => {
-    setVariants(variantsProp);
-  }, [variantsProp]);
+ useEffect(() => {
+ setVariants(variantsProp);
+ }, [variantsProp]);
 
-  useRtEvent(RT.stock, () => {
-    const ids = variantsProp.map((v) => v.id).filter(Boolean);
-    if (!ids.length) return;
-    void (async () => {
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("product_variants")
-          .select("id, stock_quantity")
-          .in("id", ids);
-        if (error || !data) return;
-        const map = new Map(
-          data.map((r) => [r.id as string, Number(r.stock_quantity ?? 0)]),
-        );
-        setVariants((prev) =>
-          prev.map((v) =>
-            map.has(v.id) ? { ...v, stock: map.get(v.id) } : v,
-          ),
-        );
-      } catch {
-        /* silent — UI قبلی می‌ماند */
-      }
-    })();
-  });
+ useRtEvent(RT.stock, () => {
+ const ids = variantsProp.map((v) => v.id).filter(Boolean);
+ if (!ids.length) return;
+ void (async () => {
+ try {
+ const supabase = createClient();
+ const { data, error } = await supabase
+ .from("product_variants")
+ .select("id, stock_quantity")
+ .in("id", ids);
+ if (error || !data) return;
+ const map = new Map(
+ data.map((r) => [r.id as string, Number(r.stock_quantity ?? 0)]),
+ );
+ setVariants((prev) =>
+ prev.map((v) =>
+ map.has(v.id) ? { ...v, stock: map.get(v.id) } : v,
+ ),
+ );
+ } catch {
+ /* silent — UI قبلی می‌ماند */
+ }
+ })();
+ });
 
-  const sizes = useMemo(
-    () =>
-      [
-        ...new Set(
-          variants.map((v) => v.size).filter((s): s is string => Boolean(s)),
-        ),
-      ],
-    [variants],
-  );
-  const colors = useMemo(() => {
-    const seen = new Set<string>();
-    const out: { name: string; hex: string }[] = [];
-    for (const v of variants) {
-      const name = String(v.color || "").trim();
-      if (!name) continue;
-      const key = name.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push({ name, hex: resolveColorHex(v.color, null) || "" });
-    }
-    return out;
-  }, [variants]);
+ const sizes = useMemo(
+ () =>
+ [
+ ...new Set(
+ variants.map((v) => v.size).filter((s): s is string => Boolean(s)),
+ ),
+ ],
+ [variants],
+ );
+ const colors = useMemo(() => {
+ const seen = new Set<string>();
+ const out: { name: string; hex: string }[] = [];
+ for (const v of variants) {
+ const name = String(v.color || "").trim();
+ if (!name) continue;
+ const key = name.toLowerCase();
+ if (seen.has(key)) continue;
+ seen.add(key);
+ out.push({ name, hex: resolveColorHex(v.color, null) || "" });
+ }
+ return out;
+ }, [variants]);
 
-  const [selectedSize, setSelectedSize] = useState<string | null>(
-    sizes.length === 1 ? sizes[0]! : null,
-  );
-  const [selectedColor, setSelectedColor] = useState<string>(colors[0]?.name ?? "");
-  const [qty, setQty] = useState(1);
+ const [selectedSize, setSelectedSize] = useState<string | null>(
+ sizes.length === 1 ? sizes[0]! : null,
+ );
+ const [selectedColor, setSelectedColor] = useState<string>(colors[0]?.name ?? "");
+ const [qty, setQty] = useState(1);
 
-  useEffect(() => {
-    if (selectedColor) onColorChange?.(selectedColor);
-  }, [selectedColor, onColorChange]);
-  const [loading, setLoading] = useState(false);
-  const [alertLoading, setAlertLoading] = useState(false);
-  const [alertDone, setAlertDone] = useState(false);
-  const [guestPhone, setGuestPhone] = useState("");
+ useEffect(() => {
+ if (selectedColor) onColorChange?.(selectedColor);
+ }, [selectedColor, onColorChange]);
+ const [loading, setLoading] = useState(false);
+ const [alertLoading, setAlertLoading] = useState(false);
+ const [alertDone, setAlertDone] = useState(false);
+ const [guestPhone, setGuestPhone] = useState("");
 
-  const match = useMemo(() => {
-    const colorEq = (a?: string | null, b?: string | null) => {
-      if (!a || !b) return false;
-      return a.trim().replace(/^#/, "").toLowerCase() === b.trim().replace(/^#/, "").toLowerCase();
-    };
-    // اول: سایز+رنگ دقیق
-    const exact = variants.find((v) => {
-      const sizeOk = !sizes.length || (!!selectedSize && v.size === selectedSize);
-      const colorOk =
-        !colors.length ||
-        !selectedColor ||
-        colorEq(v.color, selectedColor);
-      return sizeOk && colorOk;
-    });
-    if (exact) return exact;
-    // اگر سایز هنوز انتخاب نشده: اولین واریانت همان رنگ (برای قیمت زنده)
-    if (selectedColor && colors.length) {
-      const byColor = variants.find((v) => colorEq(v.color, selectedColor));
-      if (byColor) return byColor;
-    }
-    // اگر فقط سایز انتخاب شده
-    if (selectedSize && sizes.length) {
-      const bySize = variants.find((v) => v.size === selectedSize);
-      if (bySize) return bySize;
-    }
-    return variants[0];
-  }, [variants, selectedSize, selectedColor, sizes.length, colors.length]);
+ const match = useMemo(() => {
+ const colorEq = (a?: string | null, b?: string | null) => {
+ if (!a || !b) return false;
+ return a.trim().replace(/^#/, "").toLowerCase() === b.trim().replace(/^#/, "").toLowerCase();
+ };
+ // اول: سایز+رنگ دقیق
+ const exact = variants.find((v) => {
+ const sizeOk = !sizes.length || (!!selectedSize && v.size === selectedSize);
+ const colorOk =
+ !colors.length ||
+ !selectedColor ||
+ colorEq(v.color, selectedColor);
+ return sizeOk && colorOk;
+ });
+ if (exact) return exact;
+ // اگر سایز هنوز انتخاب نشده: اولین واریانت همان رنگ (برای قیمت زنده)
+ if (selectedColor && colors.length) {
+ const byColor = variants.find((v) => colorEq(v.color, selectedColor));
+ if (byColor) return byColor;
+ }
+ // اگر فقط سایز انتخاب شده
+ if (selectedSize && sizes.length) {
+ const bySize = variants.find((v) => v.size === selectedSize);
+ if (bySize) return bySize;
+ }
+ return variants[0];
+ }, [variants, selectedSize, selectedColor, sizes.length, colors.length]);
 
-  const price = match?.price;
-  const originalPrice = match?.original_price != null ? Number(match.original_price) : null;
-  const hasDiscount =
-    originalPrice != null &&
-    Number.isFinite(originalPrice) &&
-    Number.isFinite(Number(price)) &&
-    originalPrice > Number(price) &&
-    Number(price) > 0;
-  const stock = Number(match?.stock ?? 0);
-  const outOfStock = stock <= 0;
+ const price = match?.price;
+ const originalPrice = match?.original_price != null ? Number(match.original_price) : null;
+ const hasDiscount =
+ originalPrice != null &&
+ Number.isFinite(originalPrice) &&
+ Number.isFinite(Number(price)) &&
+ originalPrice > Number(price) &&
+ Number(price) > 0;
+ const stock = Number(match?.stock ?? 0);
+ const outOfStock = stock <= 0;
 
-  useEffect(() => {
-    setAlertDone(false);
-  }, [match?.id, outOfStock]);
+ useEffect(() => {
+ setAlertDone(false);
+ }, [match?.id, outOfStock]);
 
-  function sameColor(a?: string | null, b?: string | null) {
-    if (!a || !b) return false;
-    return a.trim().replace(/^#/, "").toLowerCase() === b.trim().replace(/^#/, "").toLowerCase();
-  }
+ function sameColor(a?: string | null, b?: string | null) {
+ if (!a || !b) return false;
+ return a.trim().replace(/^#/, "").toLowerCase() === b.trim().replace(/^#/, "").toLowerCase();
+ }
 
-  function sizeAvailable(size: string) {
-    if (!selectedColor) {
-      return variants.some((v) => v.size === size && Number(v.stock ?? 0) > 0);
-    }
-    return variants.some(
-      (v) =>
-        v.size === size &&
-        sameColor(v.color, selectedColor) &&
-        Number(v.stock ?? 0) > 0,
-    );
-  }
+ function sizeAvailable(size: string) {
+ if (!selectedColor) {
+ return variants.some((v) => v.size === size && Number(v.stock ?? 0) > 0);
+ }
+ return variants.some(
+ (v) =>
+ v.size === size &&
+ sameColor(v.color, selectedColor) &&
+ Number(v.stock ?? 0) > 0,
+ );
+ }
 
 
 
-  async function handleAdd() {
-    if (sizes.length > 0 && !selectedSize) {
-      toast.error("سایز را انتخاب کنید");
-      return;
-    }
-    if (!match?.id) {
-      toast.error("این ترکیب موجود نیست");
-      return;
-    }
-    if (outOfStock) {
-      toast.error("این ترکیب ناموجود است");
-      return;
-    }
-    setLoading(true);
-    try {
-      const addQty = Math.max(1, Number(qty) || 1);
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("pm:open-panel", { detail: { tab: "cart" } }));
-      }
-      const res = await cartAdd({
-        variantId: match.id,
-        productId,
-        title,
-        price: Number(price ?? 0),
-        quantity: addQty,
-        image,
-        size: selectedSize || undefined,
-        color: selectedColor || undefined,
-      });
-      if (!res.ok) {
-        toast.error(mapCartError(res.error));
-        return;
-      }
-      void track({
-        event_name: "add_to_cart",
-        product_id: productId,
-        variant_id: match.id,
-        quantity: addQty,
-        value: Number(price ?? 0) * addQty,
-      });
-      toast.success("به سبد خرید اضافه شد");
-    } catch (e) {
-      console.error("[addToCart]", e);
-      toast.error("خطا در افزودن به سبد");
-    } finally {
-      setLoading(false);
-    }
-  }
+ async function handleAdd() {
+ if (sizes.length > 0 && !selectedSize) {
+ toast.error("سایز را انتخاب کنید");
+ return;
+ }
+ if (!match?.id) {
+ toast.error("این ترکیب موجود نیست");
+ return;
+ }
+ if (outOfStock) {
+ toast.error("این ترکیب ناموجود است");
+ return;
+ }
+ setLoading(true);
+ try {
+ const addQty = Math.max(1, Number(qty) || 1);
+ if (typeof window !== "undefined") {
+ window.dispatchEvent(new CustomEvent("pm:open-panel", { detail: { tab: "cart" } }));
+ }
+ const res = await cartAdd({
+ variantId: match.id,
+ productId,
+ title,
+ price: Number(price ?? 0),
+ quantity: addQty,
+ image,
+ size: selectedSize || undefined,
+ color: selectedColor || undefined,
+ });
+ if (!res.ok) {
+ toast.error(mapCartError(res.error));
+ return;
+ }
+ void track({
+ event_name: "add_to_cart",
+ product_id: productId,
+ variant_id: match.id,
+ quantity: addQty,
+ value: Number(price ?? 0) * addQty,
+ });
+ toast.success("به سبد خرید اضافه شد");
+ } catch (e) {
+ console.error("[addToCart]", e);
+ toast.error("خطا در افزودن به سبد");
+ } finally {
+ setLoading(false);
+ }
+ }
 
-  return (
-    <div className="space-y-4" dir="rtl">
-      {colors.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-sm font-medium">رنگ</p>
-          <div className="flex flex-wrap gap-2">
-            {colors.map((c) => (
-              <button
-                key={c.name}
-                type="button"
-                onClick={() => { setSelectedColor(c.name); onColorChange?.(c.name); }}
-                className={cn(
-                  "border-border h-8 w-8 shrink-0 rounded-full border shadow-sm",
-                  selectedColor === c.name && "border-primary ring-primary ring-2 ring-offset-2",
-                )}
-                style={{ backgroundColor: c.hex || "#e5e5e5" }}
-                title={c.name}
-                aria-label={c.name}
-              />
-            ))}
-          </div>
-        </div>
-      ) : null}
+ return (
+ <div className="space-y-4" dir="rtl">
+ {colors.length > 0 ? (
+ <div className="space-y-2">
+ <p className="text-sm font-medium">رنگ</p>
+ <div className="flex flex-wrap gap-2">
+ {colors.map((c) => (
+ <button
+ key={c.name}
+ type="button"
+ onClick={() => { setSelectedColor(c.name); onColorChange?.(c.name); }}
+ className={cn(
+ "border-border h-8 w-8 shrink-0 rounded-full border shadow-sm",
+ selectedColor === c.name && "border-primary ring-primary ring-2 ring-offset-2",
+ )}
+ style={{ backgroundColor: c.hex || "#e5e5e5" }}
+ title={c.name}
+ aria-label={c.name}
+ />
+ ))}
+ </div>
+ </div>
+ ) : null}
 
-      {sizes.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-sm font-medium">سایز</p>
-          <div className="flex flex-wrap gap-2">
-            {sizes.map((s) => {
-              const ok = sizeAvailable(s);
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  disabled={!ok}
-                  onClick={() => ok && setSelectedSize(s)}
-                  title={ok ? s : selectedColor ? `سایز ${s} برای رنگ ${selectedColor} موجود نیست` : "ناموجود"}
-                  className={cn(
-                    "border-border rounded-xl border px-3 py-1.5 text-sm",
-                    selectedSize === s && ok && "bg-primary text-primary-foreground border-primary",
-                    !ok && "cursor-not-allowed opacity-35 line-through decoration-muted-foreground/50",
-                  )}
-                >
-                  {s}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
+ {sizes.length > 0 ? (
+ <div className="space-y-2">
+ <p className="text-sm font-medium">سایز</p>
+ <div className="flex flex-wrap gap-2">
+ {sizes.map((s) => {
+ const ok = sizeAvailable(s);
+ return (
+ <button
+ key={s}
+ type="button"
+ disabled={!ok}
+ onClick={() => ok && setSelectedSize(s)}
+ title={ok ? s : selectedColor ? `سایز ${s} برای رنگ ${selectedColor} موجود نیست` : "ناموجود"}
+ className={cn(
+ "border-border rounded-xl border px-3 py-1.5 text-sm",
+ selectedSize === s && ok && "bg-primary text-primary-foreground border-primary",
+ !ok && "cursor-not-allowed opacity-35 line-through decoration-muted-foreground/50",
+ )}
+ >
+ {s}
+ </button>
+ );
+ })}
+ </div>
+ </div>
+ ) : null}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="border-border h-9 w-9 rounded-lg border"
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
-          >
-            −
-          </button>
-          <span className="min-w-[2rem] text-center text-sm">{qty}</span>
-          <button
-            type="button"
-            className="border-border h-9 w-9 rounded-lg border"
-            onClick={() =>
-              setQty((q) => Math.min(outOfStock ? 1 : Math.max(stock, 1), q + 1))
-            }
-          >
-            +
-          </button>
-        </div>
-        <div className="flex flex-nowrap items-center gap-2 whitespace-nowrap">
-          {price != null && hasDiscount ? (
-            <Price amount={originalPrice!} size="sm" strike className="text-muted-foreground" />
-          ) : null}
-          {price != null ? (
-            <span className="text-sm font-semibold">
-              <Price amount={Number(price)} size="pdp" />
-            </span>
-          ) : null}
-          <span
-            className={cn(
-              "text-xs",
-              outOfStock ? "text-destructive" : "text-muted-foreground",
-            )}
-          >
-            {outOfStock ? "ناموجود" : `موجودی: ${stock.toLocaleString("fa-IR")}`}
-          </span>
-        </div>
-      </div>
+ <div className="flex flex-wrap items-center gap-3">
+ <div className="flex items-center gap-2">
+ <button
+ type="button"
+ className="border-border h-9 w-9 rounded-lg border"
+ onClick={() => setQty((q) => Math.max(1, q - 1))}
+ >
+ −
+ </button>
+ <span className="min-w-[2rem] text-center text-sm">{qty}</span>
+ <button
+ type="button"
+ className="border-border h-9 w-9 rounded-lg border"
+ onClick={() =>
+ setQty((q) => Math.min(outOfStock ? 1 : Math.max(stock, 1), q + 1))
+ }
+ >
+ +
+ </button>
+ </div>
+ <div className="flex flex-nowrap items-center gap-2 whitespace-nowrap">
+ {price != null && hasDiscount ? (
+ <Price amount={originalPrice!} size="sm" strike className="text-muted-foreground" />
+ ) : null}
+ {price != null ? (
+ <span className="text-sm font-semibold">
+ <Price amount={Number(price)} size="pdp" />
+ </span>
+ ) : null}
+ <span
+ className={cn(
+ "text-xs",
+ outOfStock ? "text-destructive" : "text-muted-foreground",
+ )}
+ >
+ {outOfStock ? "ناموجود" : `موجودی: ${stock.toLocaleString("fa-IR")}`}
+ </span>
+ </div>
+ </div>
 
-      {outOfStock ? (
-        <div className="space-y-2">
-          <input
-            type="tel"
-            inputMode="numeric"
-            placeholder="موبایل برای خبر (اگر وارد نیستید)"
-            value={guestPhone}
-            onChange={(e) => setGuestPhone(e.target.value)}
-            className="border-border bg-background w-full rounded-xl border px-3 py-2 text-sm"
-            dir="ltr"
-          />
-          <button
-            type="button"
-            disabled={alertLoading || alertDone}
-            onClick={() => {
-              void (async () => {
-                if (sizes.length > 0 && !selectedSize) {
-                  toast.error("سایز را انتخاب کنید");
-                  return;
-                }
-                if (!match?.id) {
-                  toast.error("این ترکیب را انتخاب کنید");
-                  return;
-                }
-                setAlertLoading(true);
-                try {
-                  const res = await subscribeStockAlertAction({
-                    variantId: match.id,
-                    productId,
-                    phone: guestPhone.trim() || undefined,
-                  });
-                  if (!res.ok) {
-                    const map: Record<string, string> = {
-                      auth_or_phone_required: "وارد شوید یا موبایل وارد کنید",
-                      invalid_phone: "شماره موبایل معتبر نیست",
-                      already_in_stock: "الان موجود است — صفحه را تازه کنید",
-                      variant_not_found: "واریانت یافت نشد",
-                    };
-                    toast.error(map[res.error ?? ""] ?? "ثبت نشد");
-                    return;
-                  }
-                  setAlertDone(true);
-                  toast.success(
-                    res.already
-                      ? "قبلاً در لیست انتظار هستید"
-                      : "ثبت شد؛ موجود شد خبرتان می‌کنیم",
-                  );
-                } catch {
-                  toast.error("خطا در ثبت");
-                } finally {
-                  setAlertLoading(false);
-                }
-              })();
-            }}
-            className={cn(
-              "border-primary text-primary w-full rounded-xl border py-3 text-sm font-medium hover:bg-primary/5",
-              (alertLoading || alertDone) && "opacity-60",
-            )}
-          >
-            {alertDone
-              ? "در لیست انتظار هستید"
-              : alertLoading
-                ? "…"
-                : "موجود شد خبرم کن"}
-          </button>
-        </div>
-      ) : (
-        <div className="flex w-full items-center gap-2">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => void handleAdd()}
-            className={cn(
-              "bg-primary text-primary-foreground min-w-0 flex-1 rounded-xl py-3 text-sm font-medium hover:bg-primary/90",
-              loading && "opacity-60",
-            )}
-          >
-            {loading ? "…" : "افزودن به سبد"}
-          </button>
-          <ProductWishCompareInline
-            item={{
-              id: productId,
-              title,
-              image: image ?? undefined,
-              href: href,
-            }}
-          />
-        </div>
-      )}
-    </div>
-  );
+ {outOfStock ? (
+ <div className="space-y-2">
+ <input
+ type="tel"
+ inputMode="numeric"
+ placeholder="موبایل برای خبر (اگر وارد نیستید)"
+ value={guestPhone}
+ onChange={(e) => setGuestPhone(e.target.value)}
+ className="border-border bg-background w-full rounded-xl border px-3 py-2 text-sm"
+ dir="ltr"
+ />
+ <button
+ type="button"
+ disabled={alertLoading || alertDone}
+ onClick={() => {
+ void (async () => {
+ if (sizes.length > 0 && !selectedSize) {
+ toast.error("سایز را انتخاب کنید");
+ return;
+ }
+ if (!match?.id) {
+ toast.error("این ترکیب را انتخاب کنید");
+ return;
+ }
+ setAlertLoading(true);
+ try {
+ const res = await subscribeStockAlertAction({
+ variantId: match.id,
+ productId,
+ phone: guestPhone.trim() || undefined,
+ });
+ if (!res.ok) {
+ const map: Record<string, string> = {
+ auth_or_phone_required: "وارد شوید یا موبایل وارد کنید",
+ invalid_phone: "شماره موبایل معتبر نیست",
+ already_in_stock: "الان موجود است — صفحه را تازه کنید",
+ variant_not_found: "واریانت یافت نشد",
+ };
+ toast.error(map[res.error ?? ""] ?? "ثبت نشد");
+ return;
+ }
+ setAlertDone(true);
+ toast.success(
+ res.already
+ ? "قبلاً در لیست انتظار هستید"
+ : "ثبت شد؛ موجود شد خبرتان می‌کنیم",
+ );
+ } catch {
+ toast.error("خطا در ثبت");
+ } finally {
+ setAlertLoading(false);
+ }
+ })();
+ }}
+ className={cn(
+ "border-primary text-primary w-full rounded-xl border py-3 text-sm font-medium hover:bg-primary/5",
+ (alertLoading || alertDone) && "opacity-60",
+ )}
+ >
+ {alertDone
+ ? "در لیست انتظار هستید"
+ : alertLoading
+ ? "…"
+ : "موجود شد خبرم کن"}
+ </button>
+ </div>
+ ) : (
+ <div className="flex w-full items-center gap-2">
+ <button
+ type="button"
+ disabled={loading}
+ onClick={() => void handleAdd()}
+ className={cn(
+ "bg-primary text-primary-foreground min-w-0 flex-1 rounded-xl py-3 text-sm font-medium hover:bg-primary/90",
+ loading && "opacity-60",
+ )}
+ >
+ {loading ? "…" : "افزودن به سبد"}
+ </button>
+ <ProductWishCompareInline
+ item={{
+ id: productId,
+ title,
+ image: image ?? undefined,
+ href: href,
+ }}
+ />
+ </div>
+ )}
+ </div>
+ );
 }

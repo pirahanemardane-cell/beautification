@@ -1,6 +1,6 @@
 # فاز 30 — QA رسمی
 
-محیط: https://pirahanmardane.ir
+محیط: https://shadjewel.ir
 علامت: [ ] نشده | [x] پاس | [F] شکست | [N/A] غیرکاربردی
 
 ## A) Functional
@@ -47,8 +47,8 @@
 | curl cron/backup + CRON_SECRET | PASS key=backups/db/2026-10-25T20-02-20-766Z.json · 23 tables · 0 errors | 2026-10-25 |
 | Smoke دستی (خانه/محصول/سبد/health) | PASS | 2026-10-25 |
 | QA دستی Functional/UI کوتاه | PASS | 2026-10-25 |
-| Vercel build |  |  |
-| GitHub CI |  |  |
+| Vercel build | | |
+| GitHub CI | | |
 
 ## خارج از دامنه این QA (موکول عمدی مالک)
 - فعال‌سازی نهایی درگاه پرداخت production
@@ -57,6 +57,6 @@
 ## شکست‌ها
 | # | شرح | اولویت |
 |---|-----|--------|
-|  |  |  |
+| | | |
 
 امضا: مالک · تاریخ: 2026-10-25

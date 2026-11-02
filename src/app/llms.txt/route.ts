@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
-const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://pirahanmardane.ir").replace(/\/$/, "");
+const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "");
 
 export function GET() {
-  const body = `# پیراهن مردانه
-> فروشگاه تخصصی پیراهن مردانه، کروات، پاپیون و اکسسوری
+ const body = `# جواهر شاد
+> فروشگاه تخصصی زیورآلات و اکسسوری، دستبند، ست و اکسسوری
 
 ## صفحات اصلی
 - [خانه](${site}/)
@@ -25,10 +25,10 @@ export function GET() {
 ## نقشه سایت
 - [sitemap.xml](${site}/sitemap.xml)
 `;
-  return new NextResponse(body, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "public, max-age=3600",
-    },
-  });
+ return new NextResponse(body, {
+ headers: {
+ "Content-Type": "text/plain; charset=utf-8",
+ "Cache-Control": "public, max-age=3600",
+ },
+ });
 }

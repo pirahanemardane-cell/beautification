@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import {
-  ShieldCheck,
-  Truck,
-  RotateCcw,
-  Headphones,
+ ShieldCheck,
+ Truck,
+ RotateCcw,
+ Headphones,
 } from "lucide-react";
 import { ProductService } from "@/services/product.service";
 import { CategoryService } from "@/services/category.service";
@@ -21,253 +21,245 @@ import type { ProductWithRelations } from "@/repositories/product.repository";
 // ISR: HTML کش‌شده ۶۰ ثانیه — هیرو دست‌نخورده
 export const revalidate = 60;
 
-const HOME_BRAND_SLIDES = [
-  { id: "لاکوست", label: "Lacoste", href: "/لاکوست", imageUrl: "/brands/lacoste.webp" },
-  { id: "آرمانی", label: "Armani", href: "/آرمانی", imageUrl: "/brands/armani.webp" },
-  { id: "زارا", label: "Zara", href: "/زارا", imageUrl: "/brands/zara.webp" },
-  { id: "پولو", label: "Polo Ralph Lauren", href: "/پولو", imageUrl: "/brands/polo.webp" },
-  { id: "بروکس-برادرز", label: "Brooks Brothers", href: "/بروکس-برادرز", imageUrl: "/brands/brooks-brothers.webp" },
-  { id: "کلوین-کلاین", label: "Calvin Klein", href: "/کلوین-کلاین", imageUrl: "/brands/calvin-klein.webp" },
-  { id: "هوگو-باس", label: "Hugo Boss", href: "/هوگو-باس", imageUrl: "/brands/hugo-boss.webp" },
-] as const;
+const HOME_BRAND_SLIDES: { id: string; label: string; href: string; imageUrl: string }[] = [];
 
 
 export const metadata: Metadata = {
-  title: "فروشگاه تخصصی پیراهن مردانه",
-  description:
-    "خرید پیراهن مردانه، کروات، پاپیون و اکسسوری از فروشگاه تخصصی پیراهن مردانه",
+ title: "جواهر شاد | فروشگاه تخصصی زیورآلات و اکسسوری",
+ description:
+ "خرید گردنبند، گوشواره، انگشتر، دستبند و ست‌های زیورآلات از فروشگاه تخصصی زیورآلات و اکسسوری",
 };
 
 
 function HomeHeroPreloads() {
-  return (
-    <>
-      <link rel="preload" as="image" href="/hero/hero-poster.webp" type="image/webp" />
-      <link rel="preload" as="image" href="/hero/frames/frame-001.webp" type="image/webp" />
-    </>
-  );
+ return (
+ <>
+ <link rel="preload" as="image" href="/hero/hero-poster.jpg" type="image/webp" />
+ <link rel="preload" as="image" href="/hero/frames/frame-001.jpg" type="image/webp" />
+ </>
+ );
 }
 
 export default async function HomePage() {
-  const productService = new ProductService();
-  const categoryService = new CategoryService();
-  const brandService = new BrandService();
+ const productService = new ProductService();
+ const categoryService = new CategoryService();
+ const brandService = new BrandService();
 
-  const settled = await Promise.allSettled([
-    productService.getPublishedProducts({ page: 1, pageSize: 8, featured: true }),
-    productService.getPublishedProducts({ page: 1, pageSize: 8, sort: "newest" }),
-    productService.getPublishedProducts({ page: 1, pageSize: 12, bestseller: true }),
-    categoryService.getRoots(),
-    brandService.getActive(),
-  ]);
-  const pick = <T,>(i: number, fallback: T): T => {
-    const s = settled[i];
-    if (s.status === "fulfilled") return s.value as T;
-    console.error("[home] section failed", i, s.reason);
-    return fallback;
-  };
-  const featuredResult = pick(0, { success: false as const, data: null });
-  const newResult = pick(1, { success: false as const, data: null });
-  const bestsellerResult = pick(2, { success: false as const, data: null });
-  const categoriesResult = pick(3, { success: false as const, data: null });
-  const brandsResult = pick(4, { success: false as const, data: null });
+ const settled = await Promise.allSettled([
+ productService.getPublishedProducts({ page: 1, pageSize: 8, featured: true }),
+ productService.getPublishedProducts({ page: 1, pageSize: 8, sort: "newest" }),
+ productService.getPublishedProducts({ page: 1, pageSize: 12, bestseller: true }),
+ categoryService.getRoots(),
+ brandService.getActive(),
+ ]);
+ const pick = <T,>(i: number, fallback: T): T => {
+ const s = settled[i];
+ if (s.status === "fulfilled") return s.value as T;
+ console.error("[home] section failed", i, s.reason);
+ return fallback;
+ };
+ const featuredResult = pick(0, { success: false as const, data: null });
+ const newResult = pick(1, { success: false as const, data: null });
+ const bestsellerResult = pick(2, { success: false as const, data: null });
+ const categoriesResult = pick(3, { success: false as const, data: null });
+ const brandsResult = pick(4, { success: false as const, data: null });
 
-  const pageData = (r: { success?: boolean; data?: unknown }) => {
-    if (!r?.success || !r.data || typeof r.data !== "object") return [] as ProductWithRelations[];
-    const inner = (r.data as { data?: unknown }).data;
-    return Array.isArray(inner) ? (inner as ProductWithRelations[]) : [];
-  };
-  const featured: ProductWithRelations[] = pageData(featuredResult as { success?: boolean; data?: unknown });
-  const newest: ProductWithRelations[] = pageData(newResult as { success?: boolean; data?: unknown });
-  const categories =
-    categoriesResult.success && categoriesResult.data
-      ? categoriesResult.data
-      : [];
-  const brands =
-    brandsResult.success && brandsResult.data ? brandsResult.data : [];
+ const pageData = (r: { success?: boolean; data?: unknown }) => {
+ if (!r?.success || !r.data || typeof r.data !== "object") return [] as ProductWithRelations[];
+ const inner = (r.data as { data?: unknown }).data;
+ return Array.isArray(inner) ? (inner as ProductWithRelations[]) : [];
+ };
+ const featured: ProductWithRelations[] = pageData(featuredResult as { success?: boolean; data?: unknown });
+ const newest: ProductWithRelations[] = pageData(newResult as { success?: boolean; data?: unknown });
+ const categories =
+ categoriesResult.success && categoriesResult.data
+ ? categoriesResult.data
+ : [];
+ const brands =
+ brandsResult.success && brandsResult.data ? brandsResult.data : [];
 
-  const bestsellersRaw: ProductWithRelations[] = pageData(
-    bestsellerResult as { success?: boolean; data?: unknown },
-  );
-  const bestsellers =
-    bestsellersRaw.length > 0
-      ? bestsellersRaw
-      : newest.filter((p) => p.is_bestseller).length
-        ? newest.filter((p) => p.is_bestseller)
-        : newest;
+ const bestsellersRaw: ProductWithRelations[] = pageData(
+ bestsellerResult as { success?: boolean; data?: unknown },
+ );
+ const bestsellers =
+ bestsellersRaw.length > 0
+ ? bestsellersRaw
+ : newest.filter((p) => p.is_bestseller).length
+ ? newest.filter((p) => p.is_bestseller)
+ : newest;
 
-  const flashRes = await getFlashSaleEndsAtAction();
-  const flashEndsAt = flashRes.ok ? flashRes.endsAt : null;
-  const flashActive =
-    Boolean(flashEndsAt) &&
-    !Number.isNaN(new Date(flashEndsAt as string).getTime()) &&
-    new Date(flashEndsAt as string).getTime() > Date.now();
-  const deals = flashActive ? featured : [];
+ const flashRes = await getFlashSaleEndsAtAction();
+ const flashEndsAt = flashRes.ok ? flashRes.endsAt : null;
+ const flashActive =
+ Boolean(flashEndsAt) &&
+ !Number.isNaN(new Date(flashEndsAt as string).getTime()) &&
+ new Date(flashEndsAt as string).getTime() > Date.now();
+ const deals = flashActive ? featured : [];
 
-  const features = [
-    { title: "ضمانت کالا", desc: "کالای با کیفیت", icon: ShieldCheck },
-    { title: "ارسال سریع", desc: "ارسال به سراسر کشور", icon: Truck },
-    { title: "۷ روز بازگشت", desc: "مرجوعی آسان طبق شرایط", icon: RotateCcw },
-    { title: "پشتیبانی", desc: "همراه شما قبل و بعد خرید", icon: Headphones },
-  ];
+ const features = [
+ { title: "ضمانت کالا", desc: "کالای با کیفیت", icon: ShieldCheck },
+ { title: "ارسال سریع", desc: "ارسال به سراسر کشور", icon: Truck },
+ { title: "۷ روز بازگشت", desc: "مرجوعی آسان طبق شرایط", icon: RotateCcw },
+ { title: "پشتیبانی", desc: "همراه شما قبل و بعد خرید", icon: Headphones },
+ ];
 
-  return (
-    <>
-      <HomeHeroPreloads />
-      <HeroScroll />
-      <HomeAfterHero>
-        <main className="mx-auto w-full max-w-none space-y-14 px-4 py-10 md:py-14">
-          <section
-            aria-label="اعتماد"
-            className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"
-          >
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className="bg-card flex flex-col gap-2 rounded-2xl border p-4"
-              >
-                <f.icon className="text-primary size-6" />
-                <h3 className="text-sm font-semibold text-primary">{f.title}</h3>
-                <p className="text-muted-foreground text-xs leading-6">{f.desc}</p>
-              </div>
-            ))}
-          </section>
+ return (
+ <>
+ <HomeHeroPreloads />
+ <HeroScroll />
+ <HomeAfterHero>
+ <main className="mx-auto w-full max-w-none space-y-14 px-4 py-10 md:py-14">
+ <section
+ aria-label="اعتماد"
+ className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"
+ >
+ {features.map((f) => (
+ <div
+ key={f.title}
+ className="bg-card flex flex-col gap-2 rounded-2xl border p-4"
+ >
+ <f.icon className="text-primary size-6" />
+ <h3 className="text-sm font-semibold text-primary">{f.title}</h3>
+ <p className="text-muted-foreground text-xs leading-6">{f.desc}</p>
+ </div>
+ ))}
+ </section>
 
-                    <CarouselLinks
-            title="برندها"
-            viewAllHref="/brands"
-            variant="brand"
-            items={
-              brands.length > 0
-                ? brands
-                    .filter((b) => {
-                      const s = String(b.slug || "").toLowerCase();
-                      const n = String(b.name || "").toLowerCase();
-                      return !(
-                        s.includes("tommy") ||
-                        s.includes("hilfiger") ||
-                        s.includes("تامی") ||
-                        n.includes("tommy") ||
-                        n.includes("hilfiger") ||
-                        n.includes("تامی") ||
-                        n.includes("هیلفیگر")
-                      );
-                    })
-                    .map((b) => {
-                    const slug = String(b.slug || "").toLowerCase();
-                    const name = String(b.name || "");
-                    const fromStatic = HOME_BRAND_SLIDES.find(
-                      (s) =>
-                        s.id === slug ||
-                        s.href.endsWith("/" + slug) ||
-                        s.label.toLowerCase() === name.toLowerCase(),
-                    );
-                    return {
-                      id: b.id,
-                      label: b.name,
-                      labelFa: (b as { name_fa?: string }).name_fa || b.name,
-                      href: `/${encodeURIComponent(b.slug)}`,
-                      imageUrl:
-                        (b as { logo_url?: string | null }).logo_url ||
-                        fromStatic?.imageUrl ||
-                        null,
-                    };
-                  })
-                : HOME_BRAND_SLIDES.map((s) => ({
-                    id: s.id,
-                    label: s.label,
-                    href: s.href,
-                    imageUrl: s.imageUrl,
-                  }))
-            }
-          />
+ <CarouselLinks
+ title="برندها"
+ viewAllHref="/brands"
+ variant="brand"
+ items={
+ brands.length > 0
+ ? brands
+ .filter((b) => {
+ const s = String(b.slug || "").toLowerCase();
+ const n = String(b.name || "").toLowerCase();
+ return !(
+ s.includes("tommy") ||
+ s.includes("hilfiger") ||
+ s.includes("تامی") ||
+ n.includes("tommy") ||
+ n.includes("hilfiger") ||
+ n.includes("تامی") ||
+ n.includes("هیلفیگر")
+ );
+ })
+ .map((b) => {
+ const slug = String(b.slug || "").toLowerCase();
+ const name = String(b.name || "");
+ const fromStatic = HOME_BRAND_SLIDES.find(
+ (s) =>
+ s.id === slug ||
+ s.href.endsWith("/" + slug) ||
+ s.label.toLowerCase() === name.toLowerCase(),
+ );
+ return {
+ id: b.id,
+ label: b.name,
+ labelFa: (b as { name_fa?: string }).name_fa || b.name,
+ href: `/${encodeURIComponent(b.slug)}`,
+ imageUrl:
+ (b as { logo_url?: string | null }).logo_url ||
+ fromStatic?.imageUrl ||
+ null,
+ };
+ })
+ : HOME_BRAND_SLIDES.map((s) => ({
+ id: s.id,
+ label: s.label,
+ href: s.href,
+ imageUrl: s.imageUrl,
+ }))
+ }
+ />
 
-          {(() => {
-            const HIDDEN = new Set(["متفرقه"]);
-            const homeCats = categories.filter(
-              (c) => !c.parent_id && !HIDDEN.has(String(c.name).trim()),
-            );
-            return homeCats.length > 0 ? (
-              <CarouselLinks
-                title="دسته‌بندی‌ها"
-                viewAllHref="/products"
-                variant="category"
-                items={homeCats.map((cat) => ({
-                  id: cat.id,
-                  label: cat.name,
-                  href: "/" + encodeURIComponent(cat.slug),
-                  imageUrl: (cat as { image_url?: string | null }).image_url ?? null,
-                }))}
-              />
-            ) : null;
-          })()}
+ {(() => {
+ const HIDDEN = new Set(["متفرقه"]);
+ const homeCats = categories.filter(
+ (c) => !c.parent_id && !HIDDEN.has(String(c.name).trim()),
+ );
+ return homeCats.length > 0 ? (
+ <CarouselLinks
+ title="دسته‌بندی‌ها"
+ viewAllHref="/products"
+ variant="category"
+ items={homeCats.map((cat) => ({
+ id: cat.id,
+ label: cat.name,
+ href: "/" + encodeURIComponent(cat.slug),
+ imageUrl: (cat as { image_url?: string | null }).image_url ?? null,
+ }))}
+ />
+ ) : null;
+ })()}
 
-          {newest.length > 0 ? (
-            <ProductCarousel
-              title="محصولات جدید"
-              viewAllHref="/products?sort=newest"
-              products={newest}
-              liveQuery={{ sort: "newest", pageSize: 8 }}
-            />
-          ) : (
-            <section aria-label="محصولات جدید">
-              <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
-                محصولات جدید
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                فعلاً محصول جدیدی موجود نیست.
-              </p>
-            </section>
-          )}
+ {newest.length > 0 ? (
+ <ProductCarousel
+ title="محصولات جدید"
+ viewAllHref="/products?sort=newest"
+ products={newest}
+ liveQuery={{ sort: "newest", pageSize: 8 }}
+ />
+ ) : (
+ <section aria-label="محصولات جدید">
+ <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
+ محصولات جدید
+ </h2>
+ <p className="text-muted-foreground text-sm">
+ فعلاً محصول جدیدی موجود نیست.
+ </p>
+ </section>
+ )}
 
-          <section aria-label="پیشنهاد شگفت‌انگیز">
-            {flashActive && (deals.length > 0 || flashEndsAt) ? (
-              <ProductCarousel
-                title="پیشنهاد شگفت‌انگیز"
-                viewAllHref="/products?featured=1"
-                products={deals}
-                liveQuery={{ featured: true, pageSize: 8 }}
-                leading={
-                  flashEndsAt ? (
-                    <FlashSalePromoCard endsAt={flashEndsAt} />
-                  ) : null
-                }
-              />
-            ) : (
-              <>
-                <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
-                  پیشنهاد شگفت‌انگیز
-                </h2>
-                <p className="text-muted-foreground text-sm">
-                  پیشنهاد شگفت‌انگیزی فعلاً فعال نیست.
-                </p>
-              </>
-            )}
-          </section>
+ <section aria-label="پیشنهاد شگفت‌انگیز">
+ {flashActive && (deals.length > 0 || flashEndsAt) ? (
+ <ProductCarousel
+ title="پیشنهاد شگفت‌انگیز"
+ viewAllHref="/products?featured=1"
+ products={deals}
+ liveQuery={{ featured: true, pageSize: 8 }}
+ leading={
+ flashEndsAt ? (
+ <FlashSalePromoCard endsAt={flashEndsAt} />
+ ) : null
+ }
+ />
+ ) : (
+ <>
+ <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
+ پیشنهاد شگفت‌انگیز
+ </h2>
+ <p className="text-muted-foreground text-sm">
+ پیشنهاد شگفت‌انگیزی فعلاً فعال نیست.
+ </p>
+ </>
+ )}
+ </section>
 
-          {bestsellers.length > 0 ? (
-            <ProductCarousel
-              title="پرفروش‌ترین‌ها"
-              viewAllHref="/products?sort=popular"
-              products={bestsellers}
-              liveQuery={{ sort: "popular", pageSize: 12 }}
-            />
-          ) : (
-            <section aria-label="پرفروش‌ترین‌ها">
-              <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
-                پرفروش‌ترین‌ها
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                پرفروش‌ترین‌ها فعلاً خالی است.
-              </p>
-            </section>
-          )}
+ {bestsellers.length > 0 ? (
+ <ProductCarousel
+ title="پرفروش‌ترین‌ها"
+ viewAllHref="/products?sort=popular"
+ products={bestsellers}
+ liveQuery={{ sort: "popular", pageSize: 12 }}
+ />
+ ) : (
+ <section aria-label="پرفروش‌ترین‌ها">
+ <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
+ پرفروش‌ترین‌ها
+ </h2>
+ <p className="text-muted-foreground text-sm">
+ پرفروش‌ترین‌ها فعلاً خالی است.
+ </p>
+ </section>
+ )}
 <section className="grid gap-6 md:grid-cols-2">
-            <NewsletterSmsBox />
-            <OrderTrackBox />
-          </section>
-        </main>
-      </HomeAfterHero>
-    </>
-  );
+ <NewsletterSmsBox />
+ <OrderTrackBox />
+ </section>
+ </main>
+ </HomeAfterHero>
+ </>
+ );
 }

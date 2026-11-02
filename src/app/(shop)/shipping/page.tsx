@@ -5,15 +5,15 @@ import { ShippingView } from "@/components/content/shipping-view";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "ارسال و تحویل | پیراهن مردانه",
-  description: "روش‌ها و زمان تقریبی ارسال سفارش‌ها",
+ title: "ارسال و تحویل | جواهر شاد",
+ description: "روش‌ها و زمان تقریبی ارسال سفارش‌ها",
 };
 
 export default async function ShippingPage() {
-  const content = await getTextPageContentAction("shipping");
-  return (
-    <main className="px-4 py-8 md:py-12">
-      <ShippingView content={content} />
-    </main>
-  );
+ const content = await getTextPageContentAction("shipping");
+ return (
+ <main className="px-4 py-8 md:py-12">
+ <ShippingView content={content} />
+ </main>
+ );
 }

@@ -1,11 +1,11 @@
-# Deployment Strategy — پیراهن مردانه
+# Deployment Strategy — جواهر شاد
 
 نسخه: ۱.۰ | ۲۰۲۶-۱۰-۲۰
 
 ## محیط‌ها
 | محیط | شاخه | میزبان | دامنه |
 |------|------|--------|--------|
-| Production | main | Vercel fra1 | https://pirahanmardane.ir |
+| Production | main | Vercel fra1 | https://shadjewel.ir |
 | Preview | هر PR / شاخه | Vercel Preview | *.vercel.app |
 | Staging جدا | فعلاً نیست | — | عمداً بعد از محتوای واقعی |
 

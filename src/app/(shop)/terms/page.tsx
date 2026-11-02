@@ -5,15 +5,15 @@ import { LegalView } from "@/components/content/legal-view";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "شرایط استفاده | پیراهن مردانه",
-  description: "شرایط و قوانین استفاده از فروشگاه پیراهن مردانه",
+ title: "شرایط استفاده | جواهر شاد",
+ description: "شرایط و قوانین استفاده از فروشگاه جواهر شاد",
 };
 
 export default async function TermsPage() {
-  const content = await getTextPageContentAction("terms");
-  return (
-    <main className="px-4 py-8 md:py-12">
-      <LegalView content={content} variant="terms" />
-    </main>
-  );
+ const content = await getTextPageContentAction("terms");
+ return (
+ <main className="px-4 py-8 md:py-12">
+ <LegalView content={content} variant="terms" />
+ </main>
+ );
 }

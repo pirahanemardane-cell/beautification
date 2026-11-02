@@ -4,9 +4,9 @@
 1. Stock reservation + order create must be atomic (existing RPCs / server actions)
 2. Discount increment uses atomic SQL (`025_discount_increment_atomic.sql`)
 3. Payment confirmation (phase 11) must:
-   - verify signature
-   - be idempotent (webhook_events unique external_id)
-   - update order only once
+ - verify signature
+ - be idempotent (webhook_events unique external_id)
+ - update order only once
 4. Prefer single DB round-trip or explicit RPC over multi-step without rollback
 
 ## Tables supporting idempotency

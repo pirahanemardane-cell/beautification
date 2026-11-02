@@ -7,26 +7,26 @@
 export const SOFT_DELETE_COLUMN = "deleted_at" as const;
 
 export type SoftDeleteRow = {
-  deleted_at?: string | null;
+ deleted_at?: string | null;
 };
 
 export function isSoftDeleted(row: SoftDeleteRow | null | undefined): boolean {
-  return Boolean(row?.deleted_at);
+ return Boolean(row?.deleted_at);
 }
 
 export function excludeSoftDeleted<T extends SoftDeleteRow>(rows: T[]): T[] {
-  return rows.filter((r) => !r.deleted_at);
+ return rows.filter((r) => !r.deleted_at);
 }
 
 /** Supabase filter fragment for active rows */
 export function activeOnlyFilter() {
-  return { column: SOFT_DELETE_COLUMN, value: null as null };
+ return { column: SOFT_DELETE_COLUMN, value: null as null };
 }
 
 export function softDeletePatch(now = new Date().toISOString()) {
-  return { deleted_at: now };
+ return { deleted_at: now };
 }
 
 export function restoreSoftDeletePatch() {
-  return { deleted_at: null as null };
+ return { deleted_at: null as null };
 }

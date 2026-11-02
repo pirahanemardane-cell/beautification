@@ -21,52 +21,52 @@
 .font-bold { font-family: "IRANYekanX", system-ui, sans-serif; font-weight: 700; }
 .font-extrabold { font-family: "IRANYekanX", system-ui, sans-serif; font-weight: 800; }
 .font-black, .font-heavy, .font-iranyekan-heavy {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 900;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 900;
 }
 .font-extra-black, .font-iranyekan-black {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 950;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 950;
 }
 .font-ultra-black, .font-iranyekan-extrablack {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 1000;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 1000;
 }
 
 h1, .h1 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 900;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 900;
 }
 h2, .h2 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 800;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 800;
 }
 h3, .h3 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 700;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 700;
 }
 h4, .h4 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 600;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 600;
 }
 .price {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 700;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 700;
 }
 
 :root {
-  --secondary-foreground: #F8F9FA;
-  --secondary: #023047;
-  --foreground: #212529;
-  --primary-foreground: #F8F9FA;
-  --surface-primary: #F8F9FA;
-  --surface-muted: #e9ecef;
-  --font-sans: "IRANYekanX", Tahoma, sans-serif;
+ --secondary-foreground: #F8F9FA;
+ --secondary: #023047;
+ --foreground: #212529;
+ --primary-foreground: #F8F9FA;
+ --surface-primary: #F8F9FA;
+ --surface-muted: #e9ecef;
+ --font-sans: "IRANYekanX", Tahoma, sans-serif;
 }
 
 html, body {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 400;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 400;
 }
 
 /* ——— Typography scale (do not change H1 / product-card title) ——— */
@@ -79,222 +79,222 @@ html, body {
 /* 700 */ .font-bold { font-family: "IRANYekanX", system-ui, sans-serif; font-weight: 700; }
 /* 800 */ .font-extrabold { font-family: "IRANYekanX", system-ui, sans-serif; font-weight: 800; }
 /* 900 */ .font-black, .font-heavy, .font-iranyekan-heavy {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 900;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 900;
 }
 /* 950 */ .font-extra-black, .font-iranyekan-black {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 950;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 950;
 }
 /* 1000 */ .font-ultra-black, .font-iranyekan-extrablack {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 1000;
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 1000;
 }
 
 /* Semantic roles */
 h1, .h1 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 900; /* Heavy — locked */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 900; /* Heavy — locked */
 }
 h2, .h2 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 800; /* ExtraBold */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 800; /* ExtraBold */
 }
 h3, .h3 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 700; /* Bold */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 700; /* Bold */
 }
 h4, .h4 {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 600; /* DemiBold */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 600; /* DemiBold */
 }
 .lead, .subtitle {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 500; /* Medium */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 500; /* Medium */
 }
 .caption, .muted-label {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 400; /* Regular */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 400; /* Regular */
 }
 .price {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 700; /* Bold */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 700; /* Bold */
 }
 .badge, .chip {
-  font-family: "IRANYekanX", system-ui, sans-serif;
-  font-weight: 600; /* DemiBold */
+ font-family: "IRANYekanX", system-ui, sans-serif;
+ font-weight: 600; /* DemiBold */
 }
 
 /* ==============================
-   IRANYekanX Font Faces
-   ============================== */
+ IRANYekanX Font Faces
+ ============================== */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "IRANYekanX", Tahoma, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-heading: "IRANYekanX", ui-sans-serif, system-ui, sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+ --color-background: var(--background);
+ --color-foreground: var(--foreground);
+ --font-sans: "IRANYekanX", Tahoma, sans-serif;
+ --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ --font-heading: "IRANYekanX", ui-sans-serif, system-ui, sans-serif;
+ --color-sidebar-ring: var(--sidebar-ring);
+ --color-sidebar-border: var(--sidebar-border);
+ --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+ --color-sidebar-accent: var(--sidebar-accent);
+ --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+ --color-sidebar-primary: var(--sidebar-primary);
+ --color-sidebar-foreground: var(--sidebar-foreground);
+ --color-sidebar: var(--sidebar);
+ --color-chart-5: var(--chart-5);
+ --color-chart-4: var(--chart-4);
+ --color-chart-3: var(--chart-3);
+ --color-chart-2: var(--chart-2);
+ --color-chart-1: var(--chart-1);
+ --color-ring: var(--ring);
+ --color-input: var(--input);
+ --color-border: var(--border);
+ --color-destructive: var(--destructive);
+ --color-accent-foreground: var(--accent-foreground);
+ --color-accent: var(--accent);
+ --color-muted-foreground: var(--muted-foreground);
+ --color-muted: var(--muted);
+ --color-secondary-foreground: var(--secondary-foreground);
+ --color-secondary: var(--secondary);
+ --color-primary-foreground: var(--primary-foreground);
+ --color-primary: var(--primary);
+ --color-popover-foreground: var(--popover-foreground);
+ --color-popover: var(--popover);
+ --color-card-foreground: var(--card-foreground);
+ --color-card: var(--card);
+ --radius-sm: calc(var(--radius) * 0.6);
+ --radius-md: calc(var(--radius) * 0.8);
+ --radius-lg: var(--radius);
+ --radius-xl: calc(var(--radius) * 1.4);
+ --radius-2xl: calc(var(--radius) * 1.8);
+ --radius-3xl: calc(var(--radius) * 2.2);
+ --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-  --background: #F8F9FA;
-  --foreground: #023047;
-  --card: #FFFFFF;
-  --card-foreground: #023047;
-  --popover: #FFFFFF;
-  --popover-foreground: #023047;
-  --primary: #023047;
-  --primary-foreground: #F8F9FA;
-  --secondary: #023047;
-  --secondary-foreground: #F8F9FA;
-  --muted: #DEE2E6;
-  --muted-foreground: #495057;
-  --accent: #DEE2E6;
-  --accent-foreground: #023047;
-  --destructive: #DC2626;
-  --border: #023047;
-  --input: #DEE2E6;
-  --ring: #023047;
-  --chart-1: #023047;
-  --chart-2: #13ABC4;
-  --chart-3: #495057;
-  --chart-4: #DEE2E6;
-  --chart-5: #212529;
-  --radius: 0.625rem;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #023047;
-  --sidebar-primary: #023047;
-  --sidebar-primary-foreground: #F8F9FA;
-  --sidebar-accent: #DEE2E6;
-  --sidebar-accent-foreground: #023047;
-  --sidebar-border: #DEE2E6;
-  --sidebar-ring: #023047;
+ --background: #F8F9FA;
+ --foreground: #023047;
+ --card: #FFFFFF;
+ --card-foreground: #023047;
+ --popover: #FFFFFF;
+ --popover-foreground: #023047;
+ --primary: #023047;
+ --primary-foreground: #F8F9FA;
+ --secondary: #023047;
+ --secondary-foreground: #F8F9FA;
+ --muted: #DEE2E6;
+ --muted-foreground: #495057;
+ --accent: #DEE2E6;
+ --accent-foreground: #023047;
+ --destructive: #DC2626;
+ --border: #023047;
+ --input: #DEE2E6;
+ --ring: #023047;
+ --chart-1: #023047;
+ --chart-2: #13ABC4;
+ --chart-3: #495057;
+ --chart-4: #DEE2E6;
+ --chart-5: #212529;
+ --radius: 0.625rem;
+ --sidebar: #FFFFFF;
+ --sidebar-foreground: #023047;
+ --sidebar-primary: #023047;
+ --sidebar-primary-foreground: #F8F9FA;
+ --sidebar-accent: #DEE2E6;
+ --sidebar-accent-foreground: #023047;
+ --sidebar-border: #DEE2E6;
+ --sidebar-ring: #023047;
 }
 
 .dark {
-  --surface-primary: #212529;
-  --surface-muted: #343a40;
-  --background: #212529;
-  --foreground: #F8F9FA;
-  --card: #2A2E32;
-  --card-foreground: #F8F9FA;
-  --popover: #2A2E32;
-  --popover-foreground: #F8F9FA;
-  --primary: #13ABC4;
-  --primary-foreground: #212529;
-  --secondary: #13ABC4;
-  --secondary-foreground: #212529;
-  --muted: #495057;
-  --muted-foreground: #DEE2E6;
-  --accent: #495057;
-  --accent-foreground: #F8F9FA;
-  --destructive: #EF4444;
-  --border: #13ABC4;
-  --input: #495057;
-  --ring: #13ABC4;
-  --chart-1: #13ABC4;
-  --chart-2: #DEE2E6;
-  --chart-3: #495057;
-  --chart-4: #F8F9FA;
-  --chart-5: #023047;
-  --sidebar: #2A2E32;
-  --sidebar-foreground: #F8F9FA;
-  --sidebar-primary: #13ABC4;
-  --sidebar-primary-foreground: #212529;
-  --sidebar-accent: #495057;
-  --sidebar-accent-foreground: #F8F9FA;
-  --sidebar-border: #495057;
-  --sidebar-ring: #13ABC4;
+ --surface-primary: #212529;
+ --surface-muted: #343a40;
+ --background: #212529;
+ --foreground: #F8F9FA;
+ --card: #2A2E32;
+ --card-foreground: #F8F9FA;
+ --popover: #2A2E32;
+ --popover-foreground: #F8F9FA;
+ --primary: #13ABC4;
+ --primary-foreground: #212529;
+ --secondary: #13ABC4;
+ --secondary-foreground: #212529;
+ --muted: #495057;
+ --muted-foreground: #DEE2E6;
+ --accent: #495057;
+ --accent-foreground: #F8F9FA;
+ --destructive: #EF4444;
+ --border: #13ABC4;
+ --input: #495057;
+ --ring: #13ABC4;
+ --chart-1: #13ABC4;
+ --chart-2: #DEE2E6;
+ --chart-3: #495057;
+ --chart-4: #F8F9FA;
+ --chart-5: #023047;
+ --sidebar: #2A2E32;
+ --sidebar-foreground: #F8F9FA;
+ --sidebar-primary: #13ABC4;
+ --sidebar-primary-foreground: #212529;
+ --sidebar-accent: #495057;
+ --sidebar-accent-foreground: #F8F9FA;
+ --sidebar-border: #495057;
+ --sidebar-ring: #13ABC4;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-  }
-  html {
-    @apply font-sans;
-  }
+ * {
+ @apply border-border outline-ring/50;
+ }
+ body {
+ @apply bg-background text-foreground font-sans antialiased;
+ }
+ html {
+ @apply font-sans;
+ }
 }
 
 
 /* Luma spin loader */
 @keyframes luma-loader-anim {
-  0% {
-    inset: 0 35px 35px 0;
-  }
-  12.5% {
-    inset: 0 35px 0 0;
-  }
-  25% {
-    inset: 35px 35px 0 0;
-  }
-  37.5% {
-    inset: 35px 0 0 0;
-  }
-  50% {
-    inset: 35px 0 0 35px;
-  }
-  62.5% {
-    inset: 0 0 0 35px;
-  }
-  75% {
-    inset: 0 0 35px 35px;
-  }
-  87.5% {
-    inset: 0 0 35px 0;
-  }
-  100% {
-    inset: 0 35px 35px 0;
-  }
+ 0% {
+ inset: 0 35px 35px 0;
+ }
+ 12.5% {
+ inset: 0 35px 0 0;
+ }
+ 25% {
+ inset: 35px 35px 0 0;
+ }
+ 37.5% {
+ inset: 35px 0 0 0;
+ }
+ 50% {
+ inset: 35px 0 0 35px;
+ }
+ 62.5% {
+ inset: 0 0 0 35px;
+ }
+ 75% {
+ inset: 0 0 35px 35px;
+ }
+ 87.5% {
+ inset: 0 0 35px 0;
+ }
+ 100% {
+ inset: 0 35px 35px 0;
+ }
 }
 
 .animate-luma-spin {
-  animation: luma-loader-anim 2.5s infinite;
+ animation: luma-loader-anim 2.5s infinite;
 }
 
 .animation-delay-luma {
-  animation-delay: -1.25s;
+ animation-delay: -1.25s;
 }
 
 
@@ -309,8 +309,8 @@ h4, .h4 {
 
 
 html, body {
-  font-family: "IRANYekanX", Tahoma, sans-serif !important;
-  font-weight: 400;
+ font-family: "IRANYekanX", Tahoma, sans-serif !important;
+ font-weight: 400;
 }
 h1, .h1 { font-weight: 900 !important; }
 h2, .h2 { font-weight: 800 !important; }
@@ -334,11 +334,11 @@ h4, .h4 { font-weight: 600 !important; }
 .bg-surface-muted { background-color: var(--surface-muted); }
 .section-zebra > section:nth-child(odd),
 .section-zebra > div:nth-child(odd) {
-  background-color: var(--surface-primary);
+ background-color: var(--surface-primary);
 }
 .section-zebra > section:nth-child(even),
 .section-zebra > div:nth-child(even) {
-  background-color: var(--surface-muted);
+ background-color: var(--surface-muted);
 }
 /* اگر مستقیم روی سکشن کلاس بگذاری */
 .section-a { background-color: var(--surface-primary); }
@@ -346,91 +346,91 @@ h4, .h4 { font-weight: 600 !important; }
 
 /* سرچ: هوور فیلتر از باکس بیرون نزند */
 [data-search-box] {
-  overflow: hidden;
+ overflow: hidden;
 }
 [data-search-box] button:hover,
 [data-search-box] button:focus {
-  transform: none !important;
-  box-shadow: none !important;
+ transform: none !important;
+ box-shadow: none !important;
 }
 
 /* هوور استاندارد */
 .link-hover {
-  @apply transition-colors hover:text-secondary;
+ @apply transition-colors hover:text-secondary;
 }
 .btn-hover-secondary {
-  @apply transition-colors hover:bg-secondary hover:text-secondary-foreground;
+ @apply transition-colors hover:bg-secondary hover:text-secondary-foreground;
 }
 .btn-hover {
-  @apply transition-colors hover:bg-primary hover:text-primary-foreground;
+ @apply transition-colors hover:bg-primary hover:text-primary-foreground;
 }
 
 /* ========== PM Design Tokens (full system) ========== */
 :root {
-  --background: #F8F9FA;
-  --foreground: #212529;
-  --card: #FFFFFF;
-  --card-foreground: #212529;
-  --popover: #FFFFFF;
-  --popover-foreground: #212529;
-  --primary: #023047;
-  --primary-foreground: #FFFFFF;
-  --secondary: #023047;
-  --secondary-foreground: #F8F9FA;
-  --muted: #E9ECEF;
-  --muted-foreground: #495057;
-  --accent: #DEE2E6;
-  --accent-foreground: #023047;
-  --destructive: #B3261E;
-  --destructive-foreground: #FFFFFF;
-  --border: #DEE2E6;
-  --input: #DEE2E6;
-  --ring: #023047;
-  --radius: 0.75rem;
+ --background: #F8F9FA;
+ --foreground: #212529;
+ --card: #FFFFFF;
+ --card-foreground: #212529;
+ --popover: #FFFFFF;
+ --popover-foreground: #212529;
+ --primary: #023047;
+ --primary-foreground: #FFFFFF;
+ --secondary: #023047;
+ --secondary-foreground: #F8F9FA;
+ --muted: #E9ECEF;
+ --muted-foreground: #495057;
+ --accent: #DEE2E6;
+ --accent-foreground: #023047;
+ --destructive: #B3261E;
+ --destructive-foreground: #FFFFFF;
+ --border: #DEE2E6;
+ --input: #DEE2E6;
+ --ring: #023047;
+ --radius: 0.75rem;
 }
 
 .dark {
-  --background: #212529;
-  --foreground: #EBFFFB;
-  --card: #2A2E32;
-  --card-foreground: #EBFFFB;
-  --popover: #2A2E32;
-  --popover-foreground: #EBFFFB;
-  --primary: #13ABC4;
-  --primary-foreground: #212529;
-  --secondary: #13ABC4;
-  --secondary-foreground: #212529;
-  --muted: #343A40;
-  --muted-foreground: #ADB5BD;
-  --accent: #004F58;
-  --accent-foreground: #EBFFFB;
-  --destructive: #F2B8B5;
-  --destructive-foreground: #601410;
-  --border: #495057;
-  --input: #495057;
-  --ring: #13ABC4;
+ --background: #212529;
+ --foreground: #EBFFFB;
+ --card: #2A2E32;
+ --card-foreground: #EBFFFB;
+ --popover: #2A2E32;
+ --popover-foreground: #EBFFFB;
+ --primary: #13ABC4;
+ --primary-foreground: #212529;
+ --secondary: #13ABC4;
+ --secondary-foreground: #212529;
+ --muted: #343A40;
+ --muted-foreground: #ADB5BD;
+ --accent: #004F58;
+ --accent-foreground: #EBFFFB;
+ --destructive: #F2B8B5;
+ --destructive-foreground: #601410;
+ --border: #495057;
+ --input: #495057;
+ --ring: #13ABC4;
 }
 
 /* === PM-OVERFLOW-GUARD (auto) === */
 /* overflow-x:hidden روی html/body باعث شکستن position:sticky می‌شود */
 html {
-  max-width: 100%;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+ max-width: 100%;
+ -webkit-text-size-adjust: 100%;
+ text-size-adjust: 100%;
 }
 
 body {
-  max-width: 100%;
-  min-height: 100dvh;
-  margin: 0;
-  padding-left: env(safe-area-inset-left, 0);
-  padding-right: env(safe-area-inset-right, 0);
+ max-width: 100%;
+ min-height: 100dvh;
+ margin: 0;
+ padding-left: env(safe-area-inset-left, 0);
+ padding-right: env(safe-area-inset-right, 0);
 }
 
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+ box-sizing: border-box;
 }
 
 img,
@@ -438,8 +438,8 @@ video,
 svg,
 canvas,
 iframe {
-  max-width: 100%;
-  height: auto;
+ max-width: 100%;
+ height: auto;
 }
 
 p,
@@ -449,145 +449,145 @@ td,
 th,
 span,
 a {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+ overflow-wrap: anywhere;
+ word-break: break-word;
 }
 
 table {
-  max-width: 100%;
+ max-width: 100%;
 }
 
 pre,
 code {
-  max-width: 100%;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+ max-width: 100%;
+ overflow-x: auto;
+ white-space: pre-wrap;
+ overflow-wrap: anywhere;
 }
 
 /* جداول ادمین: والد باید اسکرول افقی بگیرد نه کل صفحه */
 .table-wrap,
 [data-table-wrap] {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+ width: 100%;
+ max-width: 100%;
+ overflow-x: auto;
+ -webkit-overflow-scrolling: touch;
 }
 
 /* فلکس: جلوگیری از بیرون‌زدن ستون */
 .min-w-0 {
-  min-width: 0;
+ min-width: 0;
 }
 
 @supports (height: 100dvh) {
-  body {
-    min-height: 100dvh;
-  }
+ body {
+ min-height: 100dvh;
+ }
 }
 /* === PM-OVERFLOW-GUARD-END === */
 
 /* === PM-TOAST-POS === */
 @media (max-width: 640px) {
-  [data-scope="toast"][data-part="group"],
-  [data-part="group"][data-placement],
-  .toast-group,
-  [data-scope="toast"][data-part="viewport"] {
-    top: 0.75rem !important;
-    bottom: auto !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
-    width: min(92vw, 380px) !important;
-  }
+ [data-scope="toast"][data-part="group"],
+ [data-part="group"][data-placement],
+ .toast-group,
+ [data-scope="toast"][data-part="viewport"] {
+ top: 0.75rem !important;
+ bottom: auto !important;
+ left: 50% !important;
+ right: auto !important;
+ transform: translateX(-50%) !important;
+ width: min(92vw, 380px) !important;
+ }
 }
 /* === PM-TOAST-POS-END === */
 
 /* full-width + no horizontal overflow (all devices) */
 html,
 body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
+ width: 100%;
+ max-width: 100%;
+ overflow-x: hidden;
 }
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+ box-sizing: border-box;
 }
 img,
 video,
 svg,
 canvas {
-  max-width: 100%;
-  height: auto;
+ max-width: 100%;
+ height: auto;
 }
 /* flex/grid children that otherwise force page wider */
 .min-w-0-safe {
-  min-width: 0;
+ min-width: 0;
 }
 
 /* === FULL WIDTH LAYOUT (site-wide) === */
 html {
-  width: 100%;
-  max-width: 100%;
+ width: 100%;
+ max-width: 100%;
 }
 body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: clip; /* بهتر از hidden برای sticky در مرورگرهای جدید */
+ width: 100%;
+ max-width: 100%;
+ overflow-x: clip; /* بهتر از hidden برای sticky در مرورگرهای جدید */
 }
 img, video, canvas, svg {
-  max-width: 100%;
-  height: auto;
+ max-width: 100%;
+ height: auto;
 }
 /* جداول عریض فقط داخل wrapper اسکرول می‌خورند، نه کل صفحه */
 .table-scroll {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+ width: 100%;
+ max-width: 100%;
+ overflow-x: auto;
+ -webkit-overflow-scrolling: touch;
 }
 
 /* Luma spin loader */
 @keyframes loaderAnim {
-  0% { inset: 0 35px 35px 0; }
-  12.5% { inset: 0 35px 0 0; }
-  25% { inset: 35px 35px 0 0; }
-  37.5% { inset: 35px 0 0 0; }
-  50% { inset: 35px 0 0 35px; }
-  62.5% { inset: 0 0 0 35px; }
-  75% { inset: 0 0 35px 35px; }
-  87.5% { inset: 0 0 35px 0; }
-  100% { inset: 0 35px 35px 0; }
+ 0% { inset: 0 35px 35px 0; }
+ 12.5% { inset: 0 35px 0 0; }
+ 25% { inset: 35px 35px 0 0; }
+ 37.5% { inset: 35px 0 0 0; }
+ 50% { inset: 35px 0 0 35px; }
+ 62.5% { inset: 0 0 0 35px; }
+ 75% { inset: 0 0 35px 35px; }
+ 87.5% { inset: 0 0 35px 0; }
+ 100% { inset: 0 35px 35px 0; }
 }
 .animate-loaderAnim {
-  animation: loaderAnim 2.5s infinite;
+ animation: loaderAnim 2.5s infinite;
 }
 .animation-delay-loader {
-  animation-delay: -1.25s;
+ animation-delay: -1.25s;
 }
 
 /* Site loader — brand colors only */
 :root {
-  --pm-loader-bg: #023047;
-  --pm-loader-spin: #F8F9FA;
+ --pm-loader-bg: #023047;
+ --pm-loader-spin: #F8F9FA;
 }
 .dark {
-  --pm-loader-bg: #13ABC4;
-  --pm-loader-spin: #212529;
+ --pm-loader-bg: #13ABC4;
+ --pm-loader-spin: #212529;
 }
 .pm-site-loader {
-  background-color: var(--pm-loader-bg);
+ background-color: var(--pm-loader-bg);
 }
 
 
 /* a11y: keyboard focus ring (بدون Storybook — سایت واقعی) */
 :focus {
-  outline: none;
+ outline: none;
 }
 :focus-visible {
-  outline: 2px solid var(--sidebar-ring, #13ABC4);
-  outline-offset: 2px;
+ outline: 2px solid var(--sidebar-ring, #13ABC4);
+ outline-offset: 2px;
 }
 a:focus-visible,
 button:focus-visible,
@@ -596,12 +596,12 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
-  outline: 2px solid var(--sidebar-ring, #13ABC4);
-  outline-offset: 2px;
+ outline: 2px solid var(--sidebar-ring, #13ABC4);
+ outline-offset: 2px;
 }
 /* هدر چسبان فوکوس را نپوشاند */
 :focus-visible {
-  scroll-margin-top: 5.5rem;
-  scroll-margin-bottom: 1rem;
+ scroll-margin-top: 5.5rem;
+ scroll-margin-bottom: 1rem;
 }
 /* لینک پرش به محتوا */

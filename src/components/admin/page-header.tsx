@@ -1,23 +1,23 @@
 import type { ReactNode } from "react";
 
 export function AdminPageHeader({
-  title,
-  description,
-  actions,
+ title,
+ description,
+ actions,
 }: {
-  title: string;
-  description?: string;
-  actions?: ReactNode;
+ title: string;
+ description?: string;
+ actions?: ReactNode;
 }) {
-  return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary">{title}</h1>
-        {description ? (
-          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
-        ) : null}
-      </div>
-      {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
-    </div>
-  );
+ return (
+ <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+ <div>
+ <h1 className="text-2xl font-bold tracking-tight text-primary">{title}</h1>
+ {description ? (
+ <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+ ) : null}
+ </div>
+ {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+ </div>
+ );
 }
