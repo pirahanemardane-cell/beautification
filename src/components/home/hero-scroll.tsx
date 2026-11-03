@@ -245,6 +245,17 @@ export function HeroScroll() {
  style={{ width: "100%", height: "100%" }}
  />
 
+      {/* لایه تیره روی کل هیرو */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[1]"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.40) 45%, rgba(0,0,0,0.65) 100%)",
+        }}
+        aria-hidden
+      />
+
+
  {/* overlay تیره فقط در دارک مود */}
  <div
  className="pointer-events-none absolute inset-0 z-[5] bg-transparent dark:bg-black/25"
