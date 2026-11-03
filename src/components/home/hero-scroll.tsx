@@ -262,7 +262,6 @@ export function HeroScroll() {
  aria-hidden
  />
 
- <div
 
  {/* لایه متن اسکراب — وسط صفحه */}
  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-6">
