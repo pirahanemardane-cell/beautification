@@ -34,7 +34,7 @@ function TitleContent({ text }: { text: string }) {
  if (text === "زیبایی که حس می‌شود") {
  return (
  <>
- <span className="text-[40px] md:text-[55px] lg:text-[90px]">زیبایی</span>{" "}
+ <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">زیبایی</span>{" "}
  <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">که حس می‌شود</span>
  </>
  );
@@ -43,12 +43,12 @@ function TitleContent({ text }: { text: string }) {
  return (
  <>
  <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">انواع</span>{" "}
- <span className="text-[40px] md:text-[55px] lg:text-[90px]">هنر در هر قطعه</span>
+ <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">هنر در هر قطعه</span>
  </>
  );
  }
  if (text === "جواهر شاد") {
- return <span className="text-[40px] md:text-[55px] lg:text-[90px]">جواهر شاد</span>;
+ return <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">جواهر شاد</span>;
  }
  return <>{text}</>;
 }
@@ -265,7 +265,7 @@ export function HeroScroll() {
 
  {/* لایه متن اسکراب — وسط صفحه */}
  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-6">
- <div className="relative flex w-full max-w-3xl flex-col items-center justify-center text-center">
+ <div className="relative flex w-full max-w-3xl flex-col items-center justify-center text-center text-white">
  {SLIDES.map((slide, i) => {
  const op = rangeOpacity(frameIdx, slide.start, slide.end);
  if (op <= 0.001) return null;
