@@ -249,7 +249,8 @@ export function HeroScroll() {
       <div
         className="pointer-events-none absolute inset-0 z-[1]"
         style={{
-          background: "rgba(0,0,0,0.45)",
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.40) 45%, rgba(0,0,0,0.65) 100%)",
         }}
         aria-hidden
       />
@@ -260,6 +261,50 @@ export function HeroScroll() {
  className="pointer-events-none absolute inset-0 z-[5] bg-transparent dark:bg-black/25"
  aria-hidden
  />
+
+ <div
+ className="pointer-events-none absolute inset-x-0 bottom-0 z-[6] h-40"
+ style={{
+ background: "linear-gradient(to bottom, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.30) 35%, rgba(0,0,0,0.60) 100%)",
+ }}
+ />
+
+ {/* لایه متن اسکراب — وسط صفحه */}
+ <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-6">
+ <div className="relative flex w-full max-w-3xl flex-col items-center justify-center text-center">
+ {SLIDES.map((slide, i) => {
+ const op = rangeOpacity(frameIdx, slide.start, slide.end);
+ if (op <= 0.001) return null;
+ return (
+ <p
+ key={i}
+ className="absolute inset-x-0 font-black leading-relaxed text-[#023047] [-webkit-text-stroke:1px_#ffffff] dark:text-[#13ABC4] dark:[-webkit-text-stroke:1px_#212529]"
+ style={{
+ opacity: op,
+ transition: "opacity 40ms linear, transform 120ms linear",
+ paintOrder: "stroke fill",
+ transform:
+ i === 2 && buttonOpacity > 0.05
+ ? "translateY(-1.25rem)"
+ : "translateY(0)",
+ }}
+ >
+ <TitleContent text={slide.text} />
+ </p>
+ );
+ })}
+
+ {/* دکمه از فریم ۴۸ — زیر متن آخر */}
+ <div
+ className="pointer-events-auto mt-20 flex translate-y-[8px] justify-center sm:mt-24 sm:translate-y-[15px]"
+ style={{
+ opacity: buttonOpacity,
+ pointerEvents: buttonOpacity > 0.15 ? "auto" : "none",
+ transition: "opacity 40ms linear",
+ }}
+ >
+ <ArrowFillButton href="/products" btnText="خرید آنلاین" className="pointer-events-auto" />
+ </div>
 
 
 
