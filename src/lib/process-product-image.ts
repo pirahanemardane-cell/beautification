@@ -38,7 +38,7 @@ async function loadWatermarkLogo(): Promise<Buffer | null> {
 
  for (const logoPath of candidates) {
  try {
- const buf = await readFile(logoPath);
+ const buf = await readFile(/*turbopackIgnore: true*/ logoPath);
  if (buf.length > 0) {
  console.info("[watermark] loaded from fs", logoPath, buf.length);
  cachedLogo = buf;
