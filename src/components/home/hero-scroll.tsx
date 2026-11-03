@@ -249,8 +249,7 @@ export function HeroScroll() {
       <div
         className="pointer-events-none absolute inset-0 z-[1]"
         style={{
-          background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.40) 45%, rgba(0,0,0,0.65) 100%)",
+          background: "rgba(0,0,0,0.45)",
         }}
         aria-hidden
       />
@@ -265,7 +264,7 @@ export function HeroScroll() {
  <div
  className="pointer-events-none absolute inset-x-0 bottom-0 z-[6] h-40"
  style={{
- background: "linear-gradient(to bottom, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.30) 35%, rgba(0,0,0,0.60) 100%)",
+ background: "rgba(0,0,0,0.45)",
  }}
  />
 
