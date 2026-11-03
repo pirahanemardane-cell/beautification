@@ -27,8 +27,8 @@ const nextConfig: NextConfig = {
  "framer-motion",
  "embla-carousel-react",
  "lucide-react",
- ]
-}
+ ],
+},
  typescript: { ignoreBuildErrors: true },
 
  async headers() {
