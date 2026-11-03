@@ -254,7 +254,7 @@ export function HeroScroll() {
  <div
  className="pointer-events-none absolute inset-x-0 bottom-0 z-[6] h-40"
  style={{
- background: "linear-gradient(to top, rgba(0,0,0,0.55), transparent)",
+ background: "linear-gradient(to bottom, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.30) 35%, rgba(0,0,0,0.60) 100%)",
  }}
  />
 
