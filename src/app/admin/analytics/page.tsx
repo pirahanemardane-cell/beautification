@@ -65,7 +65,17 @@ export default function AdminAnalyticsPage() {
  .select("event_name, value, device, product_id")
  .gte("created_at", from);
 
- if (e1) throw e1;
+ if (e1) {
+ // Table may be empty-permission or briefly missing — don't crash the page
+ console.error("[admin analytics]", e1);
+ setFunnel({});
+ setDevices({});
+ setTotalRevenue(0);
+ setLowConvertProducts([]);
+ setError("داده‌های آنالیتیکس در دسترس نیست (جدول/دسترسی).");
+ setLoading(false);
+ return;
+ }
 
  const funnelCount: Record<string, number> = {};
  const deviceCount: Record<string, number> = {};

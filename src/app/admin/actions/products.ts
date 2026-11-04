@@ -298,9 +298,7 @@ export async function adminCreateProductAction(input: CreateProductInput) {
  const slug = normalizeProductSlug((input.slug || "").trim() || slugify(name));
 
  try {
- const { data: product, error: pErr } = await gate.supabase
- .from("products")
- .insert({
+ const productPayloadFull = {
  name,
  slug,
  category_id: input.category_id,
@@ -313,14 +311,59 @@ export async function adminCreateProductAction(input: CreateProductInput) {
  is_bestseller: !!input.is_bestseller,
  size_guide_id: input.size_guide_id || null,
  published_at: input.published_at || null,
-
- // Live products only have meta_title/meta_description — strip advanced SEO until migration
  meta_title: input.meta_title?.trim() || null,
  meta_description: input.meta_description?.trim() || null,
- })
+ focus_keyphrases: input.focus_keyphrases ?? [],
+ og_title: input.og_title?.trim() || null,
+ og_description: input.og_description?.trim() || null,
+ og_image_url: input.og_image_url?.trim() || null,
+ twitter_title: input.twitter_title?.trim() || null,
+ twitter_description: input.twitter_description?.trim() || null,
+ robots_index: input.robots_index !== false,
+ robots_follow: input.robots_follow !== false,
+ is_cornerstone: !!input.is_cornerstone,
+ canonical_url: input.canonical_url?.trim() || null,
+ };
+ let product: { id: string } | null = null;
+ {
+ const fullIns = await gate.supabase
+ .from("products")
+ .insert(productPayloadFull as never)
  .select("id")
  .single();
- if (pErr) throw pErr;
+ if (
+ fullIns.error &&
+ (String(fullIns.error.message || "").includes("42703") ||
+ String(fullIns.error.message || "").includes("does not exist") ||
+ String(fullIns.error.message || "").includes("column"))
+ ) {
+ const {
+ focus_keyphrases: _f,
+ og_title: _ot,
+ og_description: _od,
+ og_image_url: _oi,
+ twitter_title: _tt,
+ twitter_description: _td,
+ robots_index: _ri,
+ robots_follow: _rf,
+ is_cornerstone: _ic,
+ canonical_url: _cu,
+ ...basicPayload
+ } = productPayloadFull;
+ const basicIns = await gate.supabase
+ .from("products")
+ .insert(basicPayload as never)
+ .select("id")
+ .single();
+ if (basicIns.error) throw basicIns.error;
+ product = basicIns.data;
+ } else if (fullIns.error) {
+ throw fullIns.error;
+ } else {
+ product = fullIns.data;
+ }
+ }
+ if (!product) throw new Error("product_insert_failed");
 
  const variantList =
  input.variants && input.variants.length
@@ -591,16 +634,58 @@ export async function adminUpdateProductAction(
  if (input.size_guide_id !== undefined) patch.size_guide_id = input.size_guide_id || null;
  if (input.published_at !== undefined) patch.published_at = input.published_at || null;
 
- // Live products only have meta_title/meta_description — ignore advanced SEO payload
  if (input.meta_title !== undefined) patch.meta_title = (input.meta_title || "").trim() || null;
  if (input.meta_description !== undefined) patch.meta_description = (input.meta_description || "").trim() || null;
+ if (input.focus_keyphrases !== undefined) patch.focus_keyphrases = input.focus_keyphrases ?? [];
+ if (input.og_title !== undefined) patch.og_title = (input.og_title || "").trim() || null;
+ if (input.og_description !== undefined) patch.og_description = (input.og_description || "").trim() || null;
+ if (input.og_image_url !== undefined) patch.og_image_url = (input.og_image_url || "").trim() || null;
+ if (input.twitter_title !== undefined) patch.twitter_title = (input.twitter_title || "").trim() || null;
+ if (input.twitter_description !== undefined)
+ patch.twitter_description = (input.twitter_description || "").trim() || null;
+ if (input.robots_index !== undefined) patch.robots_index = !!input.robots_index;
+ if (input.robots_follow !== undefined) patch.robots_follow = !!input.robots_follow;
+ if (input.is_cornerstone !== undefined) patch.is_cornerstone = !!input.is_cornerstone;
+ if (input.canonical_url !== undefined) patch.canonical_url = (input.canonical_url || "").trim() || null;
 
  if (Object.keys(patch).length) {
  const { error: pErr } = await gate.supabase
  .from("products")
- .update(patch)
+ .update(patch as never)
  .eq("id", id);
- if (pErr) {
+ if (
+ pErr &&
+ (String(pErr.message || "").includes("42703") ||
+ String(pErr.message || "").includes("does not exist") ||
+ String(pErr.message || "").includes("column"))
+ ) {
+ const advanced = [
+ "focus_keyphrases",
+ "og_title",
+ "og_description",
+ "og_image_url",
+ "twitter_title",
+ "twitter_description",
+ "robots_index",
+ "robots_follow",
+ "is_cornerstone",
+ "canonical_url",
+ ] as const;
+ const basicPatch = { ...patch };
+ for (const k of advanced) delete basicPatch[k];
+ const retry = await gate.supabase
+ .from("products")
+ .update(basicPatch as never)
+ .eq("id", id);
+ if (retry.error) {
+ console.error("[adminUpdateProduct products]", retry.error);
+ return {
+ ok: false as const,
+ error: "server" as const,
+ detail: retry.error.message,
+ };
+ }
+ } else if (pErr) {
  console.error("[adminUpdateProduct products]", pErr);
  return {
  ok: false as const,
@@ -676,7 +761,7 @@ export async function adminUpdateProductAction(
  const { notifyStockAlertsForVariant } = await import(
  "@/lib/stock-alerts/notify"
  );
- await notifyStockAlertsForVariant(variants[0].id as string);
+ await notifyStockAlertsForVariant(firstSimple.id as string);
  } catch (ne) {
  console.error("[adminUpdateProduct stock alert]", ne);
  }

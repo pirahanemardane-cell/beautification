@@ -83,33 +83,40 @@ const STORE_KEYS = [
 
 export type StoreSettingsMap = Record<(typeof STORE_KEYS)[number], string>;
 
+function plainSetting(value: unknown): string {
+ if (value == null) return "";
+ if (typeof value === "string") return value;
+ if (typeof value === "boolean" || typeof value === "number") return String(value);
+ return "";
+}
+
 export async function adminGetStoreSettingsAction() {
  const gate = await requireAdmin();
  if (!gate.ok) {
  return { ok: false as const, error: gate.error, settings: null };
  }
  try {
+ const { parseFreeShippingFromRows, freeShippingSelectKeys } = await import(
+ "@/lib/settings/free-shipping"
+ );
+ const keys = [...STORE_KEYS, ...freeShippingSelectKeys()];
  const { data, error } = await gate.supabase
  .from("site_settings")
  .select("key, value")
- .in("key", [...STORE_KEYS]);
+ .in("key", keys);
  if (error) throw error;
 
+ const rows = (data ?? []) as { key: string; value: unknown }[];
+ const free = parseFreeShippingFromRows(rows);
+ const byKey = new Map(rows.map((r) => [r.key, r.value]));
+
  const map: StoreSettingsMap = {
- free_shipping_enabled: "true",
- free_shipping_min_amount: "2000000",
- order_sms_enabled: "true",
- store_support_phone: "",
- store_support_email: "",
+ free_shipping_enabled: free.enabled ? "true" : "false",
+ free_shipping_min_amount: String(free.minAmount || 2000000),
+ order_sms_enabled: plainSetting(byKey.get("order_sms_enabled")) || "true",
+ store_support_phone: plainSetting(byKey.get("store_support_phone")),
+ store_support_email: plainSetting(byKey.get("store_support_email")),
  };
- for (const row of data ?? []) {
- const k = String((row as { key?: string }).key || "");
- if (k in map) {
- map[k as keyof StoreSettingsMap] = String(
- (row as { value?: string }).value ?? "",
- );
- }
- }
  return { ok: true as const, settings: map };
  } catch (e) {
  console.error("[adminGetStoreSettings]", e);
@@ -130,12 +137,37 @@ export async function adminSaveStoreSettingsAction(input: {
  const minRaw = String(input.free_shipping_min_amount || "").replace(/,/g, "");
  const min = Math.max(0, Math.round(Number(minRaw) || 0));
 
- const rows = [
- {
- key: "free_shipping_enabled",
- value: input.free_shipping_enabled ? "true" : "false",
- },
- { key: "free_shipping_min_amount", value: String(min) },
+ try {
+ const {
+ freeShippingUpsertRows,
+ mergeShippingDoc,
+ } = await import("@/lib/settings/free-shipping");
+
+ const { data: existingShipping } = await gate.supabase
+ .from("site_settings")
+ .select("value")
+ .eq("key", "shipping")
+ .maybeSingle();
+
+ const freeRows = freeShippingUpsertRows({
+ enabled: input.free_shipping_enabled,
+ minAmount: min,
+ excludeCodes: "peyk,alopeyk",
+ }).map((row) =>
+ row.key === "shipping"
+ ? {
+ key: "shipping",
+ value: mergeShippingDoc(existingShipping?.value, {
+ enabled: input.free_shipping_enabled,
+ minAmount: min,
+ excludeCodes: "peyk,alopeyk",
+ }),
+ }
+ : row,
+ );
+
+ const rows: { key: string; value: unknown }[] = [
+ ...freeRows,
  {
  key: "order_sms_enabled",
  value: input.order_sms_enabled ? "true" : "false",
@@ -150,12 +182,11 @@ export async function adminSaveStoreSettingsAction(input: {
  },
  ];
 
- try {
  for (const row of rows) {
  const { error } = await gate.supabase.from("site_settings").upsert(
  {
  key: row.key,
- value: row.value,
+ value: row.value as never,
  updated_at: new Date().toISOString(),
  },
  { onConflict: "key" },

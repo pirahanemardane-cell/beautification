@@ -144,7 +144,7 @@ export function AuthForm({
  if (authMode === "login" && loginMethod === "otp") {
  if (otpStep === "phone") {
  if (!formData.phone.trim() || !isValidIranPhone(formData.phone)) {
- setErrors({ phone: "شماره موبایل (اختیاری)" });
+ setErrors({ phone: "شماره موبایل معتبر نیست" });
  setIsLoading(false);
  return;
  }

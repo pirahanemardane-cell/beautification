@@ -167,6 +167,16 @@ export async function listWishlistAction(): Promise<{
  }
 }
 
+function mapServiceRoleError(msg: string): string | null {
+  if (
+    msg.includes("SUPABASE_SERVICE_ROLE_KEY") ||
+    msg.includes("Missing NEXT_PUBLIC_SUPABASE_URL")
+  ) {
+    return "service_role_missing";
+  }
+  return null;
+}
+
 export async function addToCartAction(variantId: string, quantity = 1) {
  try {
  if (!variantId) {
@@ -184,7 +194,7 @@ return { ok: true as const };
  : e instanceof Error
  ? e.message
  : String(e);
- return { ok: false as const, error: msg };
+ return { ok: false as const, error: mapServiceRoleError(msg) ?? msg };
  }
 }
 
@@ -751,7 +761,10 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  : e instanceof Error
  ? e.message
  : String(e);
- return { ok: false as const, error: msg };
+ return {
+ ok: false as const,
+ error: mapServiceRoleError(msg) ?? msg,
+ };
  }
 }
 

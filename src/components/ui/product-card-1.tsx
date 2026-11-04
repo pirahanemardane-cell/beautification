@@ -229,7 +229,13 @@ export function ProductCard1({
  color: selectedColor || undefined,
  });
  if (!res.ok) {
- toast.error(res.error?.startsWith("insufficient_stock") ? "موجودی کافی نیست" : "خطا در افزودن به سبد");
+ toast.error(
+ res.error?.startsWith("insufficient_stock")
+ ? "موجودی کافی نیست"
+ : res.error === "service_role_missing"
+ ? "پیکربندی سرور ناقص است (SERVICE_ROLE)"
+ : "خطا در افزودن به سبد",
+ );
  } else {
  setIsAddedToCart(true);
  toast.success("به سبد خرید اضافه شد");

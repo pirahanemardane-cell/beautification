@@ -324,10 +324,16 @@ export async function adminSetOrderTrackingAction(
 
  // اعلان best-effort
  if (code) {
+ let order: {
+ user_id?: string | null;
+ shipping_phone?: string | null;
+ shipping_name?: string | null;
+ shipping_email?: string | null;
+ } | null = null;
  try {
  const repo = new OrderRepository();
- const order = await repo.getByIdAdmin(orderId);
- const userId = (order as { user_id?: string | null } | null)?.user_id;
+ order = (await repo.getByIdAdmin(orderId)) as typeof order;
+ const userId = order?.user_id;
  if (userId) {
  const tpl = PREDEFINED_NOTIFICATIONS.find((x) => x.id === "order_shipped");
  if (tpl) {
@@ -342,39 +348,41 @@ export async function adminSetOrderTrackingAction(
  }
  } catch (ne) {
  console.error("[adminSetOrderTracking notify]", ne);
+ }
 
  try {
- const phone = String((order as { shipping_phone?: string } | null)?.shipping_phone ?? "");
- const name = String((order as { shipping_name?: string } | null)?.shipping_name ?? "مشتری");
+ const phone = String(order?.shipping_phone ?? "");
+ const name = String(order?.shipping_name ?? "مشتری");
+ if (phone) {
  await notifyShipped({ phone, name, orderId, tracking: code });
+ }
  } catch (smsErr) {
  console.warn("[sms shipped]", smsErr);
+ }
 
  try {
- let emailTo = String((order as { shipping_email?: string } | null)?.shipping_email ?? "").trim();
+ let emailTo = String(order?.shipping_email ?? "").trim();
  if (!emailTo) {
- const uid = String((order as { user_id?: string } | null)?.user_id ?? "");
+ const uid = String(order?.user_id ?? "");
  if (uid) {
  try {
  const { data: u } = await service.auth.admin.getUserById(uid);
  emailTo = String(u?.user?.email ?? "").trim();
- } catch { /* */ }
+ } catch {
+ /* */
+ }
  }
  }
  if (emailTo) {
  await emailShipped({
  to: emailTo,
- customerName: String((order as { shipping_name?: string } | null)?.shipping_name ?? "مشتری"),
+ customerName: String(order?.shipping_name ?? "مشتری"),
  orderId,
  tracking: code,
  });
  }
  } catch (emErr) {
  console.warn("[email shipped]", emErr);
- }
-
- }
-
  }
  }
 
