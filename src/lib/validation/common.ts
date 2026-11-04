@@ -3,7 +3,7 @@ import { normalizePhone, isValidIranianPhone } from "@/lib/numbers";
 
 export const phoneSchema = z
  .string()
- .min(1, "شماره موبایل الزامی است")
+ .min(1, "شماره موبایل اختیاری است")
  .transform(normalizePhone)
  .refine(isValidIranianPhone, "شماره موبایل معتبر نیست");
 

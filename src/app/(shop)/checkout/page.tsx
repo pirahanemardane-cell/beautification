@@ -441,7 +441,7 @@ export default function CheckoutPage() {
  return "نام و نام خانوادگی الزامی است.";
  }
  if (!form.phone.trim()) {
- return "شماره موبایل الزامی است.";
+ return "شماره موبایل اختیاری است.";
  }
  if (!normalizeIranMobile(form.phone.trim())) {
  return "شماره موبایل معتبر نیست (مثال: ۰۹۱۲۱۲۳۴۵۶۷).";
