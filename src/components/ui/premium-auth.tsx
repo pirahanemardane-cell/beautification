@@ -4,6 +4,7 @@ import * as React from "react";
 import { useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { signInAction, signUpAction, resetPasswordAction, requestOtpAction, verifyOtpAction } from "@/app/(shop)/actions/auth";
+import { getMyProfileAction } from "@/app/(shop)/actions/shop";
 import { isValidIranMobile, normalizeIranMobile, onlyDigits } from "@/lib/numbers";
 import {
  Mail,
@@ -296,24 +297,36 @@ export function AuthForm({
  setIsLoading(false);
  return;
  }
- try {
  void onSuccess?.({ email: id });
- } catch {}
- setSuccessMessage("ورود موفق");
- const qNext = new URLSearchParams(window.location.search).get("next");
- let dest =
- qNext && qNext.startsWith("/") && !qNext.startsWith("//")
- ? qNext
- : defaultNext || "/dashboard";
- if (!dest.startsWith("/")) dest = "/dashboard";
- // مشتری هرگز به پنل ادمین نرود (مگر defaultNext صریحاً admin باشد و از صفحه login?next=/admin آمده باشد)
- if (dest.startsWith("/admin") && !(defaultNext || "").startsWith("/admin") && !(qNext || "").startsWith("/admin")) {
- dest = "/dashboard";
- }
- setIsLoading(false);
- window.location.assign(dest);
- return;
- }
+		} catch {}
+		setSuccessMessage("ورود موفق");
+
+		// نقش را از پروفایل بخوان — ادمین → پنل
+		let isAdmin = false;
+		try {
+			const prof = await getMyProfileAction();
+			if (prof.ok) {
+				const r = String((prof.profile as { role?: string } | undefined)?.role || "").toLowerCase();
+				isAdmin = r === "admin";
+			}
+		} catch (e) {
+			console.error("[login role]", e);
+		}
+
+		const qNext = new URLSearchParams(window.location.search).get("next");
+		let dest =
+			qNext && qNext.startsWith("/") && !qNext.startsWith("//")
+				? qNext
+				: defaultNext || (isAdmin ? "/admin/dashboard" : "/dashboard");
+		if (!dest.startsWith("/")) dest = "/dashboard";
+		// فقط ادمین به /admin
+		if (dest.startsWith("/admin") && !isAdmin) dest = "/dashboard";
+		if (isAdmin && !qNext) dest = "/admin/dashboard";
+
+		setIsLoading(false);
+		window.location.assign(dest);
+		return;
+	}
 
  // ——— بازیابی ———
  if (authMode === "reset") {
