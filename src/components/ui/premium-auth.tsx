@@ -254,81 +254,85 @@ export function AuthForm({
  }
 
  // ——— ورود با رمز (موبایل یا ایمیل) ———
- if (authMode === "login" && loginMethod === "password") {
- if (!isValidLoginId(formData.loginId)) {
- setErrors({ loginId: "شماره موبایل یا ایمیل معتبر وارد کنید" });
- setIsLoading(false);
- return;
- }
- if (!formData.password) {
- setErrors({ password: "رمز عبور الزامی است" });
- setIsLoading(false);
- return;
- }
- const id = formData.loginId.trim();
- try {
- const { createBrowserClient } = await import("@supabase/ssr");
- const browser = createBrowserClient(
- process.env.NEXT_PUBLIC_SUPABASE_URL!,
- process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
- );
- if (id.includes("@")) {
- const { data, error } = await browser.auth.signInWithPassword({
- email: id.toLowerCase(),
- password: formData.password,
- });
- if (error || !data.session) {
- console.error("[password login]", error);
- setErrors({ general: "ایمیل یا رمز عبور نادرست است" });
- setIsLoading(false);
- return;
- }
- } else {
- const res = await signInAction(id, formData.password);
- if (!res.ok) {
- setErrors({ general: res.error || "ورود ناموفق" });
- setIsLoading(false);
- return;
- }
- }
- } catch (e) {
- console.error("[password login]", e);
- setErrors({ general: "خطا در ورود" });
- setIsLoading(false);
- return;
- }
- void onSuccess?.({ email: id });
-		} catch {}
-		setSuccessMessage("ورود موفق");
+  if (authMode === "login" && loginMethod === "password") {
+    if (!isValidLoginId(formData.loginId)) {
+      setErrors({ loginId: "شماره موبایل یا ایمیل معتبر وارد کنید" });
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.password) {
+      setErrors({ password: "رمز عبور الزامی است" });
+      setIsLoading(false);
+      return;
+    }
+    const id = formData.loginId.trim();
+    try {
+      const { createBrowserClient } = await import("@supabase/ssr");
+      const browser = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      );
+      if (id.includes("@")) {
+        const { data, error } = await browser.auth.signInWithPassword({
+          email: id.toLowerCase(),
+          password: formData.password,
+        });
+        if (error || !data.session) {
+          console.error("[password login]", error);
+          setErrors({ general: "ایمیل یا رمز عبور نادرست است" });
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        const res = await signInAction(id, formData.password);
+        if (!res.ok) {
+          setErrors({ general: res.error || "ورود ناموفق" });
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("[password login]", e);
+      setErrors({ general: "خطا در ورود" });
+      setIsLoading(false);
+      return;
+    }
 
-		// نقش را از پروفایل بخوان — ادمین → پنل
-		let isAdmin = false;
-		try {
-			const prof = await getMyProfileAction();
-			if (prof.ok) {
-				const r = String((prof.profile as { role?: string } | undefined)?.role || "").toLowerCase();
-				isAdmin = r === "admin";
-			}
-		} catch (e) {
-			console.error("[login role]", e);
-		}
+    try {
+      void onSuccess?.({ email: id });
+    } catch {
+      /* ignore */
+    }
+    setSuccessMessage("ورود موفق");
 
-		const qNext = new URLSearchParams(window.location.search).get("next");
-		let dest =
-			qNext && qNext.startsWith("/") && !qNext.startsWith("//")
-				? qNext
-				: defaultNext || (isAdmin ? "/admin/dashboard" : "/dashboard");
-		if (!dest.startsWith("/")) dest = "/dashboard";
-		// فقط ادمین به /admin
-		if (dest.startsWith("/admin") && !isAdmin) dest = "/dashboard";
-		if (isAdmin && !qNext) dest = "/admin/dashboard";
+    let isAdmin = false;
+    try {
+      const prof = await getMyProfileAction();
+      if (prof.ok) {
+        const r = String(
+          (prof.profile as { role?: string } | null | undefined)?.role || "",
+        ).toLowerCase();
+        isAdmin = r === "admin";
+      }
+    } catch (e) {
+      console.error("[login role]", e);
+    }
 
-		setIsLoading(false);
-		window.location.assign(dest);
-		return;
-	}
+    const qNext = new URLSearchParams(window.location.search).get("next");
+    let dest =
+      qNext && qNext.startsWith("/") && !qNext.startsWith("//")
+        ? qNext
+        : defaultNext || (isAdmin ? "/admin/dashboard" : "/dashboard");
+    if (!dest.startsWith("/")) dest = "/dashboard";
+    if (dest.startsWith("/admin") && !isAdmin) dest = "/dashboard";
+    if (isAdmin && !(qNext || "").startsWith("/")) dest = "/admin/dashboard";
 
- // ——— بازیابی ———
+    setIsLoading(false);
+    window.location.assign(dest);
+    return;
+  }
+
+  // ——— بازیابی ———
  if (authMode === "reset") {
  if (!isValidLoginId(formData.loginId) && !isValidIranPhone(formData.phone)) {
  const id = formData.loginId || formData.phone;
