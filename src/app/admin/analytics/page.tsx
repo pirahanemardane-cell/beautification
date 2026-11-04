@@ -105,7 +105,7 @@ export default function AdminAnalyticsPage() {
  if (e2) {
  setLowConvertProducts([]);
  } else {
- const low = (products || [])
+ const low = ((products || []) as Array<{ conversion_rate: number } & Record<string, unknown>>)
  .filter((p) => p.conversion_rate < 3)
  .slice(0, 10);
  setLowConvertProducts(low);

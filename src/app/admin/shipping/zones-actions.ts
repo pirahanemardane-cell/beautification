@@ -76,7 +76,7 @@ export async function createShippingZoneAction(input: {
  name,
  description: (input.description || "").trim() || null,
  is_active: true,
- });
+ } as never);
  if (error) {
  console.error("[createShippingZone]", error);
  return { ok: false as const, error: "db" as const };
@@ -187,7 +187,7 @@ export async function saveMethodProvincesAction(
  description: `پوشش استان‌های روش: ${method.title}`,
  is_active: true,
  sort_order: 999,
- })
+ } as never)
  .select("id")
  .single();
  if (cErr || !created) {

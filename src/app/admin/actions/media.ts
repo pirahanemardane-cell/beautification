@@ -76,7 +76,7 @@ export async function adminUploadProductImageAction(formData: FormData) {
  const { data: row, error: dbErr } = await gate.supabase
  .from("product_images")
  .insert({
- product_id: productId,
+ product_id: productId as string,
  url: urls.large!,
  alt_text: file.name?.slice(0, 120) || null,
  sort_order,
@@ -253,7 +253,7 @@ export async function adminUpdateProductImageMetaAction(input: {
  if (!Object.keys(body).length) return { ok: true as const };
  const { error } = await gate.supabase
  .from("product_images")
- .update(body)
+ .update(body as never)
  .eq("id", id);
  if (error) {
  console.error("[adminUpdateProductImageMeta]", error);

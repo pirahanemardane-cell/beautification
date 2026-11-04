@@ -1,18 +1,19 @@
 "use server";
 
-import { createServiceClient } from "@/lib/supabase/service";
+import { requireAdmin } from "@/lib/admin/require-admin";
 import { revalidatePath } from "next/cache";
 
 export async function updateReviewApproval(id: string, isApproved: boolean) {
- const supabase = createServiceClient();
+ const gate = await requireAdmin();
+ if (!gate.ok) return { error: gate.error };
 
- const { data: prev } = await supabase
+ const { data: prev } = await gate.supabase
  .from("reviews")
  .select("id, user_id, product_id, is_approved")
  .eq("id", id)
  .maybeSingle();
 
- const { error } = await supabase
+ const { error } = await gate.supabase
  .from("reviews")
  .update({ is_approved: isApproved })
  .eq("id", id);
@@ -27,7 +28,7 @@ export async function updateReviewApproval(id: string, isApproved: boolean) {
  (prev as { user_id?: string }).user_id
  ) {
  try {
- await supabase.from("notifications").insert({
+ await gate.supabase.from("notifications").insert({
  user_id: (prev as { user_id: string }).user_id,
  title: "نظر شما تأیید شد",
  body: "نظر شما روی محصول منتشر شد. از بازخوردتان سپاسگزاریم.",
@@ -45,8 +46,10 @@ export async function updateReviewApproval(id: string, isApproved: boolean) {
 }
 
 export async function updateReviewReply(id: string, adminReply: string) {
- const supabase = createServiceClient();
- const { error } = await supabase
+ const gate = await requireAdmin();
+ if (!gate.ok) return { error: gate.error };
+
+ const { error } = await gate.supabase
  .from("reviews")
  .update({ admin_reply: adminReply.trim() || null })
  .eq("id", id);
@@ -58,7 +61,10 @@ export async function updateReviewReply(id: string, adminReply: string) {
  msg.includes("does not exist") ||
  msg.includes("column")
  ) {
- return { error: "پاسخ ادمین در این نسخه دیتابیس پشتیبانی نمی‌شود", unsupported: true as const };
+ return {
+ error: "پاسخ ادمین در این نسخه دیتابیس پشتیبانی نمی‌شود",
+ unsupported: true as const,
+ };
  }
  return { error: error.message };
  }

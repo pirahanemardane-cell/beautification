@@ -11,7 +11,7 @@ export async function adminGetSeoPageAction(page_key: SeoPageKey) {
  const { data, error } = await gate.supabase
  .from("seo_page_settings")
  .select("*")
- .eq("page_key", page_key)
+ .eq("page_key" as never, page_key)
  .maybeSingle();
  if (error) throw error;
  return { ok: true as const, row: data };
@@ -57,7 +57,7 @@ export async function adminUpsertSeoPageAction(
  };
  const { error } = await gate.supabase
  .from("seo_page_settings")
- .upsert(row, { onConflict: "page_key" });
+ .upsert(row as never, { onConflict: "page_key" });
  if (error) throw error;
  return { ok: true as const };
  } catch (e) {

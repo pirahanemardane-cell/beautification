@@ -61,8 +61,19 @@ export default async function HomePage() {
  const featuredResult = pick(0, { success: false as const, data: null });
  const newResult = pick(1, { success: false as const, data: null });
  const bestsellerResult = pick(2, { success: false as const, data: null });
- const categoriesResult = pick(3, { success: false as const, data: null });
- const brandsResult = pick(4, { success: false as const, data: null });
+ type HomeListResult<T> = { success: boolean; data: T | null };
+ const categoriesResult = pick<HomeListResult<import("@/types/database").Category[]>>(3, {
+ success: false,
+ data: null,
+ });
+ const brandsResult = pick<
+ HomeListResult<
+ Pick<
+ import("@/types/database").Brand,
+ "id" | "name" | "slug" | "logo_url" | "description" | "is_active"
+ >[]
+ >
+ >(4, { success: false, data: null });
 
  const pageData = (r: { success?: boolean; data?: unknown }) => {
  if (!r?.success || !r.data || typeof r.data !== "object") return [] as ProductWithRelations[];

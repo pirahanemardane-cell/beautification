@@ -78,16 +78,16 @@ export async function reserveCheckoutStockAction() {
  p_variant_id: variantId,
  p_qty: qty,
  p_minutes: TTL_MINUTES,
- });
+ } as never);
  ok = Boolean(res.data);
  error = res.error;
  } else {
  const res = await service.rpc("reserve_variant_stock_session", {
- p_session_id: sessionId,
+ p_session_id: sessionId as string,
  p_variant_id: variantId,
  p_qty: qty,
  p_minutes: TTL_MINUTES,
- });
+ } as never);
  ok = Boolean(res.data);
  error = res.error;
  }

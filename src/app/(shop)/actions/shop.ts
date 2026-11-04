@@ -538,11 +538,32 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  const supabaseInc = await createClient();
 
  // once_per_user + سقف — فقط چک، مصرف بعد از ثبت موفق سفارش
- const { data: dRow } = await supabaseInc
+ let dRow: {
+ once_per_user?: boolean;
+ max_uses?: number | null;
+ used_count?: number;
+ } | null = null;
+ {
+ const primary = await supabaseInc
  .from("discounts")
  .select("once_per_user, max_uses, used_count")
  .ilike("code", discountCode)
  .maybeSingle();
+ if (
+ primary.error &&
+ (String(primary.error.message || "").includes("42703") ||
+ String(primary.error.message || "").includes("does not exist"))
+ ) {
+ const fallback = await supabaseInc
+ .from("discounts")
+ .select("max_uses, used_count")
+ .ilike("code", discountCode)
+ .maybeSingle();
+ dRow = (fallback.data as typeof dRow) ?? null;
+ } else {
+ dRow = (primary.data as typeof dRow) ?? null;
+ }
+ }
  if ((dRow as { once_per_user?: boolean } | null)?.once_per_user) {
  if (!user?.id) {
  return { ok: false as const, error: "discount_login_required" };

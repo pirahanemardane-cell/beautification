@@ -67,7 +67,7 @@ export async function upsertUrlRedirect(input: {
  note: input.note ?? null,
  is_active: input.isActive !== false,
  updated_at: new Date().toISOString(),
- },
+ } as never,
  { onConflict: "from_path" },
  );
  if (error) {

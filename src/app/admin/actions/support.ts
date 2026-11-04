@@ -105,7 +105,7 @@ export async function adminSetReturnStatusAction(
  if (adminNote !== undefined) patch.admin_note = adminNote;
  const { error } = await gate.supabase
  .from("return_requests")
- .update(patch)
+ .update(patch as never)
  .eq("id", id);
  if (error) throw error;
 
@@ -169,7 +169,7 @@ export async function adminSetReturnStatusAction(
  .eq("id", prev.order_id);
  await service
  .from("return_requests")
- .update({ refunded_at: new Date().toISOString() })
+ .update({ refunded_at: new Date().toISOString() } as never)
  .eq("id", id)
  .is("refunded_at", null);
  } catch (pe) {

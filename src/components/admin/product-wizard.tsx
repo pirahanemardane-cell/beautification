@@ -217,7 +217,7 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  setImageUrl(String(p.image_url ?? ""));
  setSizeGuideId(String(p.size_guide_id ?? "") || "");
  {
- const pa = p.published_at ? toJalaliInputValue(p.published_at) : "";
+ const pa = p.published_at ? toJalaliInputValue(String(p.published_at)) : "";
  if (pa) {
  const d = new Date(pa);
  if (!Number.isNaN(d.getTime())) {
@@ -419,15 +419,15 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  }, [name, slugTouched]);
 
  const sellingPrice = useMemo(() => {
- const p = parseLocaleNumber(price);
- const s = parseLocaleNumber(salePrice);
+ const p = Number(parseLocaleNumber(price) ?? 0);
+ const s = Number(parseLocaleNumber(salePrice) ?? 0);
  if (s > 0 && s < p) return s;
  return p;
  }, [price, salePrice]);
 
  const originalPrice = useMemo(() => {
- const p = parseLocaleNumber(price);
- const s = parseLocaleNumber(salePrice);
+ const p = Number(parseLocaleNumber(price) ?? 0);
+ const s = Number(parseLocaleNumber(salePrice) ?? 0);
  if (s > 0 && s < p) return p;
  return p;
  }, [price, salePrice]);
@@ -446,8 +446,8 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  if (!variants.length) return "حداقل یک واریانت لازم است";
  for (const v of variants) {
  if (!v.size && !v.color_name) return "هر واریانت باید سایز یا رنگ داشته باشد";
- const sale = parseLocaleNumber(v.price);
- const original = parseLocaleNumber(v.original_price);
+ const sale = Number(parseLocaleNumber(v.price) ?? 0);
+ const original = Number(parseLocaleNumber(v.original_price) ?? 0);
  const main = original > 0 ? original : sale;
  if (!(main > 0)) return "هر واریانت باید قیمت اصلی داشته باشد";
  if (sale > 0 && original > 0 && sale >= original)
@@ -551,11 +551,10 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  // variants
  const sp = sellingPrice;
  const op = originalPrice;
- let vPayload: Array<Record<string, unknown>>;
- vPayload = variants
+ const vPayload: Array<Record<string, unknown>> = variants
  .map((v) => {
- const sale = parseLocaleNumber(v.price);
- const original = parseLocaleNumber(v.original_price);
+ const sale = Number(parseLocaleNumber(v.price) ?? 0);
+ const original = Number(parseLocaleNumber(v.original_price) ?? 0);
  // original = قیمت اصلی؛ price = قیمت فروش (بعد از تخفیف اگر پر شده)
  const main =
  Number.isFinite(original) && original > 0
@@ -578,7 +577,7 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  sku: v.sku || null,
  price: sell > 0 ? sell : main,
  original_price: main > sell ? main : sell > 0 ? sell : main,
- stock_quantity: parseLocaleNumber(v.stock) || 0,
+ stock_quantity: Number(parseLocaleNumber(v.stock) ?? 0) || 0,
  image_url: v.image_url || null,
  is_active: true,
  };

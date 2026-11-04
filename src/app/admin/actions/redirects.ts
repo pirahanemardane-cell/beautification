@@ -33,7 +33,7 @@ export async function adminListRedirectsAction(limit = 200) {
  .order("updated_at", { ascending: false })
  .limit(Math.min(500, Math.max(1, Number(limit) || 200)));
  if (error) throw error;
- return { ok: true as const, items: (data ?? []) as UrlRedirectRow[] };
+ return { ok: true as const, items: (data ?? []) as unknown as UrlRedirectRow[] };
  } catch (e) {
  console.error("[adminListRedirects]", e);
  return { ok: false as const, error: "server" as const, items: [] as UrlRedirectRow[] };
@@ -76,7 +76,7 @@ export async function adminToggleRedirectAction(id: string, isActive: boolean) {
  try {
  const { error } = await gate.supabase
  .from("url_redirects")
- .update({ is_active: !!isActive, updated_at: new Date().toISOString() })
+ .update({ is_active: !!isActive, updated_at: new Date().toISOString() } as never)
  .eq("id", id);
  if (error) throw error;
  revalidatePath("/admin/seo/redirects");

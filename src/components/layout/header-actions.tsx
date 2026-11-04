@@ -1,4 +1,3 @@
-import { NotificationBell } from "@/components/notifications/notification-bell";
 "use client";
 
 import { useState } from "react";
@@ -8,6 +7,7 @@ import {
  ShoppingBag,
  History,
 } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { HeaderIconButton, headerIconClass } from "@/components/layout/header-icon-button";
 import {
  HeaderActivitySheet,
@@ -28,12 +28,9 @@ export function HeaderActions({ className, showTheme = true }: Props) {
 
  return (
  <>
- 
  <NotificationBell />
-<div className={cn("flex flex-wrap items-center gap-1.5", className)}>
- {showTheme ? (
- <ThemeToggle />
- ) : null}
+ <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
+ {showTheme ? <ThemeToggle /> : null}
 
  <HeaderIconButton
  label="آخرین بازدیدها"

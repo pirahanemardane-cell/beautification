@@ -43,14 +43,14 @@ export class OrderRepository extends BaseRepository {
  .from("stock_reservations")
  .select("id, variant_id, quantity")
  .eq("user_id", input.userId)
- .eq("status", "active");
+ .filter("status" as never, "eq", "active");
  activeRes = (data as typeof activeRes) ?? [];
  } else if (input.sessionId) {
  const { data } = await service
  .from("stock_reservations")
  .select("id, variant_id, quantity")
  .eq("session_id", input.sessionId)
- .eq("status", "active");
+ .filter("status" as never, "eq", "active");
  activeRes = (data as typeof activeRes) ?? [];
  }
 
@@ -487,7 +487,7 @@ export class OrderRepository extends BaseRepository {
  }
  const { error } = await supabase
  .from("orders")
- .update(patch)
+ .update(patch as never)
  .eq("id", orderId);
  if (
  error &&
@@ -497,7 +497,7 @@ export class OrderRepository extends BaseRepository {
  const { payment_status: _ps, ...basicPatch } = patch;
  const retry = await supabase
  .from("orders")
- .update(basicPatch)
+ .update(basicPatch as never)
  .eq("id", orderId);
  if (retry.error) throw retry.error;
  return true;

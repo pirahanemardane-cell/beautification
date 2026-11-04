@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { toggleWishlistAction } from "@/app/(shop)/actions/shop";
 import { useShopStore, type ShopProduct } from "@/lib/shop-store";
 import { Price } from "@/components/ui/price";
 
@@ -11,6 +13,28 @@ export default function WishlistPage() {
  const toggleWishlist = useShopStore((s) => s.toggleWishlist);
  const [hydrated, setHydrated] = useState(false);
  useEffect(() => setHydrated(true), []);
+
+ async function handleRemove(p: ShopProduct) {
+ toggleWishlist(p);
+ try {
+ const res = await toggleWishlistAction(p.id);
+ if (res.ok === false && res.error === "login_required") {
+ // Guest: local store is authoritative
+ return;
+ }
+ if (res.ok === false) {
+ toggleWishlist(p);
+ toast.error("خطا در حذف از علاقه‌مندی‌ها");
+ return;
+ }
+ if (typeof window !== "undefined") {
+ window.dispatchEvent(new Event("pm:wishlist-changed"));
+ }
+ } catch {
+ toggleWishlist(p);
+ toast.error("خطا در حذف از علاقه‌مندی‌ها");
+ }
+ }
 
  if (!hydrated) {
  return (
@@ -69,7 +93,7 @@ export default function WishlistPage() {
  <button
  type="button"
  className="text-destructive text-xs"
- onClick={() => toggleWishlist(p)}
+ onClick={() => void handleRemove(p)}
  >
  حذف
  </button>
