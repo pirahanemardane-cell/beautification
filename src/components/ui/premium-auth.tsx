@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 
 type AuthMode = "login" | "signup" | "reset";
+
+/** تا اتصال ملی‌پیامک: ثبت‌نام فقط ایمیل */
+const ENABLE_PHONE_OTP = false;
 type LoginMethod = "password" | "otp";
 type RegistrationStep = "details" | "verification" | "complete";
 type OtpStep = "phone" | "code";
@@ -134,7 +137,7 @@ export function AuthForm({
  if (authMode === "login" && loginMethod === "otp") {
  if (otpStep === "phone") {
  if (!formData.phone.trim() || !isValidIranPhone(formData.phone)) {
- setErrors({ phone: "شماره موبایل معتبر وارد کنید (مثال: ۰۹۱۲…)" });
+ setErrors({ phone: "شماره موبایل (اختیاری)" });
  setIsLoading(false);
  return;
  }
@@ -328,97 +331,47 @@ export function AuthForm({
 
  // ——— ثبت‌نام با OTP واقعی (همان مسیر ورود) ———
  if (authMode === "signup") {
- const phoneNorm = normalizeIranMobile(formData.phone) ?? formData.phone;
- if (!phoneNorm || phoneNorm.length < 11) {
- setErrors({ phone: "شماره موبایل معتبر وارد کنید" });
- setIsLoading(false);
- return;
- }
+        // ثبت‌نام با ایمیل (موبایل تا ملی‌پیامک اختیاری / بدون OTP)
+        const email = (formData.email || formData.loginId || "").trim().toLowerCase();
+        const password = formData.password || "";
+        const fullName = (formData.fullName || formData.name || "").trim();
 
- // مرحله 1: ارسال کد
- if (registrationStep === "details") {
- const res = await requestOtpAction(phoneNorm);
- if (!res.ok) {
- const map: Record<string, string> = {
- invalid_phone: "شماره موبایل نامعتبر است",
- rate_limit: "لطفاً کمی صبر کنید و دوباره تلاش کنید",
- send_failed: "ارسال پیامک ناموفق بود",
- config: "پیکربندی پیامک ناقص است",
- server: "خطای سرور؛ دوباره تلاش کنید",
- };
- setErrors({ phone: map[res.error] || "ارسال کد ناموفق بود" });
- setIsLoading(false);
- return;
- }
- setRegistrationStep("verification");
- setSuccessMessage("کد تأیید به موبایل شما ارسال شد");
- setOtpCooldown(60);
- setIsLoading(false);
- return;
- }
+        if (!email || !isValidEmail(email)) {
+          setErrors({ email: "ایمیل معتبر وارد کنید" });
+          setIsLoading(false);
+          return;
+        }
+        if (!password || password.length < 6) {
+          setErrors({ password: "رمز عبور حداقل ۶ کاراکتر باشد" });
+          setIsLoading(false);
+          return;
+        }
 
- // مرحله 2: تأیید کد + ساخت نشست (مثل ورود)
- if (registrationStep === "verification") {
- const code = (formData.verificationCode || formData.otpCode || "").replace(/\D/g, "");
- if (!/^\d{6}$/.test(code)) {
- setErrors({ verificationCode: "کد ۶ رقمی وارد کنید" });
- setIsLoading(false);
- return;
- }
- const ver = await verifyOtpAction(phoneNorm, code);
- if (!ver.ok) {
- const map: Record<string, string> = {
- invalid_code: "کد نادرست است",
- expired: "کد منقضی شده؛ دوباره درخواست کنید",
- too_many_attempts: "تلاش بیش از حد؛ بعداً دوباره",
- invalid_phone: "شماره نامعتبر",
- server: "خطای سرور",
- };
- setErrors({
- verificationCode: map[(ver as { error?: string }).error || ""] || "تأیید ناموفق",
- });
- setIsLoading(false);
- return;
- }
-
- const email = (ver as { email?: string }).email;
- const tempPass = (ver as { temp_password?: string }).temp_password;
- if (email && tempPass) {
- try {
- const { createBrowserClient } = await import("@supabase/ssr");
- const browser = createBrowserClient(
- process.env.NEXT_PUBLIC_SUPABASE_URL!,
- process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
- );
- const { error: signErr } = await browser.auth.signInWithPassword({
- email,
- password: tempPass,
- });
- if (signErr) console.error("[signup signIn]", signErr);
- } catch (e) {
- console.error("[signup session]", e);
- }
- }
-
- setRegistrationStep("complete");
- setSuccessMessage("ثبت‌نام کامل شد");
- try {
- void onSuccess?.({ phone: formData.phone });
- } catch {}
- setTimeout(() => {
- window.location.replace(
- (defaultNext && defaultNext.startsWith("/") && !defaultNext.startsWith("/admin"))
- ? defaultNext
- : "/dashboard"
- );
- }, 800);
- setIsLoading(false);
- return;
- }
-
- setIsLoading(false);
- return;
- }
+        try {
+          const res = await signUpAction(email, password, fullName || undefined);
+          if (!res.ok) {
+            setErrors({ email: res.error || "ثبت‌نام ناموفق بود" });
+            setIsLoading(false);
+            return;
+          }
+          // ورود خودکار بعد از ثبت‌نام
+          const login = await signInAction(email, password);
+          if (!login.ok) {
+            setErrors({ email: "ثبت‌نام شد؛ لطفاً وارد شوید: " + (login.error || "") });
+            setIsLoading(false);
+            setAuthMode("login");
+            return;
+          }
+          void onSuccess?.({ email });
+          setIsLoading(false);
+          return;
+        } catch (e) {
+          console.error("[signup email]", e);
+          setErrors({ email: "خطای غیرمنتظره؛ دوباره تلاش کنید" });
+          setIsLoading(false);
+          return;
+        }
+      }
 
 
  setIsLoading(false);
