@@ -442,7 +442,8 @@ export default function CheckoutPage() {
  }
 
  function validateRecipient(): string | null {
- if (!form.firstName.trim() || !form.lastName.trim()) {
+ // Accept a single filled name field (common Iranian UX) — server needs ≥3 chars total
+ if (fullName().length < 3) {
  return "نام و نام خانوادگی الزامی است.";
  }
  if (!form.phone.trim()) {
