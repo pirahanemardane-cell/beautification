@@ -4,7 +4,7 @@ import { StaticPage } from "@/components/content/static-page";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "راهنمای سایز اکسسوری دست ساز | جواهر شاد",
+  title: "راهنمای سایز | جواهر شاد",
   description:
     "جدول استاندارد سایز انگشتر، گردنبند و دستبند مطابق استاندارد ایران و بین‌المللی",
 };
@@ -43,7 +43,7 @@ const BRACELET_ROWS = [
 
 export default function SizeGuidePage() {
   return (
-    <StaticPage title="راهنمای سایز اکسسوری دست ساز">
+    <StaticPage title="راهنمای سایز">
       <p className="text-muted-foreground mb-8 leading-relaxed">
         جداول زیر بر اساس استاندارد رایج بازار ایران (شماره محیط داخلی به میلی‌متر)
         و استاندارد بین‌المللی ISO تهیه شده‌اند. برای انتخاب دقیق‌تر، اندازه‌گیری را

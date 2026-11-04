@@ -22,7 +22,7 @@ interface About3Props {
 
 const defaultAchievements = [
  { label: "تمرکز تخصصی", value: "اکسسوری دست ساز" },
- { label: "راهنمای سایز اکسسوری دست ساز", value: "شفاف" },
+ { label: "راهنمای سایز", value: "شفاف" },
  { label: "مرجوعی آسان", value: "آسوده" },
  { label: "پشتیبانی", value: "واقعی" },
 ];
@@ -43,14 +43,14 @@ export function About3({
  alt: "لوگو",
  title: "اندازه درست، استایل درست",
  description:
- "از راهنمای سایز اکسسوری دست ساز شفاف تا تعویض آسان — هدف ما اعتماد به فیت قبل از خرید است.",
+ "از راهنمای سایز شفاف تا تعویض آسان — هدف ما اعتماد به فیت قبل از خرید است.",
  buttonText: "مشاهده محصولات",
  buttonUrl: "/products",
  },
  companiesTitle = "تمرکز ما",
  companies = [],
  achievementsTitle = "آنچه برای خریدار مهم است",
- achievementsDescription = "کیفیت دوخت، راهنمای سایز اکسسوری دست ساز شفاف، ارسال مطمئن و پشتیبانی واقعی.",
+ achievementsDescription = "کیفیت دوخت، راهنمای سایز شفاف، ارسال مطمئن و پشتیبانی واقعی.",
  achievements = defaultAchievements,
 }: About3Props = {}) {
  return (

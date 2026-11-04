@@ -14,11 +14,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir";
 export const metadata: Metadata = {
  metadataBase: new URL(siteUrl),
  title: {
- default: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز و اکسسوری",
+ default: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
  template: "%s | جواهر شاد",
  },
  description:
- "فروشگاه تخصصی اکسسوری دست ساز و اکسسوری — گردنبند، اسپرت، دستبند، ست و اکسسوری اکسسوری دست ساز",
+ "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری اکسسوری دست ساز",
  applicationName: "جواهر شاد",
  authors: [{ name: "جواهر شاد" }],
  generator: "Next.js",
@@ -47,9 +47,9 @@ export const metadata: Metadata = {
  locale: "fa_IR",
  url: siteUrl,
  siteName: "جواهر شاد",
- title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز و اکسسوری",
+ title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
  description:
- "فروشگاه تخصصی اکسسوری دست ساز و اکسسوری — گردنبند، اسپرت، دستبند، ست و اکسسوری",
+ "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری",
  images: [
  {
  url: "/og-image.webp",
@@ -61,9 +61,9 @@ export const metadata: Metadata = {
  },
  twitter: {
  card: "summary_large_image",
- title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز و اکسسوری",
+ title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
  description:
- "فروشگاه تخصصی اکسسوری دست ساز و اکسسوری — گردنبند، اسپرت، دستبند، ست و اکسسوری",
+ "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری",
  images: ["/og-image.webp"],
  },
  robots: isSiteIndexable()

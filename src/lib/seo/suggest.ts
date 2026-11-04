@@ -50,7 +50,7 @@ export function suggestMetaDescription(input: SuggestInput): string {
 
  let base = fromBody;
  if (!base) {
- base = `خرید ${name} با کیفیت عالی و ارسال سریع از فروشگاه تخصصی اکسسوری دست ساز و اکسسوری.`;
+ base = `خرید ${name} با کیفیت عالی و ارسال سریع از فروشگاه تخصصی اکسسوری دست ساز.`;
  }
  if (kp && !base.includes(kp)) {
  base = `${kp} — ${base}`;
