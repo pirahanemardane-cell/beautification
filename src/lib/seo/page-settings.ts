@@ -17,22 +17,33 @@ export async function metadataFromSeoPage(
  if (!data) {
  return { title: fallback.title, description: fallback.description };
  }
- const ctx = { name: data.title || fallback.title, title: data.title || fallback.title };
- const title = applySeoTemplate(data.meta_title, ctx) || data.title || fallback.title;
+ const row = data as unknown as {
+ title?: string | null;
+ meta_title?: string | null;
+ meta_description?: string | null;
+ og_title?: string | null;
+ og_description?: string | null;
+ og_image_url?: string | null;
+ robots_index?: boolean | null;
+ robots_follow?: boolean | null;
+ canonical_url?: string | null;
+ };
+ const ctx = { name: row.title || fallback.title, title: row.title || fallback.title };
+ const title = applySeoTemplate(row.meta_title, ctx) || row.title || fallback.title;
  const description =
- applySeoTemplate(data.meta_description, ctx) || fallback.description;
+ applySeoTemplate(row.meta_description, ctx) || fallback.description;
  return {
  title,
  description,
- alternates: data.canonical_url ? { canonical: data.canonical_url } : undefined,
+ alternates: row.canonical_url ? { canonical: row.canonical_url } : undefined,
  robots: {
- index: isSiteIndexable() && data.robots_index !== false,
- follow: isSiteIndexable() && data.robots_follow !== false,
+ index: isSiteIndexable() && row.robots_index !== false,
+ follow: isSiteIndexable() && row.robots_follow !== false,
  },
  openGraph: {
- title: data.og_title || title,
- description: data.og_description || description,
- images: data.og_image_url ? [{ url: data.og_image_url }] : undefined,
+ title: row.og_title || title,
+ description: row.og_description || description,
+ images: row.og_image_url ? [{ url: row.og_image_url }] : undefined,
  },
  };
  } catch {

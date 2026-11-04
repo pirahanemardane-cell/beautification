@@ -277,9 +277,9 @@ useEffect(() => {
  (async () => {
  try {
  const supabase = createClient();
- const { data } = await supabase.auth.getSession();
+ const { data: userData, error: userErr } = await supabase.auth.getUser();
  if (cancelled) return;
- if (!data.session?.user) {
+ if (userErr || !userData.user) {
  setAuthChecked(true);
  setAuthOk(false);
  router.replace("/ورود?next=/dashboard");
@@ -549,7 +549,7 @@ useEffect(() => {
  setReturnLoading(false);
  if (ret.ok) setReturnItems(ret.items as typeof returnItems);
  if (ord.ok && Array.isArray((ord as { items?: unknown }).items)) {
- const items = (ord as { items: { id: string; status?: string; created_at?: string; total?: number }[] }).items;
+ const items = (ord as unknown as { items: { id: string; status?: string; created_at?: string; total?: number }[] }).items;
  const eligible = items.filter((o) =>
  ["shipped", "delivered"].includes(String(o.status || "")),
  );
@@ -655,6 +655,8 @@ useEffect(() => {
  ? "در انتظار"
  : o.status === "paid"
  ? "پرداخت‌شده"
+ : o.status === "processing"
+ ? "در حال آماده‌سازی"
  : o.status === "shipped"
  ? "ارسال‌شده"
  : o.status === "delivered"
@@ -750,9 +752,28 @@ useEffect(() => {
  لغو سفارش
  </button>
  ) : null}
- <span className="text-muted-foreground text-[11px]" dir="ltr">
- #{String(o.id).slice(0, 8)}
+ <div className="flex flex-wrap items-center gap-2">
+ <span
+ className="text-muted-foreground max-w-[14rem] truncate font-mono text-[11px]"
+ dir="ltr"
+ title={String(o.id).replace(/-/g, "")}
+ >
+ {String(o.id).replace(/-/g, "").toUpperCase()}
  </span>
+ <button
+ type="button"
+ className="text-primary text-[11px] hover:underline"
+ onClick={() => {
+ const code = String(o.id).replace(/-/g, "").toUpperCase();
+ void navigator.clipboard?.writeText(code);
+ setTrackCode(code);
+ setTab("track");
+ toast.success("کد پیگیری کپی شد");
+ }}
+ >
+ پیگیری
+ </button>
+ </div>
  </div>
  </li>
  ))}
@@ -1022,19 +1043,22 @@ useEffect(() => {
  onClick={async () => {
  setLogoutAllBusy(true);
  try {
+ // Prefer server action that revokes other device sessions when table exists
+ const res = await signOutOtherDevicesAction();
+ if (!res.ok) {
  const supabase = createClient();
- // scope global: همه refresh tokenها باطل می‌شوند
  await supabase.auth.signOut({ scope: "global" });
+ }
  } catch {
  try {
  const supabase = createClient();
- await supabase.auth.signOut();
+ await supabase.auth.signOut({ scope: "global" });
  } catch {
  /* ignore */
  }
  }
  setLogoutAllBusy(false);
- window.location.href = "/login";
+ window.location.href = "/ورود";
  }}
  >
  {logoutAllBusy ? "در حال خروج…" : "خروج از همه دستگاه‌ها"}

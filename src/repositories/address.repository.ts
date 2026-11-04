@@ -42,6 +42,13 @@ export class AddressRepository extends BaseRepository {
 
  async create(userId: string, input: AddressInput): Promise<AddressRow> {
  const supabase = createServiceClient();
+ const makeDefault = !!input.is_default;
+ if (makeDefault) {
+ await supabase
+ .from("addresses")
+ .update({ is_default: false })
+ .eq("user_id", userId);
+ }
  const { data, error } = await supabase
  .from("addresses")
  .insert({
@@ -53,7 +60,7 @@ export class AddressRepository extends BaseRepository {
  city: input.city.trim(),
  address_line: input.address_line.trim(),
  postal_code: input.postal_code?.trim() || null,
- is_default: !!input.is_default,
+ is_default: makeDefault,
  })
  .select("*")
  .single();
@@ -82,7 +89,13 @@ export class AddressRepository extends BaseRepository {
  if (input.postal_code !== undefined)
  patch.postal_code = input.postal_code?.trim() || null;
  if (input.is_default !== undefined) patch.is_default = !!input.is_default;
- patch.updated_at = new Date().toISOString();
+ if (patch.is_default === true) {
+ await supabase
+ .from("addresses")
+ .update({ is_default: false })
+ .eq("user_id", userId)
+ .neq("id", id);
+ }
 
  const { error } = await supabase
  .from("addresses")
@@ -103,6 +116,16 @@ export class AddressRepository extends BaseRepository {
  }
 
  async setDefault(userId: string, id: string): Promise<void> {
- await this.update(userId, id, { is_default: true });
+ const supabase = createServiceClient();
+ await supabase
+ .from("addresses")
+ .update({ is_default: false })
+ .eq("user_id", userId);
+ const { error } = await supabase
+ .from("addresses")
+ .update({ is_default: true })
+ .eq("id", id)
+ .eq("user_id", userId);
+ if (error) throw error;
  }
 }

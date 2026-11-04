@@ -1,10 +1,10 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export async function listPublishedPostsAction(limit = 20) {
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data, error } = await supabase
  .from("blog_posts")
  .select(
@@ -23,7 +23,7 @@ export async function listPublishedPostsAction(limit = 20) {
 
 export async function getPublishedPostBySlugAction(slug: string) {
  try {
- const supabase = await createClient();
+ const supabase = createPublicClient();
  const { data, error } = await supabase
  .from("blog_posts")
  .select(

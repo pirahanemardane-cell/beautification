@@ -21,7 +21,7 @@ import {
 
 type AuthMode = "login" | "signup" | "reset";
 
-/** تا اتصال ملی‌پیامک: ثبت‌نام فقط ایمیل */
+/** تا آماده‌سازی otp_challenges + ملی‌پیامک خاموش بماند */
 const ENABLE_PHONE_OTP = false;
 type LoginMethod = "password" | "otp";
 type RegistrationStep = "details" | "verification" | "complete";
@@ -127,6 +127,12 @@ export function AuthForm({
  []
  );
 
+ useEffect(() => {
+ if (!ENABLE_PHONE_OTP && loginMethod === "otp") {
+ setLoginMethod("password");
+ }
+ }, [loginMethod]);
+
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault();
  setIsLoading(true);
@@ -138,7 +144,7 @@ export function AuthForm({
  if (authMode === "login" && loginMethod === "otp") {
  if (otpStep === "phone") {
  if (!formData.phone.trim() || !isValidIranPhone(formData.phone)) {
- setErrors({ phone: "شماره موبایل (اختیاری)" });
+ setErrors({ phone: "شماره موبایل معتبر نیست" });
  setIsLoading(false);
  return;
  }
@@ -149,9 +155,6 @@ export function AuthForm({
  rate_limit: "کمی صبر کنید و دوباره تلاش کنید",
  send_failed: "ارسال پیامک ناموفق بود",
  config: "تنظیمات SMS ناقص است (env)",
- server: "خطای سرور",
- send_failed: "ارسال پیامک ناموفق بود",
- config: "پیکربندی پیامک ناقص است",
  server: "خطای سرور",
  };
  setErrors({
@@ -267,29 +270,12 @@ export function AuthForm({
     }
     const id = formData.loginId.trim();
     try {
-      const { createBrowserClient } = await import("@supabase/ssr");
-      const browser = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      );
-      if (id.includes("@")) {
-        const { data, error } = await browser.auth.signInWithPassword({
-          email: id.toLowerCase(),
-          password: formData.password,
-        });
-        if (error || !data.session) {
-          console.error("[password login]", error);
-          setErrors({ general: "ایمیل یا رمز عبور نادرست است" });
-          setIsLoading(false);
-          return;
-        }
-      } else {
-        const res = await signInAction(id, formData.password);
-        if (!res.ok) {
-          setErrors({ general: res.error || "ورود ناموفق" });
-          setIsLoading(false);
-          return;
-        }
+      // Always use server action (rate-limit + lockout for email and phone)
+      const res = await signInAction(id, formData.password);
+      if (!res.ok) {
+        setErrors({ general: res.error || "ورود ناموفق" });
+        setIsLoading(false);
+        return;
       }
     } catch (e) {
       console.error("[password login]", e);
@@ -334,24 +320,35 @@ export function AuthForm({
 
   // ——— بازیابی ———
  if (authMode === "reset") {
- if (!isValidLoginId(formData.loginId) && !isValidIranPhone(formData.phone)) {
- const id = formData.loginId || formData.phone;
- if (!isValidLoginId(id)) {
+ const id = (formData.loginId || formData.phone || "").trim();
+ if (!isValidLoginId(id) && !isValidIranMobile(id)) {
  setErrors({ loginId: "موبایل یا ایمیل معتبر وارد کنید" });
+ setIsLoading(false);
  return;
  }
+ try {
+ const res = await resetPasswordAction(id);
+ if (!res.ok) {
+ setErrors({ general: res.error || "ارسال لینک بازیابی ناموفق بود" });
+ setIsLoading(false);
+ return;
  }
- setSuccessMessage("لینک / کد بازیابی ارسال شد");
+ setSuccessMessage("لینک بازیابی به ایمیل مرتبط ارسال شد");
  setTimeout(() => setAuthMode("login"), 1500);
+ } catch (e) {
+ console.error("[reset password]", e);
+ setErrors({ general: "خطا در بازیابی رمز" });
+ }
+ setIsLoading(false);
  return;
  }
 
- // ——— ثبت‌نام با OTP واقعی (همان مسیر ورود) ———
+ // ——— ثبت‌نام ———
  if (authMode === "signup") {
-        // ثبت‌نام مشتری: ایمیل + رمز → session خودکار → داشبورد
         const email = (formData.email || formData.loginId || "").trim().toLowerCase();
         const password = formData.password || "";
-        const fullName = (formData.fullName || formData.name || "").trim();
+        const fullName = (formData.name || "").trim();
+        const phone = (formData.phone || "").trim();
 
         if (!email || !isValidEmail(email)) {
           setErrors({ email: "ایمیل معتبر وارد کنید" });
@@ -363,15 +360,35 @@ export function AuthForm({
           setIsLoading(false);
           return;
         }
+        if (formData.confirmPassword !== password) {
+          setErrors({ confirmPassword: "تکرار رمز عبور یکسان نیست" });
+          setIsLoading(false);
+          return;
+        }
+        if (!formData.agreeToTerms) {
+          setErrors({ general: "پذیرش شرایط استفاده الزامی است" });
+          setIsLoading(false);
+          return;
+        }
+        if (phone && !isValidIranMobile(phone)) {
+          setErrors({ phone: "شماره موبایل نامعتبر است" });
+          setIsLoading(false);
+          return;
+        }
 
         try {
-          const res = await signUpAction(email, password, fullName || undefined);
+          const res = await signUpAction(
+            email,
+            password,
+            fullName || undefined,
+            phone || undefined,
+          );
           if (!res.ok) {
             setErrors({ email: res.error || "ثبت‌نام ناموفق بود" });
             setIsLoading(false);
             return;
           }
-          void onSuccess?.({ email });
+          void onSuccess?.({ email, phone: phone || undefined, name: fullName });
           window.location.assign("/dashboard");
           return;
         } catch (e) {
@@ -461,8 +478,8 @@ export function AuthForm({
  </div>
  ) : null}
 
- {/* تب رمز / OTP فقط در ورود */}
- {authMode === "login" ? (
+ {/* تب رمز / OTP فقط در ورود — OTP تا آماده‌سازی جدول+پیامک مخفی */}
+ {authMode === "login" && ENABLE_PHONE_OTP ? (
  <div className="bg-muted mb-6 flex rounded-xl p-1">
  <button
  type="button"

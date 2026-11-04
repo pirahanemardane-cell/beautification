@@ -71,20 +71,16 @@ export async function createReturnAction(input: {
  return { ok: false as const, error: "order_not_eligible" };
  }
 
- // مهلت مرجوعی: ۷ روز از زمان ارسال/ایجاد سفارش (استاندارد رایج ایران)
- const baseDate = new Date(
- String(
- (order as { shipped_at?: string | null }).shipped_at ||
- order.created_at ||
- "",
- ),
- );
- if (!Number.isNaN(baseDate.getTime())) {
- const days = (Date.now() - baseDate.getTime()) / (1000 * 60 * 60 * 24);
- if (days > RETURN_WINDOW_DAYS) {
+ // مهلت مرجوعی از shipped_at یا created_at — بدون تاریخ معتبر = رد
+ if (
+ !isWithinReturnWindow(
+ (order as { shipped_at?: string | null }).shipped_at,
+ order.created_at as string,
+ )
+ ) {
  return { ok: false as const, error: "return_window_expired" };
  }
- }
+ // RETURN_WINDOW_DAYS kept via business-rules helper
 
  // جلوگیری از درخواست باز تکراری روی همان سفارش
  const { data: existing } = await supabase

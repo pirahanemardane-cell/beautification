@@ -159,7 +159,6 @@ export default function AdminStockAlertsPage() {
  <AdminBulkBar
  total={items.length}
  onSelectAll={() => toggleSelectAll(items.map((x) => x.id))}
- onClear={() => setSelected([])}
  count={selected.length}
  busy={bulkBusy}
  onArchive={() => void runBulkArchive()}

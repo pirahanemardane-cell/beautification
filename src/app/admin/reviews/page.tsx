@@ -8,13 +8,35 @@ export const dynamic = "force-dynamic";
 
 export default async function ReviewsAdminPage() {
  const supabase = createServiceClient();
- const { data, error } = await supabase
+ const fullSelect =
+ "id, created_at, rating, title, body, is_approved, is_verified, admin_reply, product_id, user_id, user:profiles(full_name), product:products(name, slug)";
+ const basicSelect =
+ "id, created_at, rating, title, body, is_approved, is_verified, product_id, user_id, user:profiles(full_name), product:products(name, slug)";
+
+ const primary = await supabase
  .from("reviews")
- .select(
- "id, created_at, rating, title, body, is_approved, is_verified, admin_reply, product_id, user_id, user:profiles(full_name), product:products(name, slug)"
- )
+ .select(fullSelect)
  .order("created_at", { ascending: false })
  .limit(200);
+
+ let data = primary.data;
+ let error = primary.error;
+ let replySupported = true;
+ if (
+ error &&
+ (String(error.message || "").includes("42703") ||
+ String(error.message || "").includes("does not exist") ||
+ String(error.message || "").includes("column"))
+ ) {
+ const fallback = await supabase
+ .from("reviews")
+ .select(basicSelect)
+ .order("created_at", { ascending: false })
+ .limit(200);
+ data = fallback.data;
+ error = fallback.error;
+ replySupported = false;
+ }
 
  if (error) {
  return (
@@ -120,7 +142,7 @@ export default async function ReviewsAdminPage() {
  <p className="text-muted-foreground line-clamp-4 whitespace-pre-wrap">
  {r.body}
  </p>
- {r.admin_reply ? (
+ {replySupported && r.admin_reply ? (
  <div className="bg-muted/50 mt-2 rounded-lg border-r-2 border-primary p-2 text-xs">
  <p className="mb-0.5 font-medium text-primary">پاسخ فروشگاه</p>
  <p className="text-muted-foreground whitespace-pre-wrap">
@@ -144,7 +166,8 @@ export default async function ReviewsAdminPage() {
  <ReviewActions
  id={r.id}
  isApproved={!!r.is_approved}
- adminReply={r.admin_reply ?? ""}
+ adminReply={replySupported ? (r.admin_reply ?? "") : ""}
+ replySupported={replySupported}
  />
  </td>
  </tr>

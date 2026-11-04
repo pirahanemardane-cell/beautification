@@ -71,6 +71,31 @@ export async function toggleWishlistAction(productId: string) {
  }
 }
 
+/** Merge guest/local wishlist product ids into the signed-in account (add-only). */
+export async function mergeWishlistAction(productIds: string[]) {
+ const user = await requireUser();
+ if (!user) {
+ return { ok: false as const, error: "login_required" };
+ }
+ try {
+ const ids = [...new Set((productIds || []).map((x) => String(x || "").trim()).filter(Boolean))];
+ if (!ids.length) return { ok: true as const, added: 0 };
+ const repo = new WishlistRepository();
+ let added = 0;
+ for (const id of ids.slice(0, 100)) {
+ const exists = await repo.has(user.id, id);
+ if (!exists) {
+ await repo.add(user.id, id);
+ added += 1;
+ }
+ }
+ return { ok: true as const, added };
+ } catch (e) {
+ console.error("[mergeWishlist]", e);
+ return { ok: false as const, error: "server" };
+ }
+}
+
 
 
 export type WishlistItemDTO = {
@@ -142,6 +167,16 @@ export async function listWishlistAction(): Promise<{
  }
 }
 
+function mapServiceRoleError(msg: string): string | null {
+  if (
+    msg.includes("SUPABASE_SERVICE_ROLE_KEY") ||
+    msg.includes("Missing NEXT_PUBLIC_SUPABASE_URL")
+  ) {
+    return "service_role_missing";
+  }
+  return null;
+}
+
 export async function addToCartAction(variantId: string, quantity = 1) {
  try {
  if (!variantId) {
@@ -159,7 +194,7 @@ return { ok: true as const };
  : e instanceof Error
  ? e.message
  : String(e);
- return { ok: false as const, error: msg };
+ return { ok: false as const, error: mapServiceRoleError(msg) ?? msg };
  }
 }
 
@@ -256,8 +291,18 @@ export async function swapCartVariantAction(input: {
 
  const cartId = await resolveCartId();
  const cartRepo = new CartRepository();
+ // Remove-then-add with restore: avoids wiping an existing target line on rollback
  await cartRepo.removeItem(cartId, input.oldVariantId);
+ try {
  await cartRepo.addItem(cartId, match.id as string, qty);
+ } catch (addErr) {
+ try {
+ await cartRepo.addItem(cartId, input.oldVariantId, qty);
+ } catch (restoreErr) {
+ console.error("[swapCartVariant] restore old variant", restoreErr);
+ }
+ throw addErr;
+ }
  return { ok: true, variantId: match.id as string };
  } catch (e) {
  console.error("[swapCartVariant]", e);
@@ -564,6 +609,22 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  if (!methodId) {
  return { ok: false as const, error: "shipping_method_required" };
  }
+ // Reject UI fallback ids (post/tipax/…) — only real shipping_methods UUIDs quote
+ const uuidRe =
+ /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ if (!uuidRe.test(methodId)) {
+ return { ok: false as const, error: "shipping_method_required" };
+ }
+ if (payload.paymentMethod === "online") {
+ const merchantId = process.env.ZARINPAL_MERCHANT_ID?.trim();
+ const testMode = process.env.PAYMENT_TEST_MODE === "true";
+ if (!merchantId && !testMode) {
+ return {
+ ok: false as const,
+ error: "پرداخت آنلاین فعلاً در دسترس نیست. پرداخت در محل را انتخاب کنید.",
+ };
+ }
+ }
  const weightGrams = Math.max(
  100,
  (raw as any[]).reduce((s, row) => {
@@ -700,7 +761,10 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  : e instanceof Error
  ? e.message
  : String(e);
- return { ok: false as const, error: msg };
+ return {
+ ok: false as const,
+ error: mapServiceRoleError(msg) ?? msg,
+ };
  }
 }
 
@@ -818,11 +882,34 @@ export async function updateMyProfileAction(input: {
  if (!Object.keys(patch).length) {
  return { ok: false as const, error: "nothing_to_update" };
  }
- const { error } = await supabase
+ const { data: updated, error } = await supabase
  .from("profiles")
- .update(patch as never)
- .eq("id", user.id);
+ .upsert(
+ {
+ id: user.id,
+ ...patch,
+ role: "customer",
+ } as never,
+ { onConflict: "id" },
+ )
+ .select("id")
+ .maybeSingle();
  if (error) throw error;
+ if (!updated) {
+ try {
+ const { createServiceClient } = await import("@/lib/supabase/service");
+ const service = createServiceClient();
+ const { error: sErr } = await service.from("profiles").upsert({
+ id: user.id,
+ ...patch,
+ role: "customer",
+ } as never);
+ if (sErr) throw sErr;
+ } catch (se) {
+ console.error("[updateMyProfile service]", se);
+ return { ok: false as const, error: "profile_write_failed" };
+ }
+ }
  return { ok: true as const };
  } catch (e) {
  console.error("[updateMyProfile]", e);
@@ -834,6 +921,21 @@ export async function updateMyProfileAction(input: {
  }
 }
 
+
+function isMissingRelation(e: unknown): boolean {
+ const msg =
+ e && typeof e === "object" && "message" in e
+ ? String((e as { message?: string }).message || "")
+ : e instanceof Error
+ ? e.message
+ : String(e || "");
+ return (
+ msg.includes("PGRST205") ||
+ msg.includes("schema cache") ||
+ msg.includes("does not exist") ||
+ msg.includes("Could not find the table")
+ );
+}
 
 export async function listMyAddressesAction() {
  try {
@@ -878,6 +980,13 @@ export async function listMyAddressesAction() {
  return { ok: true as const, items };
  } catch (e) {
  console.error("[listMyAddresses]", e);
+ if (isMissingRelation(e)) {
+ return {
+ ok: false as const,
+ items: [],
+ error: "جدول آدرس‌ها هنوز در دیتابیس ساخته نشده — migration 062 را اجرا کنید",
+ };
+ }
  return { ok: false as const, items: [], error: "server" };
  }
 }
@@ -1131,30 +1240,46 @@ export async function validateDiscountAction(
  }
 
  const supabase = await createClient();
- const { data, error } = await supabase
+ // Prefer full select; fall back if parity migration not applied yet
+ let data: Record<string, unknown> | null = null;
+ {
+ const full = await supabase
  .from("discounts")
  .select(
  "id, code, type, value, min_order_amount, max_uses, used_count, starts_at, ends_at, is_active, max_discount_amount, product_ids, category_ids",
  )
  .ilike("code", raw)
  .maybeSingle();
-
- if (error) {
- console.error("validateDiscount", error);
+ if (full.error && String(full.error.message || "").includes("does not exist")) {
+ const basic = await supabase
+ .from("discounts")
+ .select("id, code, type, value, max_uses, used_count, starts_at, ends_at, is_active")
+ .ilike("code", raw)
+ .maybeSingle();
+ if (basic.error) {
+ console.error("validateDiscount", basic.error);
  return { ok: false, error: "db" };
+ }
+ data = (basic.data as Record<string, unknown> | null) ?? null;
+ } else if (full.error) {
+ console.error("validateDiscount", full.error);
+ return { ok: false, error: "db" };
+ } else {
+ data = (full.data as Record<string, unknown> | null) ?? null;
+ }
  }
  if (!data) return { ok: false, error: "not_found" };
  if (!data.is_active) return { ok: false, error: "inactive" };
 
  const now = Date.now();
- if (data.starts_at && new Date(data.starts_at).getTime() > now) {
+ if (data.starts_at && new Date(String(data.starts_at)).getTime() > now) {
  return { ok: false, error: "not_started" };
  }
- if (data.ends_at && new Date(data.ends_at).getTime() < now) {
+ if (data.ends_at && new Date(String(data.ends_at)).getTime() < now) {
  return { ok: false, error: "expired" };
  }
 
- const maxUses = data.max_uses;
+ const maxUses = data.max_uses as number | null | undefined;
  const used = Number(data.used_count ?? 0);
  if (maxUses != null && used >= Number(maxUses)) {
  return { ok: false, error: "max_uses" };
@@ -1201,7 +1326,7 @@ export async function validateDiscountAction(
  ok: true,
  discount: {
  code: String(data.code ?? raw),
- type: data.type,
+ type: String(data.type ?? ""),
  value,
  discountAmount,
  finalTotal: Math.max(0, subtotal - discountAmount),
@@ -1273,8 +1398,11 @@ export async function updateMyEmailAction(email: string) {
 }
 
 /** حذف حساب کاربر فعلی (soft: signOut + حذف profile در صورت وجود) */
-export async function deleteMyAccountAction() {
+export async function deleteMyAccountAction(confirm?: string) {
  try {
+ if ((confirm || "").trim() !== "DELETE") {
+ return { ok: false as const, error: "تأیید حذف نامعتبر است" };
+ }
  const supabase = await createClient();
  const {
  data: { user },

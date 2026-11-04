@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from "react";
 import {
  listWishlistAction,
+ mergeWishlistAction,
  getLiveRecentlyViewedAction,
 } from "@/app/(shop)/actions/shop";
 import { useShopStore } from "@/lib/shop-store";
@@ -18,6 +19,13 @@ export function WishlistSync() {
  const uid = data.user?.id;
 
  if (uid) {
+ // Preserve guest wishlist items by merging into the account before replace
+ const localIds = (useShopStore.getState().wishlist || [])
+ .map((x) => x.id)
+ .filter(Boolean);
+ if (localIds.length) {
+ await mergeWishlistAction(localIds);
+ }
  const res = await listWishlistAction();
  if (!res.ok) return;
  const mapped = res.items.map((i) => ({

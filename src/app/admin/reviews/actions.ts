@@ -51,7 +51,17 @@ export async function updateReviewReply(id: string, adminReply: string) {
  .update({ admin_reply: adminReply.trim() || null })
  .eq("id", id);
 
- if (error) return { error: error.message };
+ if (error) {
+ const msg = String(error.message || "");
+ if (
+ msg.includes("42703") ||
+ msg.includes("does not exist") ||
+ msg.includes("column")
+ ) {
+ return { error: "پاسخ ادمین در این نسخه دیتابیس پشتیبانی نمی‌شود", unsupported: true as const };
+ }
+ return { error: error.message };
+ }
  revalidatePath("/admin/reviews");
  return { ok: true };
 }

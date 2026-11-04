@@ -25,6 +25,7 @@ import {
  releaseCheckoutReservationAction,
 } from "@/app/(shop)/actions/stock-reservations";
 import { useShopStore } from "@/lib/shop-store";
+import { useServerCartStore } from "@/lib/server-cart-store";
 import { IRAN_PROVINCES } from "@/lib/iran-provinces";
 import { LumaSpin } from "@/components/ui/luma-spin";
 import { toPersianDigits } from "@/lib/numbers";
@@ -47,18 +48,13 @@ const STEPS: { n: Step; label: string }[] = [
  { n: 5, label: "نتیجه" },
 ];
 
-/** fallback اگر دیتابیس خالی بود */
+/** Display-only placeholders — never submit these ids (createOrder rejects non-UUID). */
 const FALLBACK_shipOptions: {
  id: string;
  title: string;
  desc: string;
  fee: number;
-}[] = [
- { id: "post", title: "پست پیشتاز", desc: "۲ تا ۴ روز کاری", fee: 45000 },
- { id: "tipax", title: "تیپاکس", desc: "۱ تا ۳ روز کاری", fee: 65000 },
- { id: "peyk", title: "پیک موتوری", desc: "فقط تهران — توافقی", fee: 0 },
- { id: "pickup", title: "تحویل حضوری", desc: "از فروشگاه — رایگان", fee: 0 },
-];
+}[] = [];
 
 function mapCheckoutError(code: string | undefined): string {
  if (!code) return "ثبت سفارش ناموفق بود.";
@@ -90,13 +86,15 @@ function mapCheckoutError(code: string | undefined): string {
  return "ثبت سفارش ناموفق بود. دوباره تلاش کنید.";
 }
 
-function shortTrack(id: string) {
- const clean = (id || "").replace(/-/g, "").slice(0, 12).toUpperCase();
- return clean || id;
+/** Full compact UUID (32 hex) — matches trackOrderAction / trackPublic lookup */
+function orderTrackCode(id: string) {
+ const clean = (id || "").replace(/-/g, "").toUpperCase();
+ return clean.length === 32 ? clean : id;
 }
 
 export default function CheckoutPage() {
  const clearCartLocal = useShopStore((s) => s.clearCart);
+ const clearServerCart = useServerCartStore((s) => s.clear);
 
  const [items, setItems] = useState<CartLineDTO[]>([]);
  const [loading, setLoading] = useState(true);
@@ -105,9 +103,11 @@ export default function CheckoutPage() {
 
  const [step, setStep] = useState<Step>(1);
  const [payMethod, setPayMethod] = useState<"cod" | "online">("cod");
+ const [onlinePayAvailable] = useState(false); // gateway deferred until ZARINPAL is wired
  const [shipMethod, setShipMethod] = useState<ShipMethod>("");
  const [shipMethods, setShipMethods] = useState<ShippingMethodRow[]>([]);
  const [shipOptions, setShipOptions] = useState(FALLBACK_shipOptions);
+ const [shipUnavailable, setShipUnavailable] = useState(false);
  const [shipFee, setShipFee] = useState(0);
  const [shipQuoteNote, setShipQuoteNote] = useState<string | null>(null);
  const [shipLoading, setShipLoading] = useState(false);
@@ -153,6 +153,7 @@ export default function CheckoutPage() {
  });
  if (cancelled) return;
  if (res.ok && res.items.length) {
+ setShipUnavailable(false);
  setShipMethods(res.items);
  const opts = res.items.map((m) => ({
  id: m.id,
@@ -165,8 +166,12 @@ export default function CheckoutPage() {
  setShipMethod(opts[0].id);
  }
  } else {
- setShipOptions(FALLBACK_shipOptions);
- if (!shipMethod) setShipMethod(FALLBACK_shipOptions[0].id);
+ // Do not offer fake post/tipax ids — quoting them always fails at createOrder
+ setShipUnavailable(true);
+ setShipMethods([]);
+ setShipOptions([]);
+ setShipMethod("");
+ setShipFee(0);
  }
  })();
  return () => {
@@ -437,7 +442,8 @@ export default function CheckoutPage() {
  }
 
  function validateRecipient(): string | null {
- if (!form.firstName.trim() || !form.lastName.trim()) {
+ // Accept a single filled name field (common Iranian UX) — server needs ≥3 chars total
+ if (fullName().length < 3) {
  return "نام و نام خانوادگی الزامی است.";
  }
  if (!form.phone.trim()) {
@@ -513,8 +519,11 @@ export default function CheckoutPage() {
  setSubmitting(true);
  setPayStatus(null);
 
- if (payMethod === "online") {
- // درگاه هنوز وصل نیست → معلق با کد پیگیری موقت بعد از ثبت سفارش
+ if (payMethod === "online" && !onlinePayAvailable) {
+ setSubmitting(false);
+ setError("پرداخت آنلاین فعلاً در دسترس نیست. پرداخت در محل را انتخاب کنید.");
+ setPayMethod("cod");
+ return;
  }
 
  const res = await createOrderAction({
@@ -554,7 +563,11 @@ export default function CheckoutPage() {
 
  orderPlacedRef.current = true;
  clearCartLocal();
- const trackCode = shortTrack(res.orderId);
+ clearServerCart();
+ if (typeof window !== "undefined") {
+ window.dispatchEvent(new Event("pm:cart-changed"));
+ }
+ const trackCode = orderTrackCode(res.orderId);
  const serverTotal =
  typeof (res as { totalAmount?: number }).totalAmount === "number"
  ? Number((res as { totalAmount?: number }).totalAmount)
@@ -933,6 +946,11 @@ export default function CheckoutPage() {
  {step === 3 ? (
  <>
  <h2 className="font-semibold text-primary">۳. نحوه ارسال</h2>
+ {shipUnavailable ? (
+ <p className="border-border bg-muted/40 rounded-xl border px-3 py-3 text-sm">
+ فعلاً روش ارسال فعالی برای این مقصد تنظیم نشده است. لطفاً بعداً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.
+ </p>
+ ) : null}
  {shipLoading ? (
  <p className="text-muted-foreground text-xs">در حال محاسبه هزینه ارسال...</p>
  ) : shipQuoteNote ? (
@@ -987,7 +1005,8 @@ export default function CheckoutPage() {
  <button
  type="button"
  onClick={goFrom3}
- className="bg-primary text-primary-foreground h-11 flex-1 rounded-xl text-sm font-medium"
+ disabled={!shipMethod || shipUnavailable}
+ className="bg-primary text-primary-foreground h-11 flex-1 rounded-xl text-sm font-medium disabled:opacity-40"
  >
  ادامه — پرداخت
  </button>
@@ -1000,30 +1019,36 @@ export default function CheckoutPage() {
  <>
  <h2 className="font-semibold text-primary">۴. پرداخت</h2>
  <div className="space-y-2">
- {(
- [
- ["cod", "پرداخت در محل (هنگام تحویل)"],
- ["online", "پرداخت آنلاین"],
- ] as const
- ).map(([id, label]) => (
  <button
- key={id}
  type="button"
- onClick={() => setPayMethod(id)}
+ onClick={() => setPayMethod("cod")}
  className={`w-full rounded-xl border p-4 text-right text-sm ${
- payMethod === id
+ payMethod === "cod"
  ? "border-primary bg-primary/5 font-medium"
  : "border-border"
  }`}
  >
- {label}
- {id === "online" ? (
- <span className="text-muted-foreground mt-1 block text-xs">
- پس از ثبت، وضعیت پرداخت «معلق» می‌ماند تا درگاه تأیید کند.
- </span>
- ) : null}
+ پرداخت در محل (هنگام تحویل)
  </button>
- ))}
+ <button
+ type="button"
+ disabled={!onlinePayAvailable}
+ onClick={() => {
+ if (onlinePayAvailable) setPayMethod("online");
+ }}
+ className={`w-full rounded-xl border p-4 text-right text-sm disabled:cursor-not-allowed disabled:opacity-50 ${
+ payMethod === "online"
+ ? "border-primary bg-primary/5 font-medium"
+ : "border-border"
+ }`}
+ >
+ پرداخت آنلاین
+ <span className="text-muted-foreground mt-1 block text-xs">
+ {onlinePayAvailable
+ ? "پس از ثبت به درگاه هدایت می‌شوید."
+ : "درگاه پرداخت هنوز فعال نشده است."}
+ </span>
+ </button>
  </div>
 
  <div className="space-y-2 pt-2">
@@ -1174,16 +1199,25 @@ export default function CheckoutPage() {
  <div className="border-border bg-muted/30 space-y-2 rounded-xl border p-4 text-sm">
  <p>
  <span className="text-muted-foreground">کد پیگیری: </span>
- <span className="font-mono text-base font-bold tracking-wider">
+ <span
+ className="font-mono text-sm font-bold tracking-wider break-all"
+ dir="ltr"
+ >
  {doneOrder.track}
  </span>
  </p>
- <p className="text-muted-foreground text-xs break-all">
- شناسه سفارش: {doneOrder.id}
+ <p className="text-muted-foreground text-xs">
+ این کد را در صفحه پیگیری سفارش وارد کنید (شناسه کامل ۳۲ کاراکتری).
  </p>
  <p>
  مبلغ: <Price amount={doneOrder.total} size="md" />
  </p>
+ <Link
+ href={`/track?code=${encodeURIComponent(doneOrder.track)}`}
+ className="text-primary inline-block text-sm hover:underline"
+ >
+ پیگیری سفارش
+ </Link>
  </div>
  ) : null}
 

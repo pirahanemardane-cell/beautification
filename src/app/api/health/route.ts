@@ -17,13 +17,20 @@ export async function GET(request: NextRequest) {
  process.env.SUPABASE_SERVICE_ROLE_KEY ||
  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
  if (url && key) {
- const res = await fetch(url + "/rest/v1/", {
- method: "HEAD",
- headers: { apikey: key, Authorization: "Bearer " + key },
+ // Prefer a real table probe — HEAD /rest/v1/ often 401s for anon keys
+ const res = await fetch(
+ url + "/rest/v1/products?select=id&limit=1",
+ {
+ method: "GET",
+ headers: {
+ apikey: key,
+ Authorization: "Bearer " + key,
+ Accept: "application/json",
+ },
  cache: "no-store",
- });
- supabase =
- res.ok || res.status === 404 || res.status === 200 ? "ok" : "error";
+ },
+ );
+ supabase = res.ok ? "ok" : "error";
  }
  } catch (e) {
  supabase = "error";

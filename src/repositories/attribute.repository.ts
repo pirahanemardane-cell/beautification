@@ -20,9 +20,10 @@ export class AttributeRepository extends BaseRepository {
  if (!attributeRows.length) return [];
 
  const ids = attributeRows.map((a) => a.id);
+ // Live DB has no attribute_options.hex — selecting it breaks facet queries (42703)
  const { data: options, error: optErr } = await client
  .from("attribute_options")
- .select("id, attribute_id, value, slug, sort_order, hex")
+ .select("id, attribute_id, value, slug, sort_order")
  .in("attribute_id", ids)
  .order("sort_order", { ascending: true });
 

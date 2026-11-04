@@ -52,16 +52,8 @@ export default function AdminMediaPage() {
  const alts: Record<string, string> = {};
  for (const it of res.items) {
  alts[it.id] = it.alt_text ?? "";
- try {
- const file = (it.url || "").split("/").pop() || "";
- const m = file.match(/^(.+)-(thumb|small|medium|large)\.webp$/i);
- names[it.id] = m ? m[1] : file.replace(/\.webp$/i, "");
- } catch {
- names[it.id] = "";
- }
  }
  setDraftAlt(alts);
- 
  }, []);
 
  useEffect(() => {

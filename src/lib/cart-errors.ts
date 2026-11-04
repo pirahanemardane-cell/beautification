@@ -17,6 +17,8 @@ export function mapCartError(code?: string | null): string {
  no_cart: "سبد خرید یافت نشد.",
  server: "خطای سرور. دوباره تلاش کنید.",
  login_required: "برای این کار وارد حساب شوید.",
+ service_role_missing:
+ "پیکربندی سرور ناقص است — SUPABASE_SERVICE_ROLE_KEY را در env تنظیم کنید.",
  };
  if (map[c]) return map[c];
  if (/[\u0600-\u06FF]/.test(c)) return c;

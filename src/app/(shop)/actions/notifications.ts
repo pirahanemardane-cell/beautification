@@ -33,7 +33,21 @@ export async function listMyNotificationsAction(limit = 50): Promise<{
  .eq("user_id", userId)
  .order("created_at", { ascending: false })
  .limit(limit);
- if (error) return { ok: false, items: [], error: error.message };
+ if (error) {
+ const msg = String(error.message || "");
+ if (
+ msg.includes("PGRST205") ||
+ msg.includes("schema cache") ||
+ msg.includes("does not exist")
+ ) {
+ return {
+ ok: false,
+ items: [],
+ error: "جدول اعلان‌ها موجود نیست — migration 062 را اجرا کنید",
+ };
+ }
+ return { ok: false, items: [], error: error.message };
+ }
  return { ok: true, items: (data ?? []) as NotificationDTO[] };
 }
 

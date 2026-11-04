@@ -8,15 +8,18 @@ export function ReviewActions({
  id,
  isApproved,
  adminReply,
+ replySupported = true,
 }: {
  id: string;
  isApproved: boolean;
  adminReply: string;
+ replySupported?: boolean;
 }) {
  const router = useRouter();
  const [pending, start] = useTransition();
  const [reply, setReply] = useState(adminReply);
  const [showReply, setShowReply] = useState(false);
+ const [toast, setToast] = useState<string | null>(null);
 
  const setApproval = (next: boolean) => {
  start(async () => {
@@ -26,9 +29,18 @@ export function ReviewActions({
  };
 
  const saveReply = () => {
+ if (!replySupported) {
+ setToast("پاسخ ادمین در این نسخه دیتابیس پشتیبانی نمی‌شود");
+ return;
+ }
  start(async () => {
- await updateReviewReply(id, reply);
+ const res = await updateReviewReply(id, reply);
+ if (res && "error" in res && res.error) {
+ setToast(String(res.error));
+ return;
+ }
  setShowReply(false);
+ setToast(null);
  router.refresh();
  });
  };
@@ -55,6 +67,8 @@ export function ReviewActions({
  </button>
  )}
 
+ {replySupported ? (
+ <>
  <button
  type="button"
  disabled={pending}
@@ -83,6 +97,14 @@ export function ReviewActions({
  ذخیره پاسخ
  </button>
  </div>
+ ) : null}
+ </>
+ ) : null}
+
+ {toast ? (
+ <p className="text-destructive text-[10px]" role="status">
+ {toast}
+ </p>
  ) : null}
  </div>
  );

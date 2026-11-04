@@ -196,7 +196,9 @@ export default function AdminDiscountsPage() {
  ? "مقدار نامعتبر"
  : res.error === "bad_percent"
  ? "درصد حداکثر ۱۰۰"
- : "ایجاد ناموفق (احتمالاً کد تکراری)",
+ : res.error === "duplicate_code"
+ ? "این کد تخفیف از قبل وجود دارد"
+ : "ایجاد ناموفق بود. دوباره تلاش کنید.",
  );
  return;
  }
@@ -244,7 +246,6 @@ export default function AdminDiscountsPage() {
  <AdminBulkBar
  total={items.length}
  onSelectAll={() => toggleSelectAll(items.map((x) => x.id))}
- onClear={() => setSelected([])}
  count={selected.length}
  busy={bulkBusy}
  onArchive={() => void runBulkArchive()}
@@ -256,15 +257,22 @@ export default function AdminDiscountsPage() {
  <form
  onSubmit={onCreate}
  className="border-border bg-card grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 lg:grid-cols-4"
+ noValidate
  >
+ <label className="block space-y-1 text-xs">
+ <span className="text-muted-foreground">کد تخفیف *</span>
  <input
- placeholder="کد (مثلاً WELCOME20)"
+ placeholder="مثلاً WELCOME20"
  value={form.code}
  onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  dir="ltr"
+ autoComplete="off"
  required
  />
+ </label>
+ <label className="block space-y-1 text-xs">
+ <span className="text-muted-foreground">نوع</span>
  <select
  value={form.type}
  onChange={(e) =>
@@ -273,59 +281,81 @@ export default function AdminDiscountsPage() {
  type: e.target.value as "percentage" | "fixed",
  }))
  }
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  >
  <option value="percentage">درصدی</option>
  <option value="fixed">مبلغ ثابت</option>
  </select>
+ </label>
+ <label className="block space-y-1 text-xs">
+ <span className="text-muted-foreground">
+ مقدار * {form.type === "percentage" ? "(٪)" : "(تومان)"}
+ </span>
  <input
  type="number"
  min={0}
+ max={form.type === "percentage" ? 100 : undefined}
  step="any"
- placeholder="مقدار"
+ inputMode="decimal"
+ placeholder={form.type === "percentage" ? "مثلاً ۲۰" : "مثلاً ۵۰۰۰۰"}
  value={form.value}
  onChange={(e) => setForm((f) => ({ ...f, value: e.target.value }))}
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  required
  />
+ </label>
+ <label className="block space-y-1 text-xs">
+ <span className="text-muted-foreground">حداقل مبلغ سبد (تومان)</span>
  <input
  type="number"
  min={0}
- placeholder="حداقل سبد"
+ inputMode="numeric"
+ placeholder="۰"
  value={form.min_order_amount}
  onChange={(e) =>
  setForm((f) => ({ ...f, min_order_amount: e.target.value }))
  }
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  />
+ </label>
+ <label className="block space-y-1 text-xs">
+ <span className="text-muted-foreground">سقف تعداد استفاده (خالی =∞)</span>
  <input
  type="number"
- min={0}
- placeholder="سقف استفاده (خالی = ∞)"
+ min={1}
+ inputMode="numeric"
+ placeholder="خالی بگذارید برای نامحدود"
  value={form.max_uses}
  onChange={(e) => setForm((f) => ({ ...f, max_uses: e.target.value }))}
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  />
+ </label>
  <label className="text-muted-foreground flex flex-col gap-1 text-xs">
- شروع اعتبار
+ شروع اعتبار (اختیاری)
  <input
- type="text" inputMode="numeric" placeholder="1404/07/06 15:30" dir="ltr"
+ type="text"
+ inputMode="numeric"
+ placeholder="1404/07/06 15:30"
+ dir="ltr"
  value={form.starts_at}
  onChange={(e) =>
  setForm((f) => ({ ...f, starts_at: e.target.value }))
  }
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm text-foreground"
+ className="border-input bg-background text-foreground h-10 rounded-xl border px-3 text-sm"
  />
  </label>
  <label className="text-muted-foreground flex flex-col gap-1 text-xs">
- پایان اعتبار
+ پایان اعتبار (اختیاری)
  <input
- type="text" inputMode="numeric" placeholder="1404/07/06 15:30" dir="ltr"
+ type="text"
+ inputMode="numeric"
+ placeholder="1404/07/06 15:30"
+ dir="ltr"
  value={form.ends_at}
  onChange={(e) =>
  setForm((f) => ({ ...f, ends_at: e.target.value }))
  }
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm text-foreground"
+ className="border-input bg-background text-foreground h-10 rounded-xl border px-3 text-sm"
  />
  </label>
  <label className="text-muted-foreground flex h-10 items-center gap-2 text-sm sm:col-span-2 lg:col-span-1">
@@ -339,38 +369,48 @@ export default function AdminDiscountsPage() {
  />
  یک‌بار برای هر کاربر
  </label>
+ <label className="block space-y-1 text-xs">
+ <span className="text-muted-foreground">سقف مبلغ تخفیف (تومان، اختیاری)</span>
  <input
  type="number"
  min={0}
- placeholder="سقف مبلغ تخفیف (تومان)"
+ inputMode="numeric"
+ placeholder="خالی = بدون سقف"
  value={form.max_discount_amount}
  onChange={(e) =>
  setForm((f) => ({ ...f, max_discount_amount: e.target.value }))
  }
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  />
+ </label>
+ <label className="block space-y-1 text-xs sm:col-span-2">
+ <span className="text-muted-foreground">UUID محصولات (کاما، خالی=همه)</span>
  <input
- placeholder="UUID محصولات (کاما، خالی=همه)"
+ placeholder="uuid1, uuid2"
  value={form.product_ids}
  onChange={(e) =>
  setForm((f) => ({ ...f, product_ids: e.target.value }))
  }
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm sm:col-span-2"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  dir="ltr"
  />
+ </label>
+ <label className="block space-y-1 text-xs sm:col-span-2">
+ <span className="text-muted-foreground">UUID دسته‌ها (کاما، خالی=همه)</span>
  <input
- placeholder="UUID دسته‌ها (کاما، خالی=همه)"
+ placeholder="uuid1, uuid2"
  value={form.category_ids}
  onChange={(e) =>
  setForm((f) => ({ ...f, category_ids: e.target.value }))
  }
- className="border-input bg-background h-10 rounded-xl border px-3 text-sm sm:col-span-2"
+ className="border-input bg-background h-10 w-full rounded-xl border px-3 text-sm"
  dir="ltr"
  />
+ </label>
  <button
  type="submit"
  disabled={creating}
- className="bg-primary text-primary-foreground h-10 rounded-xl text-sm font-medium disabled:opacity-60 sm:col-span-2 lg:col-span-1"
+ className="bg-primary text-primary-foreground h-10 self-end rounded-xl text-sm font-medium disabled:opacity-60 sm:col-span-2 lg:col-span-1"
  >
  {creating ? "…" : "ایجاد"}
  </button>

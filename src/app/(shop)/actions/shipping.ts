@@ -1,6 +1,6 @@
 "use server";
 
-import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
 import { getShippingQuote } from "@/lib/shipping/quote";
 import type { ShippingMethodRow } from "@/lib/shipping/types";
 
@@ -16,7 +16,8 @@ export async function listActiveShippingMethodsAction(input?: {
  city?: string;
 }) {
  try {
- const supabase = createServiceClient();
+ // Public catalog — anon/authenticated client (no service role required)
+ const supabase = await createClient();
  const { data, error } = await supabase
  .from("shipping_methods")
  .select(
@@ -92,7 +93,7 @@ export async function quoteShippingAction(input: {
  parcelValueToman?: number;
 }) {
  try {
- const supabase = createServiceClient();
+ const supabase = await createClient();
  const { data, error } = await supabase
  .from("shipping_methods")
  .select(
@@ -117,27 +118,23 @@ export async function quoteShippingAction(input: {
  parcelValueToman: input.parcelValueToman,
  });
 
- // Free shipping rules از site_settings
+ // Free shipping rules از site_settings (flat keys + nested shipping jsonb)
  if (quote.ok && (input.parcelValueToman ?? 0) > 0) {
  try {
+ const { parseFreeShippingFromRows, freeShippingSelectKeys } = await import(
+ "@/lib/settings/free-shipping"
+ );
  const { data: settings } = await supabase
  .from("site_settings")
  .select("key, value")
- .in("key", [
- "free_shipping_enabled",
- "free_shipping_min_amount",
- "free_shipping_exclude_provider_codes",
- ]);
+ .in("key", freeShippingSelectKeys());
 
- const map = new Map(
- (settings ?? []).map((s) => [
- s.key,
- typeof s.value === "string" ? s.value : s.value == null ? "" : String(s.value),
- ]),
+ const parsed = parseFreeShippingFromRows(
+ (settings ?? []) as { key: string; value: unknown }[],
  );
- const enabled = (map.get("free_shipping_enabled") || "false").toLowerCase() === "true";
- const minAmount = Math.max(0, Number(map.get("free_shipping_min_amount") || 0));
- const exclude = (map.get("free_shipping_exclude_provider_codes") || "")
+ const enabled = parsed.enabled;
+ const minAmount = parsed.minAmount;
+ const exclude = parsed.excludeCodes
  .split(",")
  .map((x) => x.trim().toLowerCase())
  .filter(Boolean);

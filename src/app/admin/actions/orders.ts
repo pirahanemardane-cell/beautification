@@ -199,6 +199,28 @@ export async function adminHardDeleteOrdersAction(ids: string[]) {
 }
 
 
+function isMissingColumnError(message: string): boolean {
+ return (
+ message.includes("42703") ||
+ message.includes("does not exist") ||
+ message.includes("column")
+ );
+}
+
+function isMissingTableError(err: unknown): boolean {
+ const code =
+ err && typeof err === "object" && "code" in err
+ ? String((err as { code?: string }).code || "")
+ : "";
+ const message =
+ err && typeof err === "object" && "message" in err
+ ? String((err as { message?: string }).message || "")
+ : err instanceof Error
+ ? err.message
+ : String(err || "");
+ return code === "PGRST205" || message.includes("PGRST205") || message.includes("schema cache");
+}
+
 /** تأیید یا رد پرداخت آنلاین توسط ادمین — مشتری با polling/RT می‌بیند */
 export async function adminUpdatePaymentStatusAction(
  orderId: string,
@@ -226,7 +248,22 @@ export async function adminUpdatePaymentStatusAction(
  .from("orders")
  .update(patch)
  .eq("id", orderId);
- if (error) throw error;
+ if (error && isMissingColumnError(String(error.message || ""))) {
+ // live DB بدون payment_status: فقط status را به‌روز کن
+ if (paymentStatus === "paid") {
+ const { error: retryErr } = await service
+ .from("orders")
+ .update({ status: "paid", updated_at: new Date().toISOString() })
+ .eq("id", orderId);
+ if (retryErr) throw retryErr;
+ } else {
+ // سایر وضعیت‌های پرداخت بدون ستون — soft-fail بدون کرش UI
+ console.warn("[adminUpdatePaymentStatus] payment_status column missing; skipped", paymentStatus);
+ return { ok: true as const, soft: true as const };
+ }
+ } else if (error) {
+ throw error;
+ }
 
  void adminWriteLogAction({
  action: "payment_status_change",
@@ -287,10 +324,16 @@ export async function adminSetOrderTrackingAction(
 
  // اعلان best-effort
  if (code) {
+ let order: {
+ user_id?: string | null;
+ shipping_phone?: string | null;
+ shipping_name?: string | null;
+ shipping_email?: string | null;
+ } | null = null;
  try {
  const repo = new OrderRepository();
- const order = await repo.getByIdAdmin(orderId);
- const userId = (order as { user_id?: string | null } | null)?.user_id;
+ order = (await repo.getByIdAdmin(orderId)) as typeof order;
+ const userId = order?.user_id;
  if (userId) {
  const tpl = PREDEFINED_NOTIFICATIONS.find((x) => x.id === "order_shipped");
  if (tpl) {
@@ -305,39 +348,41 @@ export async function adminSetOrderTrackingAction(
  }
  } catch (ne) {
  console.error("[adminSetOrderTracking notify]", ne);
+ }
 
  try {
- const phone = String((order as { shipping_phone?: string } | null)?.shipping_phone ?? "");
- const name = String((order as { shipping_name?: string } | null)?.shipping_name ?? "مشتری");
+ const phone = String(order?.shipping_phone ?? "");
+ const name = String(order?.shipping_name ?? "مشتری");
+ if (phone) {
  await notifyShipped({ phone, name, orderId, tracking: code });
+ }
  } catch (smsErr) {
  console.warn("[sms shipped]", smsErr);
+ }
 
  try {
- let emailTo = String((order as { shipping_email?: string } | null)?.shipping_email ?? "").trim();
+ let emailTo = String(order?.shipping_email ?? "").trim();
  if (!emailTo) {
- const uid = String((order as { user_id?: string } | null)?.user_id ?? "");
+ const uid = String(order?.user_id ?? "");
  if (uid) {
  try {
  const { data: u } = await service.auth.admin.getUserById(uid);
  emailTo = String(u?.user?.email ?? "").trim();
- } catch { /* */ }
+ } catch {
+ /* */
+ }
  }
  }
  if (emailTo) {
  await emailShipped({
  to: emailTo,
- customerName: String((order as { shipping_name?: string } | null)?.shipping_name ?? "مشتری"),
+ customerName: String(order?.shipping_name ?? "مشتری"),
  orderId,
  tracking: code,
  });
  }
  } catch (emErr) {
  console.warn("[email shipped]", emErr);
- }
-
- }
-
  }
  }
 
@@ -373,7 +418,12 @@ export async function adminAddOrderNoteAction(
  })
  .select("id, order_id, body, visibility, actor_type, created_at")
  .single();
- if (error) throw error;
+ if (error) {
+ if (isMissingTableError(error)) {
+ return { ok: false as const, error: "table_missing" as const };
+ }
+ throw error;
+ }
  void adminWriteLogAction({
  action: "order_note_add",
  entity: "order",
@@ -382,6 +432,9 @@ export async function adminAddOrderNoteAction(
  });
  return { ok: true as const, note: data };
  } catch (e) {
+ if (isMissingTableError(e)) {
+ return { ok: false as const, error: "table_missing" as const };
+ }
  console.error("[adminAddOrderNote]", e);
  return { ok: false as const, error: "server" };
  }
@@ -398,9 +451,17 @@ export async function adminListOrderNotesAction(orderId: string) {
  .eq("order_id", orderId)
  .order("created_at", { ascending: false })
  .limit(50);
- if (error) throw error;
- return { ok: true as const, items: data ?? [] };
+ if (error) {
+ if (isMissingTableError(error)) {
+ return { ok: true as const, items: [] as const, tableMissing: true as const };
+ }
+ throw error;
+ }
+ return { ok: true as const, items: data ?? [], tableMissing: false as const };
  } catch (e) {
+ if (isMissingTableError(e)) {
+ return { ok: true as const, items: [] as const, tableMissing: true as const };
+ }
  console.error("[adminListOrderNotes]", e);
  return { ok: false as const, error: "server", items: [] as const };
  }
@@ -417,9 +478,17 @@ export async function adminListFinancialAuditForOrderAction(orderId: string) {
  .eq("order_id", orderId)
  .order("created_at", { ascending: false })
  .limit(30);
- if (error) throw error;
- return { ok: true as const, items: data ?? [] };
+ if (error) {
+ if (isMissingTableError(error)) {
+ return { ok: true as const, items: [] as const, tableMissing: true as const };
+ }
+ throw error;
+ }
+ return { ok: true as const, items: data ?? [], tableMissing: false as const };
  } catch (e) {
+ if (isMissingTableError(e)) {
+ return { ok: true as const, items: [] as const, tableMissing: true as const };
+ }
  console.error("[adminListFinancialAudit]", e);
  return { ok: false as const, error: "server", items: [] as const };
  }
