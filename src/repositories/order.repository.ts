@@ -455,9 +455,33 @@ export class OrderRepository extends BaseRepository {
  updated_at: new Date().toISOString(),
  };
  if (status === "paid") {
+ // Fulfillment label "paid" only marks payment when not already COD/refunded
+ const { data: curPay } = await supabase
+ .from("orders")
+ .select("payment_status")
+ .eq("id", orderId)
+ .maybeSingle();
+ const ps = String(
+ (curPay as { payment_status?: string } | null)?.payment_status ?? "",
+ );
+ if (ps !== "cod" && ps !== "refunded" && ps !== "cancelled") {
  patch.payment_status = "paid";
+ }
  } else if (status === "cancelled") {
+ // COD → cancelled; unpaid online → failed; paid/refunded left for admin refund flow
+ const { data: curPay } = await supabase
+ .from("orders")
+ .select("payment_status")
+ .eq("id", orderId)
+ .maybeSingle();
+ const ps = String(
+ (curPay as { payment_status?: string } | null)?.payment_status ?? "",
+ );
+ if (ps === "cod") {
+ patch.payment_status = "cancelled";
+ } else if (ps === "pending") {
  patch.payment_status = "failed";
+ }
  } else if (status === "shipped") {
  patch.shipped_at = new Date().toISOString();
  }

@@ -126,7 +126,7 @@ async function lookupUrlRedirect(
  }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
  const { pathname } = request.nextUrl;
 
  // CSRF formal: Origin / Sec-Fetch-Site روی APIهای state-changing

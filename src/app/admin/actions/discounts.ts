@@ -127,10 +127,27 @@ export async function adminCreateDiscountAction(input: {
  if (basicIns.error) throw basicIns.error;
  return { ok: true as const, id: basicIns.data.id as string };
  }
- if (fullIns.error) throw fullIns.error;
+ if (fullIns.error) {
+ const msg = String(fullIns.error.message || "");
+ if (
+ fullIns.error.code === "23505" ||
+ msg.includes("duplicate") ||
+ msg.includes("unique")
+ ) {
+ return { ok: false as const, error: "duplicate_code" };
+ }
+ throw fullIns.error;
+ }
  return { ok: true as const, id: fullIns.data!.id as string };
  } catch (e) {
  console.error("[adminCreateDiscount]", e);
+ const msg =
+ e && typeof e === "object" && "message" in e
+ ? String((e as { message: string }).message)
+ : String(e);
+ if (msg.includes("duplicate") || msg.includes("23505") || msg.includes("unique")) {
+ return { ok: false as const, error: "duplicate_code" };
+ }
  return { ok: false as const, error: "server" };
  }
 }
