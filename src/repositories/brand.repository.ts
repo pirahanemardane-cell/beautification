@@ -7,7 +7,7 @@ export class BrandRepository extends BaseRepository {
 
  const { data, error } = await client
  .from("brands")
- .select("id, name, slug, logo_url, description, is_active, meta_title, meta_description, focus_keyphrases, og_title, og_description, robots_index, robots_follow, canonical_url")
+ .select("id, name, slug, logo_url, description, is_active")
  .eq("is_active", true)
  .order("name", { ascending: true });
 
@@ -23,7 +23,7 @@ export class BrandRepository extends BaseRepository {
 
  const { data, error } = await client
  .from("brands")
- .select("id, name, slug, logo_url, description, is_active, meta_title, meta_description, focus_keyphrases, og_title, og_description, robots_index, robots_follow, canonical_url")
+ .select("id, name, slug, logo_url, description, is_active")
  .eq("slug", slug)
  .eq("is_active", true)
  .single();

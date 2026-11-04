@@ -48,6 +48,11 @@ export async function POST(req: Request) {
  });
 
  if (error) {
+ // Table may be missing in some environments (PGRST205) — don't break storefront UX
+ const msg = String(error.message || "");
+ if (msg.includes("analytics_events") || msg.includes("schema cache") || msg.includes("PGRST205")) {
+ return NextResponse.json({ ok: true, skipped: "analytics_unavailable" });
+ }
  return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
  }
  return NextResponse.json({ ok: true });

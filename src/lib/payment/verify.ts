@@ -53,7 +53,7 @@ export async function verifyAndApplyPayment(
 
  const { data: order, error: orderErr } = await service
  .from("orders")
- .select("id, total, total_amount, payment_status, status, shipping_phone, shipping_name, shipping_email, user_id")
+ .select("id, total_amount, payment_status, status, shipping_phone, shipping_name, shipping_email, user_id")
  .eq("id", orderId)
  .maybeSingle();
 
@@ -61,7 +61,8 @@ export async function verifyAndApplyPayment(
  return { ok: false, error: "order_not_found" };
  }
 
- const orderTotal = Number((order as { total?: number }).total ?? 0);
+ // Schema column is total_amount (not total) — wrong name makes PostgREST fail / amount compare as 0
+ const orderTotal = Number((order as { total_amount?: number }).total_amount ?? 0);
  if (Math.round(orderTotal) !== Math.round(amount)) {
  await service.from("payment_webhook_events").upsert(
  {
@@ -187,10 +188,7 @@ export async function verifyAndApplyPayment(
  const phone = String((order as { shipping_phone?: string }).shipping_phone ?? "");
  const name = String((order as { shipping_name?: string }).shipping_name ?? "مشتری");
  const total = String(
- (order as { total_amount?: number }).total_amount ??
- (order as { total?: number }).total ??
- amount ??
- "",
+ (order as { total_amount?: number }).total_amount ?? amount ?? "",
  );
  await notifyPaymentSuccess({ phone, name, orderId, amount: total });
  } catch (smsErr) {

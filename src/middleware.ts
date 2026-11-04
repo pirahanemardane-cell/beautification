@@ -30,7 +30,9 @@ const RESERVED = new Set([
  "shipping", "returns", "size-guide", "track", "categories", "tag", "wishlist",
  "compare", "recently-viewed", "_next", "favicon.ico", "robots.txt",
  "sitemap.xml", "llms.txt", "ورود", "ثبت-نام", "علاقه-مندی-ها", "مقایسه",
- "سبد-خرید", "محصولات",
+ "سبد-خرید", "محصولات", "آخرین-مشاهده-ها", "تماس", "درباره-ما", "سوالات-متداول",
+ "شرایط-استفاده", "حریم-خصوصی", "ارسال", "مرجوعی", "راهنمای-سایز", "پیگیری-سفارش",
+ "پیگیری",
 ]);
 
 function decodeSeg(raw: string): string {

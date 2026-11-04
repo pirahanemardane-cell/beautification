@@ -27,9 +27,10 @@ export async function adminListAttributesAction() {
  if (!rows.length) return { ok: true as const, items: [] as AttrWithOptions[] };
 
  const ids = rows.map((a: { id: string }) => a.id);
+ // Live schema has no attribute_options.hex
  const { data: opts, error: oErr } = await gate.supabase
  .from("attribute_options")
- .select("id, attribute_id, value, slug, sort_order, hex")
+ .select("id, attribute_id, value, slug, sort_order")
  .in("attribute_id", ids)
  .order("sort_order", { ascending: true });
  if (oErr) throw oErr;
@@ -38,7 +39,7 @@ export async function adminListAttributesAction() {
  for (const o of opts ?? []) {
  const list = byAttr.get(o.attribute_id as string) ?? [];
  list.push({
- hex: (o as { hex?: string | null }).hex ?? null,
+ hex: null,
  id: o.id as string,
  value: String(o.value ?? ""),
  slug: String(o.slug ?? ""),
@@ -241,6 +242,7 @@ export async function adminCreateAttributeOptionAction(input: {
  return { ok: false as const, error: "validation" };
  const slug = (input.slug || "").trim() || slugify(value);
  try {
+ // Live DB has no attribute_options.hex — omit to avoid insert failure
  const { data, error } = await gate.supabase
  .from("attribute_options")
  .insert({
@@ -248,7 +250,6 @@ export async function adminCreateAttributeOptionAction(input: {
  value,
  slug,
  sort_order: 0,
- hex: input.hex ? String(input.hex).trim() || null : null,
  })
  .select("id")
  .single();
@@ -286,10 +287,7 @@ export async function adminUpdateAttributeOptionAction(input: {
  if (!input.id) return { ok: false as const, error: "validation" };
  const patch: Record<string, unknown> = {};
  if (input.value !== undefined) patch.value = String(input.value).trim();
- if (input.hex !== undefined) {
- const h = input.hex == null ? null : String(input.hex).trim();
- patch.hex = h || null;
- }
+ // Live DB has no attribute_options.hex — ignore color hex updates for now
  if (!Object.keys(patch).length) return { ok: false as const, error: "validation" };
  try {
  const { error } = await gate.supabase

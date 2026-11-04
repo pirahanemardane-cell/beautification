@@ -71,6 +71,31 @@ export async function toggleWishlistAction(productId: string) {
  }
 }
 
+/** Merge guest/local wishlist product ids into the signed-in account (add-only). */
+export async function mergeWishlistAction(productIds: string[]) {
+ const user = await requireUser();
+ if (!user) {
+ return { ok: false as const, error: "login_required" };
+ }
+ try {
+ const ids = [...new Set((productIds || []).map((x) => String(x || "").trim()).filter(Boolean))];
+ if (!ids.length) return { ok: true as const, added: 0 };
+ const repo = new WishlistRepository();
+ let added = 0;
+ for (const id of ids.slice(0, 100)) {
+ const exists = await repo.has(user.id, id);
+ if (!exists) {
+ await repo.add(user.id, id);
+ added += 1;
+ }
+ }
+ return { ok: true as const, added };
+ } catch (e) {
+ console.error("[mergeWishlist]", e);
+ return { ok: false as const, error: "server" };
+ }
+}
+
 
 
 export type WishlistItemDTO = {
@@ -256,8 +281,18 @@ export async function swapCartVariantAction(input: {
 
  const cartId = await resolveCartId();
  const cartRepo = new CartRepository();
+ // Remove-then-add with restore: avoids wiping an existing target line on rollback
  await cartRepo.removeItem(cartId, input.oldVariantId);
+ try {
  await cartRepo.addItem(cartId, match.id as string, qty);
+ } catch (addErr) {
+ try {
+ await cartRepo.addItem(cartId, input.oldVariantId, qty);
+ } catch (restoreErr) {
+ console.error("[swapCartVariant] restore old variant", restoreErr);
+ }
+ throw addErr;
+ }
  return { ok: true, variantId: match.id as string };
  } catch (e) {
  console.error("[swapCartVariant]", e);
@@ -563,6 +598,22 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  const methodId = (payload.shippingMethodId || "").trim();
  if (!methodId) {
  return { ok: false as const, error: "shipping_method_required" };
+ }
+ // Reject UI fallback ids (post/tipax/…) — only real shipping_methods UUIDs quote
+ const uuidRe =
+ /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ if (!uuidRe.test(methodId)) {
+ return { ok: false as const, error: "shipping_method_required" };
+ }
+ if (payload.paymentMethod === "online") {
+ const merchantId = process.env.ZARINPAL_MERCHANT_ID?.trim();
+ const testMode = process.env.PAYMENT_TEST_MODE === "true";
+ if (!merchantId && !testMode) {
+ return {
+ ok: false as const,
+ error: "پرداخت آنلاین فعلاً در دسترس نیست. پرداخت در محل را انتخاب کنید.",
+ };
+ }
  }
  const weightGrams = Math.max(
  100,
@@ -1273,8 +1324,11 @@ export async function updateMyEmailAction(email: string) {
 }
 
 /** حذف حساب کاربر فعلی (soft: signOut + حذف profile در صورت وجود) */
-export async function deleteMyAccountAction() {
+export async function deleteMyAccountAction(confirm?: string) {
  try {
+ if ((confirm || "").trim() !== "DELETE") {
+ return { ok: false as const, error: "تأیید حذف نامعتبر است" };
+ }
  const supabase = await createClient();
  const {
  data: { user },

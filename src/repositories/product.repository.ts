@@ -292,17 +292,13 @@ if (filters.sizeId) {
  size_guide_id,
  meta_title,
  meta_description,
- og_title,
- og_description,
- og_image_url,
- robots_index,
- robots_follow,
- canonical_url,
  brand:brands(id, name, slug),
  category:categories(id, name, slug),
  images:product_images(id, url, alt_text, is_primary, sort_order, variant_id),
- variants:product_variants(id, price, original_price, stock_quantity, size, color_name, color_hex, is_active, sku)
+ variants:product_variants(id, price, original_price, stock_quantity, size, color_name, color_hex, is_active, sku, weight_grams)
  `;
+ // NOTE: live DB has no products.og_* / robots_* / canonical_url columns.
+ // Selecting them makes PostgREST reject the whole query (PDP 404).
 
  // 1) exact match
  {

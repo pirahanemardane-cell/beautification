@@ -16,7 +16,7 @@ import {
 import { useShopStore } from "@/lib/shop-store";
 import { useUnifiedCart } from "@/lib/use-unified-cart";
 import { useServerCartStore } from "@/lib/server-cart-store";
-import { swapCartVariantAction } from "@/app/(shop)/actions/shop";
+import { swapCartVariantAction, toggleWishlistAction } from "@/app/(shop)/actions/shop";
 import { cartRemove, cartSetQty } from "@/lib/cart-api";
 import { mapCartError } from "@/lib/cart-errors";
 import { X } from "lucide-react";
@@ -86,7 +86,7 @@ export function ShopActivityDrawer({
  ) : (
  <ul className="space-y-3">
  {items.map((p) => (
- <div
+ <li
  key={(p as { key?: string }).key ?? `${(p as { id?: string; productId?: string }).id ?? (p as { productId?: string }).productId}|${p.color ?? ""}|${p.size ?? ""}`}
  className="flex gap-3 rounded-xl border border-border/60 bg-background p-3"
  >
@@ -361,7 +361,25 @@ export function ShopActivityDrawer({
  <button
  type="button"
  className="text-destructive mt-1 text-xs"
- onClick={() => toggleWishlist(p)}
+ onClick={() => {
+ const productId =
+ (p as { productId?: string; id?: string }).productId ||
+ (p as { id?: string }).id;
+ if (!productId) return;
+ const asProduct = p as Parameters<typeof toggleWishlist>[0];
+ toggleWishlist(asProduct);
+ void toggleWishlistAction(productId).then((res) => {
+ if (!res.ok && res.error !== "login_required") {
+ // Revert optimistic local remove on server failure
+ toggleWishlist(asProduct);
+ toast.error("حذف علاقه‌مندی ناموفق بود");
+ return;
+ }
+ if (typeof window !== "undefined") {
+ window.dispatchEvent(new Event("pm:wishlist-changed"));
+ }
+ });
+ }}
  >
  حذف
  </button>
@@ -370,13 +388,13 @@ export function ShopActivityDrawer({
  <button
  type="button"
  className="text-destructive mt-1 text-xs"
- onClick={() => toggleCompare(p)}
+ onClick={() => toggleCompare(p as Parameters<typeof toggleCompare>[0])}
  >
  حذف از مقایسه
  </button>
  )}
  </div>
- </div>
+ </li>
  ))}
  </ul>
  )}

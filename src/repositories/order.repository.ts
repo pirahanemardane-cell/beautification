@@ -181,7 +181,9 @@ export class OrderRepository extends BaseRepository {
  line_total: i.unitPrice * i.quantity,
  }));
 
- const { error: iErr } = await supabase.from("order_items").insert(rows);
+ // Service role: guest orders have user_id=null and RLS order_items_insert_own
+ // requires o.user_id = auth.uid(), which never matches for guests.
+ const { error: iErr } = await service.from("order_items").insert(rows);
  if (iErr) {
  for (const item of input.items) {
  try {
