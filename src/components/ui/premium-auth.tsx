@@ -350,19 +350,28 @@ export function AuthForm({
         try {
           const res = await signUpAction(email, password, fullName || undefined);
           if (!res.ok) {
-            setErrors({ email: res.error || "ثبت‌نام ناموفق بود" });
-            setIsLoading(false);
-            return;
+            // کاربر از قبل هست → مستقیم ورود با همان رمز
+            const existing = /already|registered|exists|قبلا/i.test(res.error || "");
+            if (!existing) {
+              setErrors({ email: res.error || "ثبت‌نام ناموفق بود" });
+              setIsLoading(false);
+              return;
+            }
           }
-          // ورود خودکار بعد از ثبت‌نام
+          // ورود خودکار (session کوکی سرور)
           const login = await signInAction(email, password);
           if (!login.ok) {
-            setErrors({ email: "ثبت‌نام شد؛ لطفاً وارد شوید: " + (login.error || "") });
+            setErrors({
+              general: "حساب ساخته شد ولی ورود نشد. رمز را یک‌بار از فراموشی رمز تنظیم کنید.",
+            });
             setIsLoading(false);
             setAuthMode("login");
             return;
           }
           void onSuccess?.({ email });
+          if (typeof window !== "undefined") {
+            window.location.assign("/dashboard");
+          }
           setIsLoading(false);
           return;
         } catch (e) {
