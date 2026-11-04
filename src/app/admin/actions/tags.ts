@@ -15,6 +15,7 @@ function slugify(input: string): string {
 }
 
 /* ── product tags ── */
+/* Live product_tags columns: id, name, slug, is_active, created_at only */
 
 export async function adminListProductTagsAction() {
  const gate = await requireAdmin();
@@ -22,7 +23,7 @@ export async function adminListProductTagsAction() {
  try {
  const { data, error } = await gate.supabase
  .from("product_tags")
- .select("id, name, slug, is_active, image_url, short_description, description, created_at")
+ .select("id, name, slug, is_active, created_at")
  .order("name");
  if (error) throw error;
  return { ok: true as const, items: data ?? [] };
@@ -39,6 +40,11 @@ export async function adminCreateProductTagAction(input: {
  short_description?: string | null;
  description?: string | null;
  is_active?: boolean;
+ meta_title?: string | null;
+ meta_description?: string | null;
+ focus_keyphrases?: string[];
+ robots_index?: boolean;
+ robots_follow?: boolean;
 }) {
  const gate = await requireAdmin();
  if (!gate.ok) return { ok: false as const, error: gate.error };
@@ -46,17 +52,13 @@ export async function adminCreateProductTagAction(input: {
  if (!name) return { ok: false as const, error: "name_required" };
  const slug = (input.slug || "").trim() || slugify(name);
  try {
+ // Live-safe columns only — ignore image/desc/SEO from wizard until migration
  const { data, error } = await gate.supabase
  .from("product_tags")
- .insert({ name, slug,
- image_url: (input.image_url || "").trim() || null,
- short_description: (input.short_description || "").trim() || null,
- description: (input.description || "").trim() || null,
- meta_title: (input as any).meta_title?.trim?.() || null,
- meta_description: (input as any).meta_description?.trim?.() || null,
- focus_keyphrases: Array.isArray((input as any).focus_keyphrases) ? (input as any).focus_keyphrases : [],
- robots_index: false,
- robots_follow: (input as any).robots_follow !== false,
+ .insert({
+ name,
+ slug,
+ is_active: input.is_active !== false,
  })
  .select("id")
  .single();
@@ -93,6 +95,11 @@ export async function adminUpdateProductTagAction(
  image_url?: string | null;
  short_description?: string | null;
  description?: string | null;
+ meta_title?: string | null;
+ meta_description?: string | null;
+ focus_keyphrases?: string[];
+ robots_index?: boolean;
+ robots_follow?: boolean;
  },
 ) {
  const gate = await requireAdmin();
@@ -109,14 +116,7 @@ export async function adminUpdateProductTagAction(
  if (slug) body.slug = slug;
  }
  if (patch.is_active !== undefined) body.is_active = patch.is_active;
- if (patch.image_url !== undefined) body.image_url = (patch.image_url || "").trim() || null;
- if (patch.short_description !== undefined) body.short_description = (patch.short_description || "").trim() || null;
- if (patch.description !== undefined) body.description = (patch.description || "").trim() || null;
- if ((patch as any).meta_title !== undefined) body.meta_title = ((patch as any).meta_title || "").trim() || null;
- if ((patch as any).meta_description !== undefined) body.meta_description = ((patch as any).meta_description || "").trim() || null;
- if ((patch as any).focus_keyphrases !== undefined) body.focus_keyphrases = Array.isArray((patch as any).focus_keyphrases) ? (patch as any).focus_keyphrases : [];
- if ((patch as any).robots_index !== undefined) body.robots_index = false; // tags always noindex
- if ((patch as any).robots_follow !== undefined) body.robots_follow = !!(patch as any).robots_follow;
+ // image/desc/SEO missing live — intentionally ignored
  if (!Object.keys(body).length) return { ok: true as const };
  const { error } = await gate.supabase.from("product_tags").update(body).eq("id", id);
  if (error) throw error;
@@ -171,7 +171,7 @@ export async function adminCreateBlogTagAction(input: {
  try {
  const { data, error } = await gate.supabase
  .from("blog_tags")
- .insert({ name, slug, robots_index: false, meta_title: (input as any).meta_title?.trim?.() || null, meta_description: (input as any).meta_description?.trim?.() || null, focus_keyphrases: Array.isArray((input as any).focus_keyphrases) ? (input as any).focus_keyphrases : [] })
+ .insert({ name, slug })
  .select("id")
  .single();
  if (error) throw error;
@@ -204,7 +204,7 @@ export async function adminGetProductTagAction(id: string) {
  try {
  const { data, error } = await gate.supabase
  .from("product_tags")
- .select("id, name, slug, is_active, image_url, short_description, description, meta_title, meta_description, focus_keyphrases, robots_index, robots_follow")
+ .select("id, name, slug, is_active, created_at")
  .eq("id", id)
  .maybeSingle();
  if (error) throw error;

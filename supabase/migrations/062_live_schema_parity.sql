@@ -754,3 +754,120 @@ GRANT EXECUTE ON FUNCTION public.extend_session_reservations(text, int) TO servi
 GRANT EXECUTE ON FUNCTION public.increment_discount_use(text) TO service_role;
 GRANT EXECUTE ON FUNCTION public.increment_discount_use(text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.recompute_product_review_stats(uuid) TO service_role;
+
+-- ─── Extra RLS for customer profile + public discounts ─────────────────────
+DROP POLICY IF EXISTS profiles_insert_own ON public.profiles;
+CREATE POLICY profiles_insert_own ON public.profiles
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS discounts_public_active_select ON public.discounts;
+CREATE POLICY discounts_public_active_select ON public.discounts
+  FOR SELECT
+  USING (
+    is_active = true
+    AND (starts_at IS NULL OR starts_at <= now())
+    AND (ends_at IS NULL OR ends_at >= now())
+  );
+
+-- ─── Remaining live column gaps (admin SEO / reviews / catalog) ────────────
+-- Probed missing on production 2026-11-04; keep IF NOT EXISTS for idempotency.
+
+ALTER TABLE public.products
+  ADD COLUMN IF NOT EXISTS twitter_title text,
+  ADD COLUMN IF NOT EXISTS twitter_description text,
+  ADD COLUMN IF NOT EXISTS is_cornerstone boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.categories
+  ADD COLUMN IF NOT EXISTS short_description text,
+  ADD COLUMN IF NOT EXISTS meta_title text,
+  ADD COLUMN IF NOT EXISTS meta_description text,
+  ADD COLUMN IF NOT EXISTS og_title text,
+  ADD COLUMN IF NOT EXISTS og_description text,
+  ADD COLUMN IF NOT EXISTS og_image_url text,
+  ADD COLUMN IF NOT EXISTS robots_index boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS robots_follow boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS canonical_url text,
+  ADD COLUMN IF NOT EXISTS focus_keyphrases text[] NOT NULL DEFAULT '{}';
+
+ALTER TABLE public.brands
+  ADD COLUMN IF NOT EXISTS image_url text,
+  ADD COLUMN IF NOT EXISTS short_description text;
+
+-- Keep logo_url and image_url in sync when one is null (best-effort)
+DO $$ BEGIN
+  UPDATE public.brands SET image_url = logo_url WHERE image_url IS NULL AND logo_url IS NOT NULL;
+  UPDATE public.brands SET logo_url = image_url WHERE logo_url IS NULL AND image_url IS NOT NULL;
+EXCEPTION WHEN undefined_column THEN NULL;
+END $$;
+
+ALTER TABLE public.product_tags
+  ADD COLUMN IF NOT EXISTS image_url text,
+  ADD COLUMN IF NOT EXISTS short_description text,
+  ADD COLUMN IF NOT EXISTS description text,
+  ADD COLUMN IF NOT EXISTS meta_title text,
+  ADD COLUMN IF NOT EXISTS meta_description text,
+  ADD COLUMN IF NOT EXISTS focus_keyphrases text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS og_title text,
+  ADD COLUMN IF NOT EXISTS og_description text,
+  ADD COLUMN IF NOT EXISTS og_image_url text,
+  ADD COLUMN IF NOT EXISTS robots_index boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS robots_follow boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS canonical_url text;
+
+ALTER TABLE public.reviews
+  ADD COLUMN IF NOT EXISTS admin_reply text;
+
+ALTER TABLE public.stock_alerts
+  ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true;
+
+-- Align is_active with status for rows that already exist
+DO $$ BEGIN
+  UPDATE public.stock_alerts
+  SET is_active = (status IS DISTINCT FROM 'cancelled')
+  WHERE true;
+EXCEPTION WHEN undefined_column THEN NULL;
+END $$;
+
+-- Ensure site_settings / contact / newsletter exist (already live on prod; safe IF NOT EXISTS)
+CREATE TABLE IF NOT EXISTS public.site_settings (
+  key text PRIMARY KEY,
+  value jsonb NOT NULL DEFAULT '{}'::jsonb,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL
+);
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "public read site_settings" ON public.site_settings;
+CREATE POLICY "public read site_settings"
+  ON public.site_settings FOR SELECT USING (true);
+
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  name text NOT NULL,
+  company text,
+  email text NOT NULL,
+  message text NOT NULL,
+  status text NOT NULL DEFAULT 'new',
+  admin_note text
+);
+
+CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone text NOT NULL,
+  source text DEFAULT 'home',
+  ip text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  unsubscribed_at timestamptz,
+  CONSTRAINT newsletter_subscribers_phone_unique UNIQUE (phone)
+);
+
+CREATE TABLE IF NOT EXISTS public.sms_outbox (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone text NOT NULL,
+  body text NOT NULL,
+  status text NOT NULL DEFAULT 'queued',
+  meta jsonb,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  sent_at timestamptz
+);

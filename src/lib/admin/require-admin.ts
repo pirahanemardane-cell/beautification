@@ -26,7 +26,7 @@ export const requireAdmin = cache(async () => {
  return { ok: false as const, error: "server" as const };
  }
  const role = String((profile as { role?: string } | null)?.role || "").toLowerCase();
- if (role !== "admin") {
+ if (role !== "admin" && role !== "superadmin") {
  return { ok: false as const, error: "forbidden" as const };
  }
 

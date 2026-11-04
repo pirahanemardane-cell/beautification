@@ -21,14 +21,40 @@ export async function cancelMyOrderAction(orderId: string, reason?: string) {
  if (!orderId?.trim()) return { ok: false as const, error: "order_required" };
 
  const service = createServiceClient();
- const { data: order, error } = await service
+ type CancelOrderRow = {
+ id: string;
+ user_id: string | null;
+ status: string;
+ payment_status?: string | null;
+ };
+ let order: CancelOrderRow | null = null;
+ {
+ const full = await service
  .from("orders")
  .select("id, user_id, status, payment_status")
  .eq("id", orderId)
  .eq("user_id", user.id)
  .maybeSingle();
-
- if (error || !order) return { ok: false as const, error: "not_found" };
+ if (
+ full.error &&
+ (String(full.error.message || "").includes("does not exist") ||
+ String(full.error.message || "").includes("42703"))
+ ) {
+ const basic = await service
+ .from("orders")
+ .select("id, user_id, status")
+ .eq("id", orderId)
+ .eq("user_id", user.id)
+ .maybeSingle();
+ if (basic.error || !basic.data) return { ok: false as const, error: "not_found" };
+ order = basic.data as unknown as CancelOrderRow;
+ } else if (full.error || !full.data) {
+ return { ok: false as const, error: "not_found" };
+ } else {
+ order = full.data as unknown as CancelOrderRow;
+ }
+ }
+ if (!order) return { ok: false as const, error: "not_found" };
 
  const st = String(order.status || "");
  // فقط pending / paid / processing — نه shipped/delivered/cancelled
@@ -47,26 +73,50 @@ export async function cancelMyOrderAction(orderId: string, reason?: string) {
  .eq("order_id", orderId);
 
  // به‌روزرسانی اتمی: فقط اگر هنوز قابل لغو باشد (ضد race دو تب)
- const nextPay =
+ const patch: Record<string, unknown> = {
+ status: "cancelled",
+ updated_at: new Date().toISOString(),
+ };
+ if (order.payment_status != null) {
+ patch.payment_status =
  order.payment_status === "paid"
  ? "paid"
  : order.payment_status === "cod"
  ? "cod"
  : "failed";
- const { data: updated, error: upErr } = await service
+ }
+ let updated: { id: string } | null = null;
+ {
+ const withPay = await service
  .from("orders")
- .update({
- status: "cancelled",
- payment_status: nextPay,
- updated_at: new Date().toISOString(),
- })
+ .update(patch as never)
  .eq("id", orderId)
  .eq("user_id", user.id)
  .in("status", ["pending", "paid", "processing"])
  .select("id")
  .maybeSingle();
-
- if (upErr) throw upErr;
+ if (
+ withPay.error &&
+ (String(withPay.error.message || "").includes("does not exist") ||
+ String(withPay.error.message || "").includes("42703"))
+ ) {
+ const { payment_status: _drop, ...safe } = patch;
+ const basic = await service
+ .from("orders")
+ .update(safe as never)
+ .eq("id", orderId)
+ .eq("user_id", user.id)
+ .in("status", ["pending", "paid", "processing"])
+ .select("id")
+ .maybeSingle();
+ if (basic.error) throw basic.error;
+ updated = basic.data;
+ } else if (withPay.error) {
+ throw withPay.error;
+ } else {
+ updated = withPay.data;
+ }
+ }
  if (!updated) {
  return { ok: false as const, error: "not_cancellable" };
  }

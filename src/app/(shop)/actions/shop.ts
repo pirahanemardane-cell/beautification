@@ -869,11 +869,34 @@ export async function updateMyProfileAction(input: {
  if (!Object.keys(patch).length) {
  return { ok: false as const, error: "nothing_to_update" };
  }
- const { error } = await supabase
+ const { data: updated, error } = await supabase
  .from("profiles")
- .update(patch as never)
- .eq("id", user.id);
+ .upsert(
+ {
+ id: user.id,
+ ...patch,
+ role: "customer",
+ } as never,
+ { onConflict: "id" },
+ )
+ .select("id")
+ .maybeSingle();
  if (error) throw error;
+ if (!updated) {
+ try {
+ const { createServiceClient } = await import("@/lib/supabase/service");
+ const service = createServiceClient();
+ const { error: sErr } = await service.from("profiles").upsert({
+ id: user.id,
+ ...patch,
+ role: "customer",
+ } as never);
+ if (sErr) throw sErr;
+ } catch (se) {
+ console.error("[updateMyProfile service]", se);
+ return { ok: false as const, error: "profile_write_failed" };
+ }
+ }
  return { ok: true as const };
  } catch (e) {
  console.error("[updateMyProfile]", e);
@@ -1290,7 +1313,7 @@ export async function validateDiscountAction(
  ok: true,
  discount: {
  code: String(data.code ?? raw),
- type: data.type,
+ type: String(data.type ?? ""),
  value,
  discountAmount,
  finalTotal: Math.max(0, subtotal - discountAmount),

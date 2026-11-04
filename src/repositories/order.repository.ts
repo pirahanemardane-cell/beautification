@@ -125,9 +125,7 @@ export class OrderRepository extends BaseRepository {
  const grandTotal = Math.max(0, itemsTotal - Math.min(discount, itemsTotal) + shipFee);
 
  const payStatus = input.paymentMethod === "cod" ? "cod" : "pending";
- const { data: order, error: oErr } = await service
- .from("orders")
- .insert({
+ const orderPayloadFull = {
  user_id: input.userId,
  status: "pending",
  payment_status: payStatus,
@@ -143,11 +141,39 @@ export class OrderRepository extends BaseRepository {
  shipping_city: input.shipping.city ?? null,
  shipping_postal: input.shipping.postal ?? null,
  note: input.note ?? null,
- })
+ };
+ let order: { id: string } | null = null;
+ let oErr: { message?: string } | null = null;
+ {
+ const fullIns = await service
+ .from("orders")
+ .insert(orderPayloadFull as never)
  .select("id")
  .single();
+ if (
+ fullIns.error &&
+ this.orderSelectMissingCols(String(fullIns.error.message || ""))
+ ) {
+ const {
+ payment_status: _p,
+ discount_code: _c,
+ discount_amount: _d,
+ ...basicPayload
+ } = orderPayloadFull;
+ const basicIns = await service
+ .from("orders")
+ .insert(basicPayload as never)
+ .select("id")
+ .single();
+ order = basicIns.data;
+ oErr = basicIns.error;
+ } else {
+ order = fullIns.data;
+ oErr = fullIns.error;
+ }
+ }
 
- if (oErr) {
+ if (oErr || !order) {
  // best-effort rollback stock
  for (const item of input.items) {
  try {
@@ -208,64 +234,87 @@ export class OrderRepository extends BaseRepository {
  return order.id;
  }
 
- async listByUser(userId: string) {
+ private orderSelectMissingCols(message: string): boolean {
+ return (
+ message.includes("42703") ||
+ message.includes("does not exist") ||
+ message.includes("column")
+ );
+ }
+
+ /** Full select; falls back when live DB lacks payment/discount columns (pre-062). */
+ private async selectOrdersForUser(userId: string) {
  const supabase = await this.getClient();
- const { data, error } = await supabase
- .from("orders")
- .select(
- `
- id,
- status,
- payment_status,
- total_amount,
- discount_code,
- discount_amount,
- shipping_fee,
- shipping_method_title,
- shipping_name,
- shipping_phone,
- shipping_address,
- shipping_city,
- tracking_number,
- shipped_at,
- created_at,
+ const full = `
+ id, status, payment_status, total_amount, discount_code, discount_amount,
+ shipping_fee, shipping_method_title, shipping_name, shipping_phone,
+ shipping_address, shipping_city, tracking_number, shipped_at, created_at,
  order_items(id, title, size_name, color_name, unit_price, quantity, line_total)
- `
- )
+ `;
+ const basic = `
+ id, status, total_amount, shipping_fee, shipping_method_title, shipping_name,
+ shipping_phone, shipping_address, shipping_city, tracking_number, shipped_at,
+ created_at, order_items(id, title, size_name, color_name, unit_price, quantity, line_total)
+ `;
+ const primary = await supabase
+ .from("orders")
+ .select(full)
  .eq("user_id", userId)
  .order("created_at", { ascending: false });
- if (error) throw error;
- return data ?? [];
+ if (
+ primary.error &&
+ this.orderSelectMissingCols(String(primary.error.message || ""))
+ ) {
+ const fallback = await supabase
+ .from("orders")
+ .select(basic)
+ .eq("user_id", userId)
+ .order("created_at", { ascending: false });
+ if (fallback.error) throw fallback.error;
+ return fallback.data ?? [];
+ }
+ if (primary.error) throw primary.error;
+ return primary.data ?? [];
+ }
+
+ async listByUser(userId: string) {
+ return this.selectOrdersForUser(userId);
  }
 
  async getById(orderId: string, userId: string) {
  const supabase = await this.getClient();
- const { data, error } = await supabase
- .from("orders")
- .select(
- `
- id,
- status,
- total_amount,
- discount_code,
- discount_amount,
- shipping_name,
- shipping_phone,
- shipping_address,
- shipping_city,
- shipping_postal,
- tracking_number,
- shipped_at,
- note,
- created_at,
+ const full = `
+ id, status, payment_status, total_amount, discount_code, discount_amount,
+ shipping_name, shipping_phone, shipping_address, shipping_city, shipping_postal,
+ tracking_number, shipped_at, note, created_at,
  order_items(id, title, size_name, color_name, unit_price, quantity, line_total, variant_id)
- `
- )
+ `;
+ const basic = `
+ id, status, total_amount, shipping_name, shipping_phone, shipping_address,
+ shipping_city, shipping_postal, tracking_number, shipped_at, note, created_at,
+ order_items(id, title, size_name, color_name, unit_price, quantity, line_total, variant_id)
+ `;
+ const primary = await supabase
+ .from("orders")
+ .select(full)
  .eq("id", orderId)
  .eq("user_id", userId)
  .maybeSingle();
- if (error) throw error;
- return data;
+ if (
+ primary.error &&
+ this.orderSelectMissingCols(String(primary.error.message || ""))
+ ) {
+ const fallback = await supabase
+ .from("orders")
+ .select(basic)
+ .eq("id", orderId)
+ .eq("user_id", userId)
+ .maybeSingle();
+ if (fallback.error) throw fallback.error;
+ return fallback.data;
+ }
+ if (primary.error) throw primary.error;
+ return primary.data;
  }
 
  async trackPublic(code: string) {
@@ -283,18 +332,31 @@ export class OrderRepository extends BaseRepository {
 
  const { createServiceClient } = await import("@/lib/supabase/service");
  const service = createServiceClient();
- const { data, error } = await service
+ const full =
+ "id, status, payment_status, total_amount, shipping_city, tracking_number, shipped_at, created_at, order_items(id, title, size_name, color_name, quantity, line_total)";
+ const basic =
+ "id, status, total_amount, shipping_city, tracking_number, shipped_at, created_at, order_items(id, title, size_name, color_name, quantity, line_total)";
+ const primary = await service.from("orders").select(full).eq("id", id).maybeSingle();
+ if (
+ primary.error &&
+ this.orderSelectMissingCols(String(primary.error.message || ""))
+ ) {
+ const fallback = await service
  .from("orders")
- .select(
- "id, status, payment_status, total_amount, shipping_city, tracking_number, shipped_at, created_at, order_items(id, title, size_name, color_name, quantity, line_total)"
- )
+ .select(basic)
  .eq("id", id)
  .maybeSingle();
- if (error) {
- console.error("[trackPublic]", error);
- throw error;
+ if (fallback.error) {
+ console.error("[trackPublic]", fallback.error);
+ throw fallback.error;
  }
- return data;
+ return fallback.data;
+ }
+ if (primary.error) {
+ console.error("[trackPublic]", primary.error);
+ throw primary.error;
+ }
+ return primary.data;
  }
 
 
@@ -304,48 +366,54 @@ export class OrderRepository extends BaseRepository {
  ) {
  const { createServiceClient } = await import("@/lib/supabase/service");
  const supabase = createServiceClient();
+ const full = `
+ id, status, payment_status, total_amount, discount_code, discount_amount,
+ shipping_fee, shipping_method_id, shipping_method_title, shipping_name,
+ shipping_phone, shipping_city, shipping_address, tracking_number, shipped_at,
+ note, created_at, order_items(id, title, quantity, line_total)
+ `;
+ const basic = `
+ id, status, total_amount, shipping_fee, shipping_method_id, shipping_method_title,
+ shipping_name, shipping_phone, shipping_city, shipping_address, tracking_number,
+ shipped_at, note, created_at, order_items(id, title, quantity, line_total)
+ `;
+
+ const run = async (cols: string) => {
  let q = supabase
  .from("orders")
- .select(
- `
- id,
- status,
- payment_status,
- total_amount,
- discount_code,
- discount_amount,
- shipping_fee,
- shipping_method_id,
- shipping_method_title,
- shipping_name,
- shipping_phone,
- shipping_city,
- shipping_address,
- tracking_number,
- shipped_at,
- note,
- created_at,
- order_items(id, title, quantity, line_total)
- `,
- )
+ .select(cols)
  .order("created_at", { ascending: false })
  .limit(limit);
-
  if (opts?.status && opts.status !== "all") {
  q = q.eq("status", opts.status);
  }
  if (opts?.q && opts.q.trim()) {
- const term = opts.q.trim().slice(0, 80).replace(/[%_,]/g, " ").replace(/\s+/g, " ").trim();
+ const term = opts.q
+ .trim()
+ .slice(0, 80)
+ .replace(/[%_,]/g, " ")
+ .replace(/\s+/g, " ")
+ .trim();
  if (term) {
  q = q.or(
  `shipping_name.ilike.%${term}%,shipping_phone.ilike.%${term}%`,
  );
  }
  }
+ return q;
+ };
 
- const { data, error } = await q;
- if (error) throw error;
- return data ?? [];
+ const primary = await run(full);
+ if (
+ primary.error &&
+ this.orderSelectMissingCols(String(primary.error.message || ""))
+ ) {
+ const fallback = await run(basic);
+ if (fallback.error) throw fallback.error;
+ return fallback.data ?? [];
+ }
+ if (primary.error) throw primary.error;
+ return primary.data ?? [];
  }
 
  async updateStatus(orderId: string, status: string) {
@@ -397,6 +465,19 @@ export class OrderRepository extends BaseRepository {
  .from("orders")
  .update(patch)
  .eq("id", orderId);
+ if (
+ error &&
+ patch.payment_status !== undefined &&
+ this.orderSelectMissingCols(String(error.message || ""))
+ ) {
+ const { payment_status: _ps, ...basicPatch } = patch;
+ const retry = await supabase
+ .from("orders")
+ .update(basicPatch)
+ .eq("id", orderId);
+ if (retry.error) throw retry.error;
+ return true;
+ }
  if (error) throw error;
  return true;
  }
@@ -405,30 +486,36 @@ export class OrderRepository extends BaseRepository {
  async getByIdAdmin(orderId: string) {
  const { createServiceClient } = await import("@/lib/supabase/service");
  const supabase = createServiceClient();
- const { data, error } = await supabase
- .from("orders")
- .select(
- `
- id,
- user_id,
- status,
- total_amount,
- discount_code,
- discount_amount,
- shipping_name,
- shipping_phone,
- shipping_address,
- shipping_city,
- shipping_postal,
- note,
- created_at,
+ const full = `
+ id, user_id, status, payment_status, total_amount, discount_code, discount_amount,
+ shipping_name, shipping_phone, shipping_address, shipping_city, shipping_postal,
+ note, created_at,
  order_items(id, title, size_name, color_name, unit_price, quantity, line_total, variant_id)
- `
- )
+ `;
+ const basic = `
+ id, user_id, status, total_amount, shipping_name, shipping_phone, shipping_address,
+ shipping_city, shipping_postal, note, created_at,
+ order_items(id, title, size_name, color_name, unit_price, quantity, line_total, variant_id)
+ `;
+ const primary = await supabase
+ .from("orders")
+ .select(full)
  .eq("id", orderId)
  .maybeSingle();
- if (error) throw error;
- return data;
+ if (
+ primary.error &&
+ this.orderSelectMissingCols(String(primary.error.message || ""))
+ ) {
+ const fallback = await supabase
+ .from("orders")
+ .select(basic)
+ .eq("id", orderId)
+ .maybeSingle();
+ if (fallback.error) throw fallback.error;
+ return fallback.data;
+ }
+ if (primary.error) throw primary.error;
+ return primary.data;
  }
 
 }

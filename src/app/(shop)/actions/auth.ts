@@ -117,6 +117,7 @@ export async function signUpAction(
   email: string,
   password: string,
   fullName?: string,
+  phone?: string,
 ) {
   const ip = await getClientIp();
   const rl = await checkRateLimit({ identifier: ip, type: "auth" });
@@ -125,21 +126,46 @@ export async function signUpAction(
   }
   const supabase = await createClient();
   const emailNorm = email.trim().toLowerCase();
+  const phoneNorm = phone?.trim()
+    ? (await import("@/lib/numbers")).normalizeIranMobile(phone.trim())
+    : null;
   const { data, error } = await supabase.auth.signUp({
     email: emailNorm,
     password,
-    options: { data: { full_name: fullName ?? "" } },
+    options: { data: { full_name: fullName ?? "", phone: phoneNorm ?? "" } },
   });
   if (error) return { ok: false as const, error: error.message };
 
   const userId = data.user?.id;
   if (userId) {
-    const { error: profileError } = await supabase.from("profiles").upsert({
-      id: userId,
-      full_name: fullName ?? null,
-      role: "customer",
-    } as never);
-    if (profileError) console.error("[signUp profile]", profileError);
+    // Prefer service role — customer INSERT RLS may be missing on live
+    try {
+      const service = createServiceClient();
+      const { error: profileError } = await service.from("profiles").upsert({
+        id: userId,
+        full_name: fullName ?? null,
+        phone: phoneNorm,
+        role: "customer",
+      } as never);
+      if (profileError) {
+        const { error: fallbackErr } = await supabase.from("profiles").upsert({
+          id: userId,
+          full_name: fullName ?? null,
+          phone: phoneNorm,
+          role: "customer",
+        } as never);
+        if (fallbackErr) console.error("[signUp profile]", fallbackErr);
+      }
+    } catch (pe) {
+      console.error("[signUp profile service]", pe);
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: userId,
+        full_name: fullName ?? null,
+        phone: phoneNorm,
+        role: "customer",
+      } as never);
+      if (profileError) console.error("[signUp profile]", profileError);
+    }
   }
 
   // Confirm email = Off → session؛ وگرنه همان‌جا sign-in
@@ -438,11 +464,15 @@ export async function signOutOtherDevicesAction() {
  } catch {
  /* ignore if unsupported */
  }
+ try {
  const admin = createServiceClient();
  await admin
  .from("user_sessions")
  .update({ revoked_at: new Date().toISOString() })
  .eq("user_id", user.id)
  .is("revoked_at", null);
+ } catch (e) {
+ console.warn("[signOutOtherDevices sessions]", e);
+ }
  return { ok: true as const };
 }

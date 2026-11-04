@@ -39,6 +39,7 @@ function isUniqueViolation(err: unknown): boolean {
 }
 
 /* ─── Categories ─── */
+/* Live: no short_description. meta_title/meta_description OK. image_url OK. */
 
 export async function adminListCategoriesAction() {
  const gate = await requireAdmin();
@@ -47,7 +48,7 @@ export async function adminListCategoriesAction() {
  const { data, error } = await gate.supabase
  .from("categories")
  .select(
- "id, name, slug, parent_id, sort_order, is_active, image_url, short_description, description, created_at",
+ "id, name, slug, parent_id, sort_order, is_active, image_url, description, created_at",
  )
  .order("sort_order", { ascending: true })
  .order("name", { ascending: true });
@@ -92,7 +93,7 @@ export async function adminCreateCategoryAction(input: {
  const slug = await uniqueSlug(gate.supabase, "categories", baseSlug);
 
  try {
- // فقط فیلدهای اصلی — بدون فیلدهای SEO که ممکن است در DB نباشند
+ // Live-safe fields only — strip short_description + advanced SEO until migration
  const { data, error } = await gate.supabase
  .from("categories")
  .insert({
@@ -102,8 +103,9 @@ export async function adminCreateCategoryAction(input: {
  is_active: input.is_active !== false,
  parent_id: input.parent_id || null,
  image_url: (input.image_url || "").trim() || null,
- short_description: (input.short_description || "").trim() || null,
  description: (input.description || "").trim() || null,
+ meta_title: (input.meta_title || "").trim() || null,
+ meta_description: (input.meta_description || "").trim() || null,
  })
  .select("id")
  .single();
@@ -127,6 +129,8 @@ export async function adminUpdateCategoryAction(
  image_url?: string | null;
  short_description?: string | null;
  description?: string | null;
+ meta_title?: string | null;
+ meta_description?: string | null;
  },
 ) {
  const gate = await requireAdmin();
@@ -142,10 +146,13 @@ export async function adminUpdateCategoryAction(
  if (patch.sort_order !== undefined) body.sort_order = patch.sort_order;
  if (patch.parent_id !== undefined) body.parent_id = patch.parent_id || null;
  if (patch.image_url !== undefined) body.image_url = (patch.image_url || "").trim() || null;
- if (patch.short_description !== undefined)
- body.short_description = (patch.short_description || "").trim() || null;
+ // short_description missing live — intentionally ignored
  if (patch.description !== undefined)
  body.description = (patch.description || "").trim() || null;
+ if (patch.meta_title !== undefined)
+ body.meta_title = (patch.meta_title || "").trim() || null;
+ if (patch.meta_description !== undefined)
+ body.meta_description = (patch.meta_description || "").trim() || null;
  if (!Object.keys(body).length) return { ok: true as const };
 
  const { error } = await gate.supabase.from("categories").update(body).eq("id", id);
@@ -159,6 +166,7 @@ export async function adminUpdateCategoryAction(
 }
 
 /* ─── Brands ─── */
+/* Live: logo_url (not image_url). No short_description / SEO cols. */
 
 export async function adminListBrandsAction() {
  const gate = await requireAdmin();
@@ -166,10 +174,15 @@ export async function adminListBrandsAction() {
  try {
  const { data, error } = await gate.supabase
  .from("brands")
- .select("id, name, slug, is_active, image_url, short_description, description, created_at")
+ .select("id, name, slug, is_active, logo_url, description, created_at")
  .order("name", { ascending: true });
  if (error) throw error;
- return { ok: true as const, items: data ?? [] };
+ // Map logo_url → image_url for wizard/UI compatibility
+ const items = (data ?? []).map((row) => {
+ const r = row as { logo_url?: string | null };
+ return { ...row, image_url: r.logo_url ?? null };
+ });
+ return { ok: true as const, items };
  } catch (e) {
  console.error("[adminListBrands]", e);
  return { ok: false as const, error: "server", items: [] };
@@ -180,9 +193,19 @@ export async function adminCreateBrandAction(input: {
  name: string;
  slug?: string;
  image_url?: string | null;
+ logo_url?: string | null;
  short_description?: string | null;
  description?: string | null;
  is_active?: boolean;
+ meta_title?: string | null;
+ meta_description?: string | null;
+ focus_keyphrases?: string[];
+ og_title?: string | null;
+ og_description?: string | null;
+ og_image_url?: string | null;
+ robots_index?: boolean;
+ robots_follow?: boolean;
+ canonical_url?: string | null;
 }) {
  const gate = await requireAdmin();
  if (!gate.ok) return { ok: false as const, error: gate.error };
@@ -193,6 +216,9 @@ export async function adminCreateBrandAction(input: {
  if (!baseSlug) return { ok: false as const, error: "bad_slug" };
 
  const slug = await uniqueSlug(gate.supabase, "brands", baseSlug);
+ // Wizard sends image_url; live column is logo_url
+ const logo =
+ (input.logo_url || input.image_url || "").trim() || null;
 
  try {
  const { data, error } = await gate.supabase
@@ -201,8 +227,7 @@ export async function adminCreateBrandAction(input: {
  name,
  slug,
  is_active: input.is_active !== false,
- image_url: (input.image_url || "").trim() || null,
- short_description: (input.short_description || "").trim() || null,
+ logo_url: logo,
  description: (input.description || "").trim() || null,
  })
  .select("id")
@@ -223,8 +248,11 @@ export async function adminUpdateBrandAction(
  slug?: string;
  is_active?: boolean;
  image_url?: string | null;
+ logo_url?: string | null;
  short_description?: string | null;
  description?: string | null;
+ meta_title?: string | null;
+ meta_description?: string | null;
  },
 ) {
  const gate = await requireAdmin();
@@ -237,9 +265,12 @@ export async function adminUpdateBrandAction(
  body.slug = s ? await uniqueSlug(gate.supabase, "brands", s, id) : s;
  }
  if (patch.is_active !== undefined) body.is_active = patch.is_active;
- if (patch.image_url !== undefined) body.image_url = (patch.image_url || "").trim() || null;
- if (patch.short_description !== undefined)
- body.short_description = (patch.short_description || "").trim() || null;
+ // Map image_url → logo_url; ignore short_description + SEO (missing live)
+ if (patch.logo_url !== undefined || patch.image_url !== undefined) {
+ const raw =
+ patch.logo_url !== undefined ? patch.logo_url : patch.image_url;
+ body.logo_url = (raw || "").trim() || null;
+ }
  if (patch.description !== undefined)
  body.description = (patch.description || "").trim() || null;
  if (!Object.keys(body).length) return { ok: true as const };
@@ -261,7 +292,7 @@ export async function adminGetCategoryAction(id: string) {
  const { data, error } = await gate.supabase
  .from("categories")
  .select(
- "id, name, slug, parent_id, sort_order, is_active, image_url, short_description, description, meta_title, meta_description",
+ "id, name, slug, parent_id, sort_order, is_active, image_url, description, meta_title, meta_description",
  )
  .eq("id", id)
  .maybeSingle();
@@ -280,14 +311,17 @@ export async function adminGetBrandAction(id: string) {
  try {
  const { data, error } = await gate.supabase
  .from("brands")
- .select(
- "id, name, slug, is_active, image_url, short_description, description, meta_title, meta_description",
- )
+ .select("id, name, slug, is_active, logo_url, description")
  .eq("id", id)
  .maybeSingle();
  if (error) throw error;
  if (!data) return { ok: false as const, error: "not_found" as const };
- return { ok: true as const, item: data };
+ const row = data as { logo_url?: string | null };
+ // Expose as image_url so catalog-wizard keeps working
+ return {
+ ok: true as const,
+ item: { ...data, image_url: row.logo_url ?? null },
+ };
  } catch (e) {
  console.error("[adminGetBrand]", e);
  return { ok: false as const, error: "server" as const };

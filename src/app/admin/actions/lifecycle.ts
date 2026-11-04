@@ -699,7 +699,7 @@ export async function adminArchiveStockAlertsAction(ids: string[]) {
  const list = cleanIds(ids);
  if (!list.length) return { ok: false as const, error: "empty" as const };
  try {
- const { error } = await gate.supabase.from("stock_alerts").update({ is_active: false }).in("id", list);
+ const { error } = await gate.supabase.from("stock_alerts").update({ status: "cancelled" }).in("id", list);
  if (error) throw error;
  return { ok: true as const, count: list.length };
  } catch (e) {

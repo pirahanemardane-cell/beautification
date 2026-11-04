@@ -81,7 +81,7 @@ export async function adminSalesReportAction(days = 30) {
 
  const { data: orders, error } = await sb
  .from("orders")
- .select("id, status, total_amount, created_at, payment_status")
+ .select("id, status, total_amount, created_at")
  .gte("created_at", since)
  .order("created_at", { ascending: false })
  .limit(2000);
@@ -103,13 +103,8 @@ export async function adminSalesReportAction(days = 30) {
  const total = Number((o as { total_amount?: number }).total_amount) || 0;
  revenueAll += total;
 
- const pay = String(
- (o as { payment_status?: string | null }).payment_status || "",
- ).toLowerCase();
  const stt = status.toLowerCase();
- const isPaid =
- pay === "paid" ||
- ["paid", "processing", "shipped", "delivered"].includes(stt);
+ const isPaid = ["paid", "processing", "shipped", "delivered"].includes(stt);
 
  if (isPaid) {
  revenuePaid += total;
@@ -165,6 +160,13 @@ export type OrderCsvRow = {
  created_at: string;
 };
 
+function derivePaymentFromStatus(status: string): string {
+ const stt = status.toLowerCase();
+ if (["paid", "processing", "shipped", "delivered"].includes(stt)) return "paid";
+ if (stt === "cancelled") return "failed";
+ return "pending";
+}
+
 export async function adminExportOrdersCsvAction(days = 30): Promise<
  | { ok: true; rows: OrderCsvRow[]; days: number }
  | { ok: false; error: string; rows: OrderCsvRow[] }
@@ -181,7 +183,7 @@ export async function adminExportOrdersCsvAction(days = 30): Promise<
  const { data, error } = await gate.supabase
  .from("orders")
  .select(
- "id, status, payment_status, total_amount, discount_amount, shipping_name, shipping_phone, shipping_city, shipping_address, tracking_number, created_at",
+ "id, status, total_amount, shipping_name, shipping_phone, shipping_city, shipping_address, tracking_number, created_at",
  )
  .gte("created_at", since)
  .order("created_at", { ascending: false })
@@ -189,19 +191,22 @@ export async function adminExportOrdersCsvAction(days = 30): Promise<
 
  if (error) throw error;
 
- const rows: OrderCsvRow[] = (data ?? []).map((o: Record<string, unknown>) => ({
+ const rows: OrderCsvRow[] = (data ?? []).map((o: Record<string, unknown>) => {
+ const status = String(o.status ?? "");
+ return {
  id: String(o.id ?? ""),
- status: String(o.status ?? ""),
- payment_status: String((o as { payment_status?: string }).payment_status ?? ""),
+ status,
+ payment_status: derivePaymentFromStatus(status),
  total_amount: Number(o.total_amount) || 0,
- discount_amount: Number(o.discount_amount) || 0,
+ discount_amount: 0,
  shipping_name: String(o.shipping_name ?? ""),
  shipping_phone: String(o.shipping_phone ?? ""),
  shipping_city: String(o.shipping_city ?? ""),
  shipping_address: String(o.shipping_address ?? "").replace(/\n/g, " "),
  tracking_number: String(o.tracking_number ?? ""),
  created_at: String(o.created_at ?? ""),
- }));
+ };
+ });
 
  return { ok: true, rows, days: d };
  } catch (e) {
