@@ -54,7 +54,7 @@ export async function notifyStockAlertsForVariant(variantId: string): Promise<{
  body: `${label} موجود شد.`,
  status: "queued",
  meta: { variant_id: variantId, alert_id: a.id },
- });
+ } as never);
  }
  await service
  .from("stock_alerts")

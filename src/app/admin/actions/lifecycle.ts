@@ -51,7 +51,7 @@ export async function adminHardDeleteProductsAction(ids: string[]) {
  // تصاویر را حذف نکن — فقط وابستگی به محصول را قطع کن (کتابخانه رسانه بماند)
  await gate.supabase
  .from("product_images")
- .update({ product_id: null, variant_id: null })
+ .update({ product_id: null, variant_id: null } as never)
  .in("product_id", list);
 
  for (const table of [
@@ -145,7 +145,7 @@ export async function adminHardDeleteCategoriesAction(ids: string[]) {
  // تصاویر را حذف نکن — فقط unlink
  await gate.supabase
  .from("product_images")
- .update({ product_id: null, variant_id: null })
+ .update({ product_id: null, variant_id: null } as never)
  .in("product_id", softIds);
  await gate.supabase.from("product_attribute_values").delete().in("product_id", softIds);
  await gate.supabase.from("product_variants").delete().in("product_id", softIds);
@@ -469,7 +469,7 @@ export async function adminArchiveUsersAction(ids: string[]) {
  try {
  const { error } = await gate.supabase.from("profiles").update({ is_active: false }).in("id", list);
  if (error) {
- const { error: e2 } = await gate.supabase.from("profiles").update({ role: "customer" }).in("id", list).neq("role", "superadmin");
+ const { error: e2 } = await gate.supabase.from("profiles").update({ role: "customer" }).in("id", list).neq("role", "superadmin" as never);
  if (e2) throw e2;
  }
  return { ok: true as const, count: list.length };
@@ -637,7 +637,7 @@ export async function adminArchiveNotificationsAction(ids: string[]) {
  try {
  const { error } = await gate.supabase
  .from("notifications")
- .update({ is_read: true, read_at: new Date().toISOString() })
+ .update({ is_read: true, read_at: new Date().toISOString() } as never)
  .in("id", list);
  if (error) throw error;
  return { ok: true as const, count: list.length };

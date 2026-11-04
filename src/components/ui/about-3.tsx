@@ -92,9 +92,9 @@ export function About3({
  <Button
  variant="outline"
  className="border-secondary text-secondary hover:bg-secondary/10 ml-auto"
- asChild
+ render={<a href={breakout.buttonUrl} />}
  >
- <a href={breakout.buttonUrl}>{breakout.buttonText}</a>
+ {breakout.buttonText}
  </Button>
  </div>
  </div>

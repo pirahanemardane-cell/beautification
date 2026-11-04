@@ -86,7 +86,7 @@ export default function AdminOrdersPage() {
  setItems([]);
  return;
  }
- setItems((res.items as OrderRow[]) ?? []);
+ setItems((res.items as unknown as OrderRow[]) ?? []);
  }, [statusFilter, qApplied]);
 
  useEffect(() => {

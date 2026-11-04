@@ -45,7 +45,7 @@ const toastTypes = [
 export function AppToaster() {
  return (
  <Portal>
- <Toaster theme="light" toaster={toaster}>
+ <Toaster toaster={toaster}>
  {(toastItem) => {
  const cfg = toastTypes.find((t) => t.type === toastItem.type);
  const Icon = cfg?.icon || Info;

@@ -118,7 +118,7 @@ export async function verifyAndApplyPayment(
  amount,
  status: "gateway_rejected",
  verified: false,
- payload: json as object,
+ payload: json as unknown as import("@/types/database").Json,
  error_message: `code ${code}`,
  },
  { onConflict: "provider,event_key" },
@@ -166,8 +166,8 @@ export async function verifyAndApplyPayment(
  amount,
  status: "paid",
  verified: true,
- payload: { authority, refId },
- },
+ payload: { authority, refId } as import("@/types/database").Json,
+ } as never,
  { onConflict: "provider,event_key" },
  );
 
@@ -212,7 +212,7 @@ export async function verifyAndApplyPayment(
  if (emailTo) {
  await emailPaymentSuccess({
  to: emailTo,
- name: String((order as { shipping_name?: string }).shipping_name ?? "مشتری"),
+ customerName: String((order as { shipping_name?: string }).shipping_name ?? "مشتری"),
  orderId,
  amount: String(
  (order as { total_amount?: number }).total_amount ??

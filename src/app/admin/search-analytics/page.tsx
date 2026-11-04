@@ -9,17 +9,17 @@ export default async function SearchAnalyticsPage() {
  const service = createServiceClient();
  const { data: rows } = await service
  .from("search_queries")
- .select("query, result_count, source, created_at")
+ .select("query, result_count, source, created_at" as never)
  .order("created_at", { ascending: false })
  .limit(200);
 
  const counts = new Map<string, { n: number; zero: number }>();
- for (const r of rows ?? []) {
- const q = String((r as { query: string }).query || "").trim();
+ for (const r of (rows ?? []) as unknown as Array<{ query?: string; result_count?: number }>) {
+ const q = String(r.query || "").trim();
  if (!q) continue;
  const cur = counts.get(q) ?? { n: 0, zero: 0 };
  cur.n += 1;
- if (Number((r as { result_count: number }).result_count) === 0) cur.zero += 1;
+ if (Number(r.result_count) === 0) cur.zero += 1;
  counts.set(q, cur);
  }
  const top = [...counts.entries()]

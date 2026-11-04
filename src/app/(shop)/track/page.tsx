@@ -68,7 +68,7 @@ function TrackForm() {
 
  useEffect(() => {
  if (initial) void run(initial);
- // eslint-disable-next-line react-hooks/exhaustive-deps
+  
  }, [initial]);
 
  useRtEvent(RT.orders, () => {
@@ -79,7 +79,7 @@ function TrackForm() {
  if (!result?.id) return;
  const iv = window.setInterval(() => void run(result.id), 15000);
  return () => window.clearInterval(iv);
- // eslint-disable-next-line react-hooks/exhaustive-deps
+  
  }, [result?.id]);
 
  function onSubmit(e: FormEvent) {
@@ -90,10 +90,15 @@ function TrackForm() {
  return (
  <div className="space-y-6">
  <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row">
+ <label className="sr-only" htmlFor="track-order-code">
+ کد پیگیری سفارش
+ </label>
  <input
+ id="track-order-code"
  value={code}
  onChange={(e) => setCode(e.target.value)}
  placeholder="کد سفارش خود را وارد کنید"
+ aria-label="کد پیگیری سفارش"
  className="border-input bg-background h-11 flex-1 rounded-xl border px-3 text-sm"
  dir="ltr"
  />

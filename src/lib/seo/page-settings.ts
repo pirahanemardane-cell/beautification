@@ -12,7 +12,7 @@ export async function metadataFromSeoPage(
  const { data } = await supabase
  .from("seo_page_settings")
  .select("meta_title, meta_description, og_title, og_description, og_image_url, robots_index, robots_follow, canonical_url, title")
- .eq("page_key", page_key)
+ .eq("page_key" as never, page_key)
  .maybeSingle();
  if (!data) {
  return { title: fallback.title, description: fallback.description };

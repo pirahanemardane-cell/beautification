@@ -149,7 +149,7 @@ export async function adminSyncProductAttributesAction(
  if (!rows.length) return { ok: true as const, count: 0 };
 
  // اول همه را بگذار؛ اگر unique روی (product_id, attribute_id) بود → یکی از هر attribute
- let { error } = await gate.supabase
+ const { error } = await gate.supabase
  .from("product_attribute_values")
  .insert(rows);
  if (error) {
@@ -292,7 +292,7 @@ export async function adminUpdateAttributeOptionAction(input: {
  try {
  const { error } = await gate.supabase
  .from("attribute_options")
- .update(patch)
+ .update(patch as never)
  .eq("id", input.id);
  if (error) throw error;
  return { ok: true as const };

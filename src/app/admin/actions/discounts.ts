@@ -192,9 +192,9 @@ export async function adminUpdateDiscountAction(
  if (input.category_ids !== undefined) fullPatch.category_ids = parseUuidList(input.category_ids);
 
  try {
- const fullUp = await gate.supabase.from("discounts").update(fullPatch).eq("id", id);
+ const fullUp = await gate.supabase.from("discounts").update(fullPatch as never).eq("id", id);
  if (fullUp.error && isMissingColumnError(String(fullUp.error.message || ""))) {
- const basicUp = await gate.supabase.from("discounts").update(basicPatch).eq("id", id);
+ const basicUp = await gate.supabase.from("discounts").update(basicPatch as never).eq("id", id);
  if (basicUp.error) throw basicUp.error;
  return { ok: true as const };
  }

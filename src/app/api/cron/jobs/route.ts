@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
  }
  try {
  const result = await processPendingJobs(15);
- return NextResponse.json({ ok: true, ...result, ts: new Date().toISOString() });
+ return NextResponse.json({ ...result, ok: true, ts: new Date().toISOString() });
  } catch (e) {
  console.error("[cron/jobs]", e);
  return NextResponse.json(

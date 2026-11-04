@@ -33,7 +33,7 @@ export default async function ReviewsAdminPage() {
  .select(basicSelect)
  .order("created_at", { ascending: false })
  .limit(200);
- data = fallback.data;
+ data = fallback.data as unknown as typeof data;
  error = fallback.error;
  replySupported = false;
  }

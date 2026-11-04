@@ -243,7 +243,7 @@ export function AuthForm({
  void onSuccess?.({ phone: formData.phone });
  } catch {}
  const role = String((ver as { role?: string }).role || "").toLowerCase();
- const isAdmin = role === "admin";
+ const isAdmin = role === "admin" || role === "superadmin";
  const qNext = new URLSearchParams(window.location.search).get("next");
  let dest =
  qNext && qNext.startsWith("/") && !qNext.startsWith("//")
@@ -298,7 +298,7 @@ export function AuthForm({
         const r = String(
           (prof.profile as { role?: string } | null | undefined)?.role || "",
         ).toLowerCase();
-        isAdmin = r === "admin";
+        isAdmin = r === "admin" || r === "superadmin";
       }
     } catch (e) {
       console.error("[login role]", e);
@@ -526,6 +526,8 @@ export function AuthForm({
  <input
  type="text"
  placeholder="موبایل یا ایمیل"
+ aria-label="موبایل یا ایمیل"
+ autoComplete="username"
  value={formData.loginId}
  onChange={(e) => handleInputChange("loginId", e.target.value)}
  className={inputCls}
@@ -761,6 +763,8 @@ export function AuthForm({
  <input
  type="text"
  placeholder="نام و نام خانوادگی *"
+ aria-label="نام و نام خانوادگی"
+ autoComplete="name"
  value={formData.name}
  onChange={(e) => handleInputChange("name", e.target.value)}
  className={inputCls}
@@ -778,6 +782,8 @@ export function AuthForm({
  <input
  type="text"
  placeholder="شماره موبایل یا ایمیل *"
+ aria-label="شماره موبایل یا ایمیل"
+ autoComplete="username"
  value={formData.loginId}
  onChange={(e) => handleInputChange("loginId", e.target.value)}
  className={inputCls}
@@ -795,6 +801,8 @@ export function AuthForm({
  <input
  type="tel"
  placeholder="شماره موبایل (اختیاری)"
+ aria-label="شماره موبایل"
+ autoComplete="tel"
  value={formData.phone}
  onChange={(e) => handleInputChange("phone", e.target.value)}
  className={inputCls}
@@ -812,6 +820,8 @@ export function AuthForm({
  <input
  type="email"
  placeholder="ایمیل *"
+ aria-label="ایمیل"
+ autoComplete="email"
  value={formData.email}
  onChange={(e) => handleInputChange("email", e.target.value)}
  className={inputCls}
@@ -827,12 +837,15 @@ export function AuthForm({
  <input
  type={showPassword ? "text" : "password"}
  placeholder="رمز عبور *"
+ aria-label="رمز عبور"
+ autoComplete={authMode === "signup" ? "new-password" : "current-password"}
  value={formData.password}
  onChange={(e) => handleInputChange("password", e.target.value)}
  className={cn(inputCls, "pl-10 pr-12")}
  />
  <button
  type="button"
+ aria-label={showPassword ? "مخفی کردن رمز" : "نمایش رمز"}
  className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2"
  onClick={() => setShowPassword(!showPassword)}
  >

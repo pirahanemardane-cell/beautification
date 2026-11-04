@@ -63,7 +63,7 @@ const ToolbarButton = ({
  </div>
 )
 
-const Toolbar = () => {
+const Toolbar = (_props?: { title?: string; description?: string }) => {
  const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(
  "right",
  )

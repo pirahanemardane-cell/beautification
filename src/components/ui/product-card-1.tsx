@@ -299,6 +299,7 @@ if (res.ok === false && res.error === "login_required") {
  return;
  }
  if (res.ok === false) {
+ toggleWishlistStore(item);
  toast.error("خطا در همگام‌سازی سرور");
  return;
  }

@@ -246,7 +246,7 @@ export async function adminUpdatePaymentStatusAction(
  }
  const { error } = await service
  .from("orders")
- .update(patch)
+ .update(patch as never)
  .eq("id", orderId);
  if (error && isMissingColumnError(String(error.message || ""))) {
  // live DB بدون payment_status: فقط status را به‌روز کن
@@ -312,7 +312,7 @@ export async function adminSetOrderTrackingAction(
  patch.status = "shipped";
  }
  }
- const { error } = await service.from("orders").update(patch).eq("id", orderId);
+ const { error } = await service.from("orders").update(patch as never).eq("id", orderId);
  if (error) throw error;
 
  void adminWriteLogAction({
@@ -324,15 +324,16 @@ export async function adminSetOrderTrackingAction(
 
  // اعلان best-effort
  if (code) {
- let order: {
+ type OrderNotifyFields = {
  user_id?: string | null;
  shipping_phone?: string | null;
  shipping_name?: string | null;
  shipping_email?: string | null;
- } | null = null;
+ };
+ let order: OrderNotifyFields | null = null;
  try {
  const repo = new OrderRepository();
- order = (await repo.getByIdAdmin(orderId)) as typeof order;
+ order = (await repo.getByIdAdmin(orderId)) as unknown as OrderNotifyFields | null;
  const userId = order?.user_id;
  if (userId) {
  const tpl = PREDEFINED_NOTIFICATIONS.find((x) => x.id === "order_shipped");
@@ -415,7 +416,7 @@ export async function adminAddOrderNoteAction(
  visibility,
  actor_type: "admin",
  actor_id: gate.userId ?? null,
- })
+ } as never)
  .select("id, order_id, body, visibility, actor_type, created_at")
  .single();
  if (error) {

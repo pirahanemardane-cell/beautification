@@ -22,9 +22,9 @@ export async function writeFinancialAudit(input: {
  order_id: input.orderId ?? null,
  return_id: input.returnId ?? null,
  amount: input.amount ?? null,
- meta: input.meta ?? null,
+ meta: (input.meta ?? null) as import("@/types/database").Json,
  actor_id: input.actorId ?? null,
- });
+ } as never);
  if (error) console.error("[writeFinancialAudit]", error.message);
  } catch (e) {
  console.error("[writeFinancialAudit]", e);

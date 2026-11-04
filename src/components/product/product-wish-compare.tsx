@@ -53,13 +53,14 @@ export function ProductWishCompareStack({
  toast.error("محصول نامعتبر است");
  return;
  }
- toggleWishlistStore({
+ const snapshot = {
  id: productId,
  title: item.title,
  price: item.price ?? 0,
  image: item.image,
  href: item.href,
- });
+ };
+ toggleWishlistStore(snapshot);
  const nowIn = useShopStore.getState().wishlist.some((x) => x.id === productId);
  try {
  const res = await toggleWishlistAction(productId);
@@ -71,6 +72,7 @@ export function ProductWishCompareStack({
  return;
  }
  if (res.ok === false) {
+ toggleWishlistStore(snapshot);
  toast.error("خطا در همگام‌سازی سرور");
  return;
  }
@@ -140,13 +142,14 @@ export function ProductWishCompareInline({
  e.preventDefault();
  e.stopPropagation();
  if (!productId) return;
- toggleWishlistStore({
+ const snapshot = {
  id: productId,
  title: item.title,
  price: item.price ?? 0,
  image: item.image,
  href: item.href,
- });
+ };
+ toggleWishlistStore(snapshot);
  const nowIn = useShopStore.getState().wishlist.some((x) => x.id === productId);
  try {
  const res = await toggleWishlistAction(productId);
@@ -158,6 +161,7 @@ export function ProductWishCompareInline({
  return;
  }
  if (res.ok === false) {
+ toggleWishlistStore(snapshot);
  toast.error("خطا در همگام‌سازی سرور");
  return;
  }

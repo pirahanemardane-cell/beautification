@@ -29,7 +29,7 @@ export async function writeAuditLog(input: {
  actor_id: input.actorId ?? null,
  ip_address: input.ipAddress ?? null,
  user_agent: input.userAgent ?? null,
- });
+ } as never);
  } catch {
  // never break business flow if audit fails
  }

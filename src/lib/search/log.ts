@@ -15,7 +15,7 @@ export async function logSearchQuery(input: {
  result_count: Math.max(0, Number(input.resultCount) || 0),
  user_id: input.userId || null,
  source: input.source || "suggest",
- });
+ } as never);
  } catch (e) {
  console.error("[logSearchQuery]", e);
  }

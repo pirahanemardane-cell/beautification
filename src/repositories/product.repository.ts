@@ -193,8 +193,8 @@ export class ProductRepository extends BaseRepository {
  let sizeLabel: string | null = null;
  let colorName: string | null = null;
  
- let resolvedSizeName: string | undefined = filters.sizeValue;
- let resolvedColorName: string | undefined = filters.colorValue;
+ const resolvedSizeName: string | undefined = filters.sizeValue;
+ const resolvedColorName: string | undefined = filters.colorValue;
 if (filters.sizeId) {
  const { data: sz } = await client
  .from("sizes") /* attr-aware */
