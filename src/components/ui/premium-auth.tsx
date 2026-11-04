@@ -412,7 +412,7 @@ export function AuthForm({
  ? "ورود با موبایل یا کد یکبارمصرف"
  : authMode === "reset"
  ? "بازیابی دسترسی"
- : "عضویت با شماره موبایل"}
+ : "عضویت با ایمیل"}
  </p>
  </div>
 
@@ -535,7 +535,7 @@ export function AuthForm({
  <Phone className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
  <input
  type="tel"
- placeholder="شماره موبایل *"
+ placeholder="شماره موبایل (اختیاری)"
  value={formData.phone}
  onChange={(e) => handleInputChange("phone", e.target.value)}
  className={inputCls}
@@ -768,7 +768,7 @@ export function AuthForm({
  <Phone className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
  <input
  type="tel"
- placeholder="شماره موبایل *"
+ placeholder="شماره موبایل (اختیاری)"
  value={formData.phone}
  onChange={(e) => handleInputChange("phone", e.target.value)}
  className={inputCls}
@@ -785,7 +785,7 @@ export function AuthForm({
  <Mail className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
  <input
  type="email"
- placeholder="ایمیل (اختیاری)"
+ placeholder="ایمیل *"
  value={formData.email}
  onChange={(e) => handleInputChange("email", e.target.value)}
  className={inputCls}
