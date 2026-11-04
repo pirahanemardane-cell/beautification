@@ -29,7 +29,8 @@ const nextConfig: NextConfig = {
  "lucide-react",
  ],
 },
- typescript: { ignoreBuildErrors: true },
+ // Typed against refreshed src/types/database.ts — keep tsc clean; do not re-enable.
+ typescript: { ignoreBuildErrors: false },
 
  async headers() {
  return [
