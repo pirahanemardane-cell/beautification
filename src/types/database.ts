@@ -767,9 +767,9 @@ export type Database = {
  Relationships: [];
  };
  otp_challenges: {
- Row: { id: string; phone: string; code_hash: string; expires_at: string; attempts: number; created_at: string; };
- Insert: { id?: string; phone: string; code_hash: string; expires_at: string; attempts?: number; created_at?: string; };
- Update: { id?: string; phone?: string; code_hash?: string; expires_at?: string; attempts?: number; created_at?: string; };
+ Row: { id: string; phone: string; code_hash: string; expires_at: string; attempts: number; consumed_at: string | null; created_at: string; };
+ Insert: { id?: string; phone: string; code_hash: string; expires_at: string; attempts?: number; consumed_at?: string | null; created_at?: string; };
+ Update: { id?: string; phone?: string; code_hash?: string; expires_at?: string; attempts?: number; consumed_at?: string | null; created_at?: string; };
  Relationships: [];
  };
  product_price_history: {

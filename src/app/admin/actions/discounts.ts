@@ -8,15 +8,24 @@ export async function adminListDiscountsAction(limit = 50) {
  const gate = await requireAdmin();
  if (!gate.ok) return { ok: false as const, error: gate.error, items: [] };
  try {
- const { data, error } = await gate.supabase
+ const full = await gate.supabase
  .from("discounts")
  .select(
  "id, code, type, value, min_order_amount, max_uses, used_count, starts_at, ends_at, is_active, once_per_user, created_at, max_discount_amount, product_ids, category_ids",
  )
  .order("created_at", { ascending: false })
  .limit(limit);
- if (error) throw error;
- return { ok: true as const, items: data ?? [] };
+ if (full.error && String(full.error.message || "").includes("does not exist")) {
+ const basic = await gate.supabase
+ .from("discounts")
+ .select("id, code, type, value, max_uses, used_count, starts_at, ends_at, is_active, created_at")
+ .order("created_at", { ascending: false })
+ .limit(limit);
+ if (basic.error) throw basic.error;
+ return { ok: true as const, items: basic.data ?? [] };
+ }
+ if (full.error) throw full.error;
+ return { ok: true as const, items: full.data ?? [] };
  } catch (e) {
  console.error("[adminListDiscounts]", e);
  return { ok: false as const, error: "server", items: [] };
