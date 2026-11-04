@@ -114,31 +114,58 @@ export async function signInAction(loginId: string, password: string) {
 }
 
 export async function signUpAction(
- email: string,
- password: string,
- fullName?: string,
+  email: string,
+  password: string,
+  fullName?: string,
 ) {
- const ip = await getClientIp();
- const rl = await checkRateLimit({ identifier: ip, type: "auth" });
- if (!rl.success) {
- return { ok: false as const, error: "تعداد تلاش بیش از حد مجاز. کمی بعد دوباره تلاش کنید." };
- }
- const supabase = await createClient();
- const { data, error } = await supabase.auth.signUp({
- email: email.trim(),
- password,
- options: { data: { full_name: fullName ?? "" } },
- });
- if (error) return { ok: false as const, error: error.message };
- const userId = data.user?.id;
- if (userId) {
- const { error: profileError } = await supabase.from("profiles").upsert({
- id: userId,
- full_name: fullName ?? null,
- } as never);
- if (profileError) console.error("[signUp profile]", profileError);
- }
- return { ok: true as const };
+  const ip = await getClientIp();
+  const rl = await checkRateLimit({ identifier: ip, type: "auth" });
+  if (!rl.success) {
+    return { ok: false as const, error: "تعداد تلاش بیش از حد مجاز. کمی بعد دوباره تلاش کنید." };
+  }
+  const supabase = await createClient();
+  const emailNorm = email.trim().toLowerCase();
+  const { data, error } = await supabase.auth.signUp({
+    email: emailNorm,
+    password,
+    options: { data: { full_name: fullName ?? "" } },
+  });
+  if (error) return { ok: false as const, error: error.message };
+
+  const userId = data.user?.id;
+  if (userId) {
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: userId,
+      full_name: fullName ?? null,
+      role: "customer",
+    } as never);
+    if (profileError) console.error("[signUp profile]", profileError);
+  }
+
+  // Confirm email = Off → session؛ وگرنه همان‌جا sign-in
+  if (!data.session) {
+    const { error: signErr } = await supabase.auth.signInWithPassword({
+      email: emailNorm,
+      password,
+    });
+    if (signErr) {
+      return {
+        ok: false as const,
+        error: "حساب ساخته شد ولی ورود خودکار نشد. با همان رمز وارد شوید.",
+      };
+    }
+  }
+
+  if (userId) {
+    let ua: string | null = null;
+    try {
+      const h = await headers();
+      ua = h.get("user-agent");
+    } catch {}
+    await recordUserSession({ userId, userAgent: ua, ipAddress: ip });
+  }
+
+  return { ok: true as const };
 }
 
 export async function signOutAction() {

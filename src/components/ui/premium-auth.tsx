@@ -331,7 +331,7 @@ export function AuthForm({
 
  // ——— ثبت‌نام با OTP واقعی (همان مسیر ورود) ———
  if (authMode === "signup") {
-        // ثبت‌نام با ایمیل (موبایل تا ملی‌پیامک اختیاری / بدون OTP)
+        // ثبت‌نام مشتری: ایمیل + رمز → session خودکار → داشبورد
         const email = (formData.email || formData.loginId || "").trim().toLowerCase();
         const password = formData.password || "";
         const fullName = (formData.fullName || formData.name || "").trim();
@@ -350,29 +350,12 @@ export function AuthForm({
         try {
           const res = await signUpAction(email, password, fullName || undefined);
           if (!res.ok) {
-            // کاربر از قبل هست → مستقیم ورود با همان رمز
-            const existing = /already|registered|exists|قبلا/i.test(res.error || "");
-            if (!existing) {
-              setErrors({ email: res.error || "ثبت‌نام ناموفق بود" });
-              setIsLoading(false);
-              return;
-            }
-          }
-          // ورود خودکار (session کوکی سرور)
-          const login = await signInAction(email, password);
-          if (!login.ok) {
-            setErrors({
-              general: "حساب ساخته شد ولی ورود نشد. رمز را یک‌بار از فراموشی رمز تنظیم کنید.",
-            });
+            setErrors({ email: res.error || "ثبت‌نام ناموفق بود" });
             setIsLoading(false);
-            setAuthMode("login");
             return;
           }
           void onSuccess?.({ email });
-          if (typeof window !== "undefined") {
-            window.location.assign("/dashboard");
-          }
-          setIsLoading(false);
+          window.location.assign("/dashboard");
           return;
         } catch (e) {
           console.error("[signup email]", e);
