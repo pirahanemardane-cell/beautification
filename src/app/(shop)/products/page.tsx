@@ -19,7 +19,7 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
  return metadataFromSeoPage("shop_plp", {
  title: "محصولات",
- description: "لیست محصولات فروشگاه تخصصی زیورآلات و اکسسوری",
+ description: "لیست محصولات فروشگاه تخصصی اکسسوری دست ساز و اکسسوری",
  });
 }
 

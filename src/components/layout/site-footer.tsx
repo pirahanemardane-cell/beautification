@@ -28,7 +28,7 @@ export function SiteFooter() {
  <Footer
  brandName="جواهر شاد"
  watermarkName="ShadJewel"
- brandDescription="فروشگاه تخصصی زیورآلات و اکسسوری"
+ brandDescription="فروشگاه تخصصی اکسسوری دست ساز و اکسسوری"
  socialLinks={[
  
  {
@@ -40,7 +40,7 @@ export function SiteFooter() {
  ]}
  navLinks={[
  { label: "درباره ما", href: "/about" },
- { label: "راهنمای سایز زیورآلات", href: "/size-guide" },
+ { label: "راهنمای سایز اکسسوری دست ساز", href: "/size-guide" },
  { label: "ارسال", href: "/shipping" },
  { label: "مرجوعی", href: "/returns" },
  { label: "سوالات متداول", href: "/faq" },

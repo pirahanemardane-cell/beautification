@@ -4,7 +4,7 @@ import { About3 } from "@/components/ui/about-3";
 export const metadata: Metadata = {
  title: "درباره ما | جواهر شاد",
  description:
- "فروشگاه تخصصی زیورآلات و اکسسوری — کیفیت دوخت، راهنمای سایز زیورآلات شفاف و پشتیبانی واقعی",
+ "فروشگاه تخصصی اکسسوری دست ساز و اکسسوری — کیفیت دوخت، راهنمای سایز اکسسوری دست ساز شفاف و پشتیبانی واقعی",
 };
 
 export default function AboutPage() {
@@ -17,7 +17,7 @@ export default function AboutPage() {
  alt: "جواهر شاد",
  title: "اندازه درست، استایل درست",
  description:
- "راهنمای سایز زیورآلات شفاف، تعویض آسان و پشتیبانی واقعی — برای اطمینان از فیت قبل و بعد از خرید.",
+ "راهنمای سایز اکسسوری دست ساز شفاف، تعویض آسان و پشتیبانی واقعی — برای اطمینان از فیت قبل و بعد از خرید.",
  buttonText: "مشاهده محصولات",
  buttonUrl: "/products",
  }}
@@ -26,7 +26,7 @@ export default function AboutPage() {
  achievementsTitle="آنچه برای شما می‌سازیم"
  achievementsDescription="فروشگاه تخصصی، نه همه‌چیزفروشی."
  achievements={[
- { label: "تمرکز", value: "زیورآلات" },
+ { label: "تمرکز", value: "اکسسوری دست ساز" },
  { label: "فیت", value: "دقیق" },
  { label: "مرجوعی", value: "آسان" },
  { label: "پشتیبانی", value: "واقعی" },

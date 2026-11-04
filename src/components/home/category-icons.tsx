@@ -112,7 +112,7 @@ const RULES: { test: (s: string) => boolean; Icon: (p: IconProps) => JSX.Element
  { test: (s) => /اسپرت|کار|sport|work|کارگری/.test(s), Icon: IconSportWork },
  { test: (s) => /کژوال|casual|روزمره/.test(s), Icon: IconShirtCasual },
  { test: (s) => /رسمی|formal|مجلسی/.test(s), Icon: IconShirtFormal },
- { test: (s) => /زیورآلات|shirt/.test(s), Icon: IconShirtFormal },
+ { test: (s) => /اکسسوری دست ساز|shirt/.test(s), Icon: IconShirtFormal },
 ];
 
 export function CategorySvgIcon({

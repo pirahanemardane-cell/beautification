@@ -1,6 +1,6 @@
 # جواهر شاد | shadjewel.ir
 
-فروشگاه تخصصی زیورآلات و اکسسوری – ساخته‌شده با Next.js 15 + Supabase + Vercel + Cloudflare + R2
+فروشگاه تخصصی اکسسوری دست ساز و اکسسوری – ساخته‌شده با Next.js 15 + Supabase + Vercel + Cloudflare + R2
 
 ## تکنولوژی‌ها
 - **Frontend**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + shadcn/ui

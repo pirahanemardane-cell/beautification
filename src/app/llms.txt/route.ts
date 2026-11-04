@@ -4,7 +4,7 @@ const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replac
 
 export function GET() {
  const body = `# جواهر شاد
-> فروشگاه تخصصی زیورآلات و اکسسوری، دستبند، ست و اکسسوری
+> فروشگاه تخصصی اکسسوری دست ساز و اکسسوری، دستبند، ست و اکسسوری
 
 ## صفحات اصلی
 - [خانه](${site}/)

@@ -7,7 +7,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
  title: "تماس با ما | جواهر شاد",
- description: "راه‌های ارتباط با فروشگاه تخصصی زیورآلات و اکسسوری",
+ description: "راه‌های ارتباط با فروشگاه تخصصی اکسسوری دست ساز و اکسسوری",
 };
 
 export default async function ContactPage() {

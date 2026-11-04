@@ -30,7 +30,7 @@ interface FooterProps {
 export function Footer({
  brandName = "جواهر شاد",
  watermarkName = "ShadJewel",
- brandDescription = "فروشگاه تخصصی زیورآلات و اکسسوری — رسمی، اسپرت، دستبند، ست و اکسسوری",
+ brandDescription = "فروشگاه تخصصی اکسسوری دست ساز و اکسسوری — رسمی، اسپرت، دستبند، ست و اکسسوری",
  socialLinks = [],
  navLinks = [],
  creatorName,
