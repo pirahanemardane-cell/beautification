@@ -34,8 +34,8 @@ export function About3({
  mainImage,
  secondaryImage,
  breakout = {
- src: "/brand/logo-light-transparent.webp",
- alt: "لوگو",
+ src: "",
+ alt: "اکسسوری شاد",
  title: "اکسسوری دست‌ساز",
  description:
  "طراحی تمیز، مواد باکیفیت و پشتیبانی واقعی پس از خرید.",
@@ -70,18 +70,12 @@ export function About3({
  <p className="text-foreground mb-3 text-lg font-semibold">
  {breakout.title}
  </p>
- {/* eslint-disable-next-line @next/next/no-img-element */}
- <img
- src="/brand/logo-light-transparent.webp"
- alt={breakout.alt || "لوگو"}
- className="mb-3 h-14 w-auto object-contain dark:hidden"
- />
- {/* eslint-disable-next-line @next/next/no-img-element */}
- <img
- src="/brand/logo-dark-transparent.webp"
- alt={breakout.alt || "لوگو"}
- className="mb-3 hidden h-14 w-auto object-contain dark:block"
- />
+ <p
+ className="text-primary mb-3 text-2xl font-black tracking-tight"
+ aria-label={breakout.alt || "اکسسوری شاد"}
+ >
+ اکسسوری شاد
+ </p>
  {breakout.description ? (
  <p className="text-muted-foreground">{breakout.description}</p>
  ) : null}

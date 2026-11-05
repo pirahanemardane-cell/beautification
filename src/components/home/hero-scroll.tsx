@@ -35,28 +35,31 @@ function rangeOpacity(idx: number, start: number, end: number, fade = FADE_FRAME
  return Math.min(fadeIn, fadeOut);
 }
 
-/** سایز دسکتاپ فقط — موبایل همان clamp والد؛ وزن‌ها مثل قبل: heavy + thin / thin + heavy / brand */
+/**
+ * One shared SIZE per breakpoint so each slide stays on a single line.
+ * Weights stay as designed: heavy / thin / brand (parent `font-black` + `font-thin`).
+ */
+const HERO_LINE =
+  "whitespace-nowrap text-[17px] text-white sm:text-[20px] md:text-[36px] lg:text-[44px]";
+
 function TitleContent({ text }: { text: string }) {
   if (text === "اکسسوری دست‌ساز برای سلیقه تو") {
     return (
-      <>
-        <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">اکسسوری</span>{" "}
-        <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">
-          دست‌ساز برای سلیقه تو
-        </span>
-      </>
+      <span className={HERO_LINE}>
+        <span>اکسسوری</span>{" "}
+        <span className="font-thin">دست‌ساز برای سلیقه تو</span>
+      </span>
     );
   }
   if (text === "با ظرافت تخصصی") {
     return (
-      <>
-        <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">با</span>{" "}
-        <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">ظرافت تخصصی</span>
-      </>
+      <span className={HERO_LINE}>
+        <span className="font-thin">با</span> <span>ظرافت تخصصی</span>
+      </span>
     );
   }
   if (text === "اکسسوری شاد") {
-    return <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">اکسسوری شاد</span>;
+    return <span className={HERO_LINE}>اکسسوری شاد</span>;
   }
   return <>{text}</>;
 }
