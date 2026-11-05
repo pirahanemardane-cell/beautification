@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { AttributeWithOptions } from "@/repositories/attribute.repository";
 import { Check } from "lucide-react";
 import { PriceRangeSlider06 } from "@/components/ui/price-range-slider-06";
+import { JEWELRY_CATEGORIES } from "@/lib/jewelry-categories";
 
 export type CategoryChip = { name: string; slug: string };
 
@@ -28,13 +29,9 @@ type Props = {
  forceVisible?: boolean;
 };
 
-const DEFAULT_JEWELRY_CATEGORIES: CategoryChip[] = [
-  { name: "گردنبند", slug: "necklace" },
-  { name: "گوشواره", slug: "earring" },
-  { name: "انگشتر", slug: "ring" },
-  { name: "دستبند", slug: "bracelet" },
-  { name: "ست", slug: "set" },
-];
+const DEFAULT_JEWELRY_CATEGORIES: CategoryChip[] = JEWELRY_CATEGORIES.map(
+  ({ name, slug }) => ({ name, slug }),
+);
 
 
 const SORTS = [
@@ -190,7 +187,7 @@ export function ProductFiltersSidebar(props: Props) {
  const {
  facets,
  current,
- categories = [],
+ categories: categoriesProp = [],
  categorySlug,
  sort = "newest",
  featured,
@@ -198,6 +195,8 @@ export function ProductFiltersSidebar(props: Props) {
  maxPrice,
  forceVisible,
  } = props;
+ const categories =
+  categoriesProp.length > 0 ? categoriesProp : DEFAULT_JEWELRY_CATEGORIES;
 
  const router = useRouter();
  const pathname = usePathname();

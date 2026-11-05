@@ -1,10 +1,11 @@
-/** دسته‌بندی‌های استاندارد اکسسوری شاد */
+/** دسته‌بندی‌های استاندارد اکسسوری شاد (slugs map to CategorySvgIcon) */
 export const JEWELRY_CATEGORIES = [
   { name: "گردنبند", slug: "necklace", icon: "necklace" },
   { name: "گوشواره", slug: "earring", icon: "earring" },
   { name: "انگشتر", slug: "ring", icon: "ring" },
   { name: "دستبند", slug: "bracelet", icon: "bracelet" },
   { name: "ست", slug: "set", icon: "set" },
+  { name: "اکسسوری", slug: "accessory", icon: "default" },
 ] as const;
 
 /** متریال‌های رایج */

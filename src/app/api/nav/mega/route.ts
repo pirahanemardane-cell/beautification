@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { CategoryRepository } from "@/repositories/category.repository";
 import { BrandService } from "@/services/brand.service";
+import { JEWELRY_CATEGORIES } from "@/lib/jewelry-categories";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 30;
@@ -28,19 +29,27 @@ export async function GET() {
  String(a.name).localeCompare(String(b.name), "fa"),
  );
 
- const roots = sorted.filter((c) => !c.parent_id);
- const categories: NavCat[] = roots.map((r) => ({
- name: r.name,
- slug: r.slug,
- href: "/" + encodeURIComponent(r.slug),
- children: sorted
- .filter((c) => c.parent_id === r.id)
- .map((c) => ({
- name: c.name,
- slug: c.slug,
- href: "/" + encodeURIComponent(c.slug),
- })),
- }));
+      const roots = sorted.filter((c) => !c.parent_id);
+      const categories: NavCat[] =
+        roots.length > 0
+          ? roots.map((r) => ({
+              name: r.name,
+              slug: r.slug,
+              href: "/" + encodeURIComponent(r.slug),
+              children: sorted
+                .filter((c) => c.parent_id === r.id)
+                .map((c) => ({
+                  name: c.name,
+                  slug: c.slug,
+                  href: "/" + encodeURIComponent(c.slug),
+                })),
+            }))
+          : JEWELRY_CATEGORIES.map((c) => ({
+              name: c.name,
+              slug: c.slug,
+              href: "/" + encodeURIComponent(c.slug),
+              children: [],
+            }));
 
  const brands =
  brandRes.success && brandRes.data
