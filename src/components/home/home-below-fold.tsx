@@ -98,7 +98,7 @@ export async function HomeBelowFold() {
   ];
 
   return (
-    <main className="mx-auto w-full max-w-none space-y-14 px-4 pt-8 pb-10 md:pb-14">
+    <main className="mx-auto w-full max-w-none space-y-14 px-4 pt-2 pb-10 md:pt-8 md:pb-14">
       <section
         aria-label="اعتماد"
         className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"

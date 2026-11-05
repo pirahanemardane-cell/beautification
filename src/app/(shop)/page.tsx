@@ -62,7 +62,8 @@ export default function HomePage() {
       <PolaroidLineCarousel
         showChrome={false}
         slides={[...HERO_SLIDES]}
-        height="min(100svh, 36rem)"
+        height={null}
+        className="h-[min(70svh,22rem)] md:h-[min(100svh,36rem)]"
         background="#F8F9FA"
         ariaLabel="گالری عکس محصولات"
       />
