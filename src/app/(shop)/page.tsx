@@ -1,276 +1,42 @@
 import type { Metadata } from "next";
-import {
- ShieldCheck,
- Truck,
- RotateCcw,
- Headphones,
-} from "lucide-react";
-import { ProductService } from "@/services/product.service";
-import { CategoryService } from "@/services/category.service";
-import { BrandService } from "@/services/brand.service";
-import { FlashSalePromoCard } from "@/components/home/flash-sale-promo-card";
-import { getFlashSaleEndsAtAction } from "@/app/admin/actions/flash-sale";
-import { NewsletterSmsBox } from "@/components/home/newsletter-sms-box";
-import { OrderTrackBox } from "@/components/home/order-track-box";
+import { Suspense } from "react";
 import { HeroScroll } from "@/components/home/hero-scroll";
 import { HomeAfterHero } from "@/components/home/home-after-hero";
-import { CarouselLinks } from "@/components/ui/carousel-cards";
-import { ProductCarousel } from "@/components/ui/product-carousel";
-import type { ProductWithRelations } from "@/repositories/product.repository";
+import { HomeBelowFold } from "@/components/home/home-below-fold";
 
 // ISR: HTML کش‌شده ۶۰ ثانیه — هیرو دست‌نخورده
 export const revalidate = 60;
 
-const HOME_BRAND_SLIDES: { id: string; label: string; href: string; imageUrl: string }[] = [];
-
-
 export const metadata: Metadata = {
- title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
- description:
- "خرید گردنبند، گوشواره، انگشتر، دستبند و ست‌های اکسسوری دست ساز از فروشگاه تخصصی اکسسوری دست ساز",
+  title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
+  description:
+    "خرید گردنبند، گوشواره، انگشتر، دستبند و ست‌های اکسسوری دست ساز از فروشگاه تخصصی اکسسوری دست ساز",
 };
 
-
+/** Early LCP hints — sync page shell so these ship before catalog awaits. */
 function HomeHeroPreloads() {
- return (
- <>
- <link rel="preload" as="image" href="/hero/hero-poster.jpg" type="image/webp" />
- <link rel="preload" as="image" href="/hero/frames/frame-001.jpg" type="image/webp" />
- </>
- );
+  return (
+    <>
+      <link rel="preload" as="image" href="/hero/hero-poster.jpg" type="image/jpeg" />
+      <link rel="preload" as="image" href="/hero/frames/frame-001.jpg" type="image/jpeg" />
+    </>
+  );
 }
 
-export default async function HomePage() {
- const productService = new ProductService();
- const categoryService = new CategoryService();
- const brandService = new BrandService();
-
- const settled = await Promise.allSettled([
- productService.getPublishedProducts({ page: 1, pageSize: 8, featured: true }),
- productService.getPublishedProducts({ page: 1, pageSize: 8, sort: "newest" }),
- productService.getPublishedProducts({ page: 1, pageSize: 12, bestseller: true }),
- categoryService.getRoots(),
- brandService.getActive(),
- ]);
- const pick = <T,>(i: number, fallback: T): T => {
- const s = settled[i];
- if (s.status === "fulfilled") return s.value as T;
- console.error("[home] section failed", i, s.reason);
- return fallback;
- };
- const featuredResult = pick(0, { success: false as const, data: null });
- const newResult = pick(1, { success: false as const, data: null });
- const bestsellerResult = pick(2, { success: false as const, data: null });
- type HomeListResult<T> = { success: boolean; data: T | null };
- const categoriesResult = pick<HomeListResult<import("@/types/database").Category[]>>(3, {
- success: false,
- data: null,
- });
- const brandsResult = pick<
- HomeListResult<
- Pick<
- import("@/types/database").Brand,
- "id" | "name" | "slug" | "logo_url" | "description" | "is_active"
- >[]
- >
- >(4, { success: false, data: null });
-
- const pageData = (r: { success?: boolean; data?: unknown }) => {
- if (!r?.success || !r.data || typeof r.data !== "object") return [] as ProductWithRelations[];
- const inner = (r.data as { data?: unknown }).data;
- return Array.isArray(inner) ? (inner as ProductWithRelations[]) : [];
- };
- const featured: ProductWithRelations[] = pageData(featuredResult as { success?: boolean; data?: unknown });
- const newest: ProductWithRelations[] = pageData(newResult as { success?: boolean; data?: unknown });
- const categories =
- categoriesResult.success && categoriesResult.data
- ? categoriesResult.data
- : [];
- const brands =
- brandsResult.success && brandsResult.data ? brandsResult.data : [];
-
- const bestsellersRaw: ProductWithRelations[] = pageData(
- bestsellerResult as { success?: boolean; data?: unknown },
- );
- const bestsellers =
- bestsellersRaw.length > 0
- ? bestsellersRaw
- : newest.filter((p) => p.is_bestseller).length
- ? newest.filter((p) => p.is_bestseller)
- : newest;
-
- const flashRes = await getFlashSaleEndsAtAction();
- const flashEndsAt = flashRes.ok ? flashRes.endsAt : null;
- const flashActive =
- Boolean(flashEndsAt) &&
- !Number.isNaN(new Date(flashEndsAt as string).getTime()) &&
- new Date(flashEndsAt as string).getTime() > Date.now();
- const deals = flashActive ? featured : [];
-
- const features = [
- { title: "ضمانت کالا", desc: "کالای با کیفیت", icon: ShieldCheck },
- { title: "ارسال سریع", desc: "ارسال به سراسر کشور", icon: Truck },
- { title: "۷ روز بازگشت", desc: "مرجوعی آسان طبق شرایط", icon: RotateCcw },
- { title: "پشتیبانی", desc: "همراه شما قبل و بعد خرید", icon: Headphones },
- ];
-
- return (
- <>
- <HomeHeroPreloads />
- <HeroScroll />
- <HomeAfterHero>
- <main className="mx-auto w-full max-w-none space-y-14 px-4 py-10 md:py-14">
- <section
- aria-label="اعتماد"
- className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"
- >
- {features.map((f) => (
- <div
- key={f.title}
- className="bg-card flex flex-col gap-2 rounded-2xl border p-4"
- >
- <f.icon className="text-primary size-6" />
- <h3 className="text-sm font-semibold text-primary">{f.title}</h3>
- <p className="text-muted-foreground text-xs leading-6">{f.desc}</p>
- </div>
- ))}
- </section>
-
- <CarouselLinks
- title="برندها"
- viewAllHref="/brands"
- variant="brand"
- items={
- brands.length > 0
- ? brands
- .filter((b) => {
- const s = String(b.slug || "").toLowerCase();
- const n = String(b.name || "").toLowerCase();
- return !(
- s.includes("tommy") ||
- s.includes("hilfiger") ||
- s.includes("تامی") ||
- n.includes("tommy") ||
- n.includes("hilfiger") ||
- n.includes("تامی") ||
- n.includes("هیلفیگر")
- );
- })
- .map((b) => {
- const slug = String(b.slug || "").toLowerCase();
- const name = String(b.name || "");
- const fromStatic = HOME_BRAND_SLIDES.find(
- (s) =>
- s.id === slug ||
- s.href.endsWith("/" + slug) ||
- s.label.toLowerCase() === name.toLowerCase(),
- );
- return {
- id: b.id,
- label: b.name,
- labelFa: (b as { name_fa?: string }).name_fa || b.name,
- href: `/${encodeURIComponent(b.slug)}`,
- imageUrl:
- (b as { logo_url?: string | null }).logo_url ||
- fromStatic?.imageUrl ||
- null,
- };
- })
- : HOME_BRAND_SLIDES.map((s) => ({
- id: s.id,
- label: s.label,
- href: s.href,
- imageUrl: s.imageUrl,
- }))
- }
- />
-
- {(() => {
- const HIDDEN = new Set(["متفرقه"]);
- const homeCats = categories.filter(
- (c) => !c.parent_id && !HIDDEN.has(String(c.name).trim()),
- );
- return homeCats.length > 0 ? (
- <CarouselLinks
- title="دسته‌بندی‌ها"
- viewAllHref="/products"
- variant="category"
- items={homeCats.map((cat) => ({
- id: cat.id,
- label: cat.name,
- href: "/" + encodeURIComponent(cat.slug),
- imageUrl: (cat as { image_url?: string | null }).image_url ?? null,
- }))}
- />
- ) : null;
- })()}
-
- {newest.length > 0 ? (
- <ProductCarousel
- title="محصولات جدید"
- viewAllHref="/products?sort=newest"
- products={newest}
- liveQuery={{ sort: "newest", pageSize: 8 }}
- />
- ) : (
- <section aria-label="محصولات جدید">
- <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
- محصولات جدید
- </h2>
- <p className="text-muted-foreground text-sm">
- فعلاً محصول جدیدی موجود نیست.
- </p>
- </section>
- )}
-
- <section aria-label="پیشنهاد شگفت‌انگیز">
- {flashActive && (deals.length > 0 || flashEndsAt) ? (
- <ProductCarousel
- title="پیشنهاد شگفت‌انگیز"
- viewAllHref="/products?featured=1"
- products={deals}
- liveQuery={{ featured: true, pageSize: 8 }}
- leading={
- flashEndsAt ? (
- <FlashSalePromoCard endsAt={flashEndsAt} />
- ) : null
- }
- />
- ) : (
- <>
- <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
- پیشنهاد شگفت‌انگیز
- </h2>
- <p className="text-muted-foreground text-sm">
- پیشنهاد شگفت‌انگیزی فعلاً فعال نیست.
- </p>
- </>
- )}
- </section>
-
- {bestsellers.length > 0 ? (
- <ProductCarousel
- title="پرفروش‌ترین‌ها"
- viewAllHref="/products?sort=popular"
- products={bestsellers}
- liveQuery={{ sort: "popular", pageSize: 12 }}
- />
- ) : (
- <section aria-label="پرفروش‌ترین‌ها">
- <h2 className="mb-5 text-xl font-bold text-primary md:text-2xl">
- پرفروش‌ترین‌ها
- </h2>
- <p className="text-muted-foreground text-sm">
- پرفروش‌ترین‌ها فعلاً خالی است.
- </p>
- </section>
- )}
-<section className="grid gap-6 md:grid-cols-2">
- <NewsletterSmsBox />
- <OrderTrackBox />
- </section>
- </main>
- </HomeAfterHero>
- </>
- );
+/**
+ * Sync shell: hero (+ LCP preloads) stream in the first paint.
+ * Catalog/DB sections suspend separately so layout footer cannot win the race.
+ */
+export default function HomePage() {
+  return (
+    <>
+      <HomeHeroPreloads />
+      <HeroScroll />
+      <HomeAfterHero>
+        <Suspense fallback={null}>
+          <HomeBelowFold />
+        </Suspense>
+      </HomeAfterHero>
+    </>
+  );
 }
