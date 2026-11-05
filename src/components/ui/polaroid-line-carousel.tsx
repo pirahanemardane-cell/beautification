@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 
 /*
  * Polaroid Line Carousel — instant photos pegged to a sagging string. Drag the
@@ -9,8 +10,8 @@ import * as React from "react"
  * overshoot; even at rest they sway in a light breeze. The one in the middle
  * is the one you're looking at.
  *
- * Drag, click a print, ←/→ and autoplay. Slides without an `image` get a
- * painted landscape, so it works with no assets at all.
+ * Drag, click a print (opens lightbox), ←/→ and autoplay. Slides without an
+ * `image` get a painted landscape, so it works with no assets at all.
  */
 
 export type LandPalette = "dawn" | "alpine" | "dusk" | "mist"
@@ -27,8 +28,8 @@ export type Slide = {
 
 export type PolaroidLineCarouselProps = {
   slides?: Slide[]
-  /** Any CSS length. Default 100svh. */
-  height?: number | string
+  /** Any CSS length. Default 100svh. Pass `null` to size via `className` instead. */
+  height?: number | string | null
   /** Width of a print in px (it shrinks on narrow screens). */
   cardWidth?: number
   /** How far the string sags in the middle, px. */
@@ -236,9 +237,11 @@ function useSlideImages(slides: Slide[]): string[] {
 const PL_CSS = [
   ".pl-root{position:relative;width:100%;overflow:hidden;background:var(--pl-bg);color:var(--pl-ink);user-select:none;-webkit-user-select:none;touch-action:pan-y;outline:none;cursor:grab}",
   ".pl-root[data-drag='1']{cursor:grabbing}",
+  ".pl-root[data-ready='0'] .pl-card{visibility:hidden}",
   ".pl-root:focus-visible{box-shadow:inset 0 0 0 2px var(--pl-ink)}",
   ".pl-string{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}",
-  ".pl-card{position:absolute;left:0;top:0;width:var(--pl-cw);transform-origin:50% 0;will-change:transform;cursor:inherit}",
+  ".pl-card{position:absolute;left:0;top:0;width:var(--pl-cw);transform-origin:50% 0;will-change:transform;cursor:pointer}",
+  ".pl-root[data-drag='1'] .pl-card{cursor:grabbing}",
   ".pl-print{margin-top:10px;background:#fbfaf7;padding:10px 10px 0;box-shadow:0 1px 2px rgba(0,0,0,.12),0 18px 30px -16px rgba(0,0,0,.4);transition:transform .5s cubic-bezier(.2,.7,.2,1),filter .5s ease}",
   ".pl-card[data-on='0'] .pl-print{transform:scale(.9);filter:saturate(.7) brightness(.96)}",
   ".pl-shot{position:relative;aspect-ratio:1;overflow:hidden;background:#d9d5cc}",
@@ -258,9 +261,207 @@ const PL_CSS = [
   ".pl-btn:hover{background:var(--pl-ink);color:var(--pl-bg)}",
   ".pl-btn:focus-visible{outline:2px solid var(--pl-ink);outline-offset:2px}",
   ".pl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
+  ".pl-lb{position:fixed;inset:0;z-index:100;background:rgba(10,10,10,.92);display:grid;place-items:center;touch-action:none;cursor:zoom-out}",
+  ".pl-lb-stage{position:relative;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;cursor:default}",
+  ".pl-lb-img{max-width:min(92vw,92vh);max-height:min(92vw,92vh);width:auto;height:auto;object-fit:contain;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-select:none;pointer-events:auto;cursor:grab}",
+  ".pl-lb-img[data-panning='1']{cursor:grabbing}",
+  ".pl-lb-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}",
   "@keyframes pl-in{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}",
   "@media (prefers-reduced-motion:reduce){.pl-cap>*{animation:none}.pl-print{transition:none}}",
 ].join("\n")
+
+function cardWidthFor(r: DOMRectReadOnly, cardWidth: number, showChrome: boolean): number {
+  return Math.round(
+    Math.max(
+      150,
+      Math.min(cardWidth, r.width * 0.42, showChrome ? r.height * 0.42 : cardWidth),
+    ),
+  )
+}
+
+/** Fullscreen lightbox: pinch + wheel zoom, pan when zoomed, close on backdrop / Esc. */
+function PolaroidLightbox({
+  src,
+  alt,
+  onClose,
+}: {
+  src: string
+  alt: string
+  onClose: () => void
+}) {
+  const imgRef = React.useRef(null as HTMLImageElement | null)
+  const view = React.useRef({ scale: 1, x: 0, y: 0 })
+  const pan = React.useRef(null as null | { x: number; y: number; px: number; py: number; pointerId: number })
+  const pinch = React.useRef(null as null | { dist: number; scale: number })
+  const [panning, setPanning] = React.useState(false)
+
+  const apply = React.useCallback(() => {
+    const el = imgRef.current
+    if (!el) return
+    const v = view.current
+    el.style.transform = "translate(" + v.x.toFixed(1) + "px," + v.y.toFixed(1) + "px) scale(" + v.scale.toFixed(3) + ")"
+  }, [])
+
+  const zoomAt = React.useCallback(
+    (next: number, cx: number, cy: number) => {
+      const v = view.current
+      const el = imgRef.current
+      if (!el) return
+      const s0 = v.scale
+      const s1 = clamp(next, 1, 4)
+      if (s1 === s0) return
+      const rect = el.getBoundingClientRect()
+      const ox = cx - (rect.left + rect.width / 2)
+      const oy = cy - (rect.top + rect.height / 2)
+      v.x = ox - ((ox - v.x) * s1) / s0
+      v.y = oy - ((oy - v.y) * s1) / s0
+      v.scale = s1
+      if (s1 === 1) {
+        v.x = 0
+        v.y = 0
+      }
+      apply()
+    },
+    [apply],
+  )
+
+  React.useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault()
+        onClose()
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener("keydown", onKey)
+    }
+  }, [onClose])
+
+  React.useEffect(() => {
+    apply()
+  }, [apply, src])
+
+  // Native wheel listener so preventDefault works (React wheel is often passive).
+  React.useEffect(() => {
+    const stage = imgRef.current?.parentElement
+    if (!stage) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12
+      zoomAt(view.current.scale * factor, e.clientX, e.clientY)
+    }
+    stage.addEventListener("wheel", onWheel, { passive: false })
+    return () => stage.removeEventListener("wheel", onWheel)
+  }, [zoomAt, src])
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "touch") return
+    if (view.current.scale <= 1) return
+    pan.current = { x: e.clientX, y: e.clientY, px: view.current.x, py: view.current.y, pointerId: e.pointerId }
+    setPanning(true)
+    ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId)
+  }
+  const onPointerMove = (e: React.PointerEvent) => {
+    const p = pan.current
+    if (!p || p.pointerId !== e.pointerId) return
+    view.current.x = p.px + (e.clientX - p.x)
+    view.current.y = p.py + (e.clientY - p.y)
+    apply()
+  }
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (pan.current?.pointerId === e.pointerId) {
+      pan.current = null
+      setPanning(false)
+    }
+  }
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const [a, b] = [e.touches[0], e.touches[1]]
+      const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
+      pinch.current = { dist, scale: view.current.scale }
+      pan.current = null
+      setPanning(false)
+      return
+    }
+    if (e.touches.length === 1 && view.current.scale > 1) {
+      const t = e.touches[0]
+      pan.current = { x: t.clientX, y: t.clientY, px: view.current.x, py: view.current.y, pointerId: -1 }
+      setPanning(true)
+    }
+  }
+  const onTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault()
+    if (e.touches.length === 2 && pinch.current) {
+      const [a, b] = [e.touches[0], e.touches[1]]
+      const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
+      const cx = (a.clientX + b.clientX) / 2
+      const cy = (a.clientY + b.clientY) / 2
+      zoomAt(pinch.current.scale * (dist / Math.max(1, pinch.current.dist)), cx, cy)
+      return
+    }
+    const p = pan.current
+    if (e.touches.length === 1 && p) {
+      const t = e.touches[0]
+      view.current.x = p.px + (t.clientX - p.x)
+      view.current.y = p.py + (t.clientY - p.y)
+      apply()
+    }
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) pinch.current = null
+    if (e.touches.length === 0) {
+      pan.current = null
+      setPanning(false)
+    } else if (e.touches.length === 1 && view.current.scale > 1) {
+      const t = e.touches[0]
+      pan.current = { x: t.clientX, y: t.clientY, px: view.current.x, py: view.current.y, pointerId: -1 }
+    }
+  }
+
+  if (typeof document === "undefined") return null
+
+  return createPortal(
+    <div
+      className="pl-lb"
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt || "Image"}
+      onClick={(e) => {
+        if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains("pl-lb-stage")) onClose()
+      }}
+    >
+      <div
+        className="pl-lb-stage"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          ref={imgRef}
+          className="pl-lb-img"
+          src={src}
+          alt={alt}
+          draggable={false}
+          data-panning={panning ? "1" : "0"}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+        />
+      </div>
+      <span className="pl-lb-sr">Pinch or scroll to zoom. Press Escape to close.</span>
+    </div>,
+    document.body,
+  )
+}
 
 export default function PolaroidLineCarousel({
   slides = DEFAULT_SLIDES,
@@ -282,7 +483,9 @@ export default function PolaroidLineCarousel({
   const srcs = useSlideImages(slides)
   const [active, setActive] = React.useState(0)
   const [dragging, setDragging] = React.useState(false)
-  const [size, setSize] = React.useState({ w: 1200, h: 800, cw: cardWidth })
+  const [ready, setReady] = React.useState(false)
+  const [lightbox, setLightbox] = React.useState(null as number | null)
+  const [size, setSize] = React.useState({ w: 0, h: 0, cw: cardWidth })
   const rootRef = React.useRef(null as HTMLDivElement | null)
   const pathRef = React.useRef(null as SVGPathElement | null)
   const cards = React.useRef([] as (HTMLDivElement | null)[])
@@ -290,41 +493,103 @@ export default function PolaroidLineCarousel({
   const drag = React.useRef(null as null | { x: number; off: number; lx: number; lt: number; v: number; moved: boolean })
   const lastTouch = React.useRef(0)
   const activeRef = React.useRef(0)
+  const sizeRef = React.useRef(size)
+  const spacingRef = React.useRef(cardWidth * 1.08)
+  const lightboxRef = React.useRef(lightbox)
   const opts = React.useRef({ sag, swing })
   opts.current = { sag, swing }
+  sizeRef.current = size
+  lightboxRef.current = lightbox
 
   const spacing = size.cw * 1.08
-  const goTo = React.useCallback(
-    (i: number) => {
-      sim.current.target = clamp(i, 0, n - 1) * spacing
+  spacingRef.current = spacing
+
+  const goTo = React.useCallback((i: number) => {
+    const sp = spacingRef.current
+    sim.current.target = clamp(i, 0, n - 1) * sp
+  }, [n])
+
+  const syncCenter = React.useCallback(
+    (cw: number, index = activeRef.current) => {
+      const sp = cw * 1.08
+      const i = clamp(index, 0, Math.max(0, n - 1))
+      // off/target 0 centers slide 0; i * spacing centers slide i
+      sim.current.target = i * sp
+      sim.current.off = i * sp
+      sim.current.vel = 0
+      activeRef.current = i
+      spacingRef.current = sp
     },
-    [n, spacing],
+    [n],
   )
 
-  React.useEffect(() => {
+  const paintOnce = React.useCallback(
+    (now = performance.now()) => {
+      const { w, h, cw } = sizeRef.current
+      if (w <= 0 || h <= 0) return
+      const sp = cw * 1.08
+      const S = sim.current
+      const o = opts.current
+      const y0 = Math.max(40, h * 0.2)
+      const near = nearestAt(S.off, sp, n)
+      for (let i = 0; i < n; i++) {
+        const el = cards.current[i]
+        if (!el) continue
+        const x = w / 2 + i * sp - S.off
+        if (x < -cw * 1.5 || x > w + cw * 1.5) {
+          el.style.visibility = "hidden"
+          continue
+        }
+        el.style.visibility = "visible"
+        const a = S.a[i] || 0
+        const y = stringY(x, w, y0, o.sag) - 6
+        el.style.transform =
+          "translate(" + (x - cw / 2).toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + a.toFixed(4) + "rad)"
+        el.style.zIndex = String(i === near ? n + 1 : n - Math.abs(i - near))
+      }
+      pathRef.current?.setAttribute("d", "M0 " + y0 + " Q" + w / 2 + " " + (y0 + 2 * o.sag) + " " + w + " " + y0)
+      if (near !== activeRef.current) {
+        activeRef.current = near
+        setActive(near)
+      }
+      void now
+    },
+    [n],
+  )
+
+  // Measure before paint so the first print is centered, not left-stacked.
+  React.useLayoutEffect(() => {
     const root = rootRef.current
     if (!root) return
+    const measure = () => {
+      const r = root.getBoundingClientRect()
+      if (r.width <= 0 || r.height <= 0) return
+      const cw = cardWidthFor(r, cardWidth, showChrome)
+      const next = { w: r.width, h: r.height, cw }
+      sizeRef.current = next
+      syncCenter(cw, 0)
+      setActive(0)
+      setSize(next)
+      setReady(true)
+      // paint after refs attach; microtask keeps it before the next frame
+      queueMicrotask(() => paintOnce())
+    }
+    measure()
     const ro = new ResizeObserver(() => {
       const r = root.getBoundingClientRect()
-      // Chrome-free heroes omit the bottom bar; don't shrink prints with height
-      // so a tighter container can sit flush above the next section.
-      const cw = Math.round(
-        Math.max(
-          150,
-          Math.min(cardWidth, r.width * 0.42, showChrome ? r.height * 0.42 : cardWidth),
-        ),
-      )
-      setSize({ w: r.width, h: r.height, cw })
+      if (r.width <= 0 || r.height <= 0) return
+      const cw = cardWidthFor(r, cardWidth, showChrome)
+      const prev = sizeRef.current
+      const next = { w: r.width, h: r.height, cw }
+      sizeRef.current = next
+      // Keep the active print centered when spacing / width changes.
+      syncCenter(cw, activeRef.current)
+      if (prev.w !== next.w || prev.h !== next.h || prev.cw !== next.cw) setSize(next)
+      paintOnce()
     })
     ro.observe(root)
     return () => ro.disconnect()
-  }, [cardWidth, showChrome])
-
-  // keep the target on the active print when the spacing changes
-  React.useEffect(() => {
-    sim.current.target = activeRef.current * spacing
-    sim.current.off = activeRef.current * spacing
-  }, [spacing])
+  }, [cardWidth, showChrome, syncCenter, paintOnce])
 
   React.useEffect(() => {
     onChange?.(active)
@@ -333,7 +598,7 @@ export default function PolaroidLineCarousel({
   // the simulation, written straight to the DOM each frame
   React.useEffect(() => {
     const root = rootRef.current
-    if (!root) return
+    if (!root || !ready) return
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     let visible = true
     let raf = 0
@@ -344,7 +609,12 @@ export default function PolaroidLineCarousel({
       if (!visible) return
       const dt = Math.min(0.033, (now - prev) / 1000)
       prev = now
-      const { w, h, cw } = size
+      const { w, h, cw } = sizeRef.current
+      if (w <= 0) {
+        raf = requestAnimationFrame(frame)
+        return
+      }
+      const sp = cw * 1.08
       const y0 = Math.max(40, h * 0.2)
       const d = drag.current
       let lineVel: number
@@ -357,11 +627,11 @@ export default function PolaroidLineCarousel({
       }
       const o = opts.current
       const g = reduce ? 0 : o.swing
-      const near = nearestAt(S.off, spacing, n)
+      const near = nearestAt(S.off, sp, n)
       for (let i = 0; i < n; i++) {
         const el = cards.current[i]
         if (!el) continue
-        const x = w / 2 + i * spacing - S.off
+        const x = w / 2 + i * sp - S.off
         if (x < -cw * 1.5 || x > w + cw * 1.5) {
           el.style.visibility = "hidden"
           continue
@@ -397,19 +667,27 @@ export default function PolaroidLineCarousel({
       cancelAnimationFrame(raf)
       io.disconnect()
     }
-  }, [size, spacing, n])
+  }, [ready, n])
 
   // autoplay, back to the first print after the last
   React.useEffect(() => {
     if (!autoplay || n < 2) return
     const t = window.setInterval(() => {
-      if (document.hidden || drag.current || performance.now() - lastTouch.current < autoplay) return
+      if (
+        document.hidden ||
+        drag.current ||
+        lightboxRef.current != null ||
+        performance.now() - lastTouch.current < autoplay
+      ) {
+        return
+      }
       goTo(activeRef.current >= n - 1 ? 0 : activeRef.current + 1)
     }, autoplay)
     return () => window.clearInterval(t)
   }, [autoplay, n, goTo])
 
   const onDown = (e: React.PointerEvent) => {
+    if (lightbox != null) return
     if ((e.target as HTMLElement).closest(".pl-bar")) return
     lastTouch.current = performance.now()
     drag.current = { x: e.clientX, off: sim.current.off, lx: e.clientX, lt: e.timeStamp, v: 0, moved: false }
@@ -428,7 +706,7 @@ export default function PolaroidLineCarousel({
     d.v = 0.7 * ((e.clientX - d.lx) / dt) + 0.3 * d.v
     d.lx = e.clientX
     d.lt = e.timeStamp
-    const max = (n - 1) * spacing
+    const max = (n - 1) * spacingRef.current
     let off = d.off - dx
     if (off < 0) off *= 0.35
     if (off > max) off = max + (off - max) * 0.35
@@ -442,31 +720,45 @@ export default function PolaroidLineCarousel({
     if (d.moved) {
       setDragging(false)
       sim.current.vel = -d.v * 1000
-      goTo(nearestAt(sim.current.off - d.v * 180, spacing, n))
+      goTo(nearestAt(sim.current.off - d.v * 180, spacingRef.current, n))
       return
     }
+    // Click (not drag): center that print and open the lightbox.
     const card = (e.target as HTMLElement).closest("[data-i]")
-    if (card) goTo(Number(card.getAttribute("data-i")))
+    if (!card) return
+    const i = Number(card.getAttribute("data-i"))
+    if (!Number.isFinite(i)) return
+    goTo(i)
+    if (srcs[i]) setLightbox(i)
   }
   const step = (dir: number) => {
     lastTouch.current = performance.now()
     goTo(clamp(activeRef.current + dir, 0, n - 1))
   }
   const onKey = (e: React.KeyboardEvent) => {
+    if (lightbox != null) return
     if (e.key === "ArrowRight") step(1)
     else if (e.key === "ArrowLeft") step(-1)
-    else return
+    else if (e.key === "Enter" || e.key === " ") {
+      const i = activeRef.current
+      if (srcs[i]) {
+        e.preventDefault()
+        setLightbox(i)
+      }
+      return
+    } else return
     e.preventDefault()
   }
 
   const s = slides[active] || {}
+  const lb = lightbox != null ? slides[lightbox] : null
 
   return (
     <div
       ref={rootRef}
       className={["pl-root", className].filter(Boolean).join(" ")}
       style={{
-        height,
+        ...(height != null ? { height } : null),
         ["--pl-bg" as string]: background,
         ["--pl-ink" as string]: ink,
         ["--pl-muted" as string]: "color-mix(in srgb, var(--pl-ink) 55%, transparent)",
@@ -476,6 +768,7 @@ export default function PolaroidLineCarousel({
       }}
       data-drag={dragging ? "1" : "0"}
       data-chrome={showChrome ? "1" : "0"}
+      data-ready={ready ? "1" : "0"}
       role="region"
       aria-roledescription="carousel"
       aria-label={ariaLabel}
@@ -491,9 +784,18 @@ export default function PolaroidLineCarousel({
         <path ref={pathRef} fill="none" stroke={string} strokeWidth="1.5" strokeLinecap="round" />
       </svg>
       {slides.map((sl, i) => (
-        <div key={i} className="pl-card" data-i={i} data-on={i === active ? "1" : "0"} ref={(el) => void (cards.current[i] = el)} aria-hidden={i === active ? undefined : true}>
+        <div
+          key={i}
+          className="pl-card"
+          data-i={i}
+          data-on={i === active ? "1" : "0"}
+          ref={(el) => void (cards.current[i] = el)}
+          aria-hidden={i === active ? undefined : true}
+        >
           <div className="pl-print">
-            <div className="pl-shot">{srcs[i] ? <img src={srcs[i]} alt={sl.alt || sl.title || ""} draggable={false} /> : null}</div>
+            <div className="pl-shot">
+              {srcs[i] ? <img src={srcs[i]} alt={sl.alt || sl.title || ""} draggable={false} /> : null}
+            </div>
             <div className="pl-note">{showChrome ? sl.title || "" : ""}</div>
           </div>
           <div className="pl-peg" />
@@ -523,6 +825,13 @@ export default function PolaroidLineCarousel({
       <div className="pl-sr" aria-live="polite">
         {"Print " + (active + 1) + " of " + n + (s.title ? ": " + s.title : "")}
       </div>
+      {lightbox != null && srcs[lightbox] ? (
+        <PolaroidLightbox
+          src={srcs[lightbox]}
+          alt={lb?.alt || lb?.title || ""}
+          onClose={() => setLightbox(null)}
+        />
+      ) : null}
     </div>
   )
 }
