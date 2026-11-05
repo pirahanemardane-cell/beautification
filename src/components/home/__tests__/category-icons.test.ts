@@ -27,4 +27,11 @@ describe("resolveCategoryIconId", () => {
     expect(resolveCategoryIconId("متفرقه", "misc")).toBe("default");
     expect(resolveCategoryIconId("اکسسوری", "accessory")).toBe("default");
   });
+
+  it("maps all JEWELRY_CATEGORIES slugs to expected icons", async () => {
+    const { JEWELRY_CATEGORIES } = await import("@/lib/jewelry-categories");
+    for (const cat of JEWELRY_CATEGORIES) {
+      expect(resolveCategoryIconId(cat.name, cat.slug)).toBe(cat.icon);
+    }
+  });
 });

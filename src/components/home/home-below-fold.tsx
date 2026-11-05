@@ -13,6 +13,7 @@ import { NewsletterSmsBox } from "@/components/home/newsletter-sms-box";
 import { OrderTrackBox } from "@/components/home/order-track-box";
 import { CarouselLinks } from "@/components/ui/carousel-cards";
 import { ProductCarousel } from "@/components/ui/product-carousel";
+import { JEWELRY_CATEGORIES } from "@/lib/jewelry-categories";
 import type { ProductWithRelations } from "@/repositories/product.repository";
 
 const HOME_BRAND_SLIDES: { id: string; label: string; href: string; imageUrl: string }[] = [];
@@ -151,19 +152,28 @@ export async function HomeBelowFold() {
         const homeCats = categories.filter(
           (c) => !c.parent_id && !HIDDEN.has(String(c.name).trim()),
         );
-        return homeCats.length > 0 ? (
+        const items =
+          homeCats.length > 0
+            ? homeCats.map((cat) => ({
+                id: cat.id,
+                label: cat.name,
+                href: "/" + encodeURIComponent(cat.slug),
+                imageUrl: (cat as { image_url?: string | null }).image_url ?? null,
+              }))
+            : JEWELRY_CATEGORIES.map((cat) => ({
+                id: cat.slug,
+                label: cat.name,
+                href: "/" + encodeURIComponent(cat.slug),
+                imageUrl: null as string | null,
+              }));
+        return (
           <CarouselLinks
             title="دسته‌بندی‌ها"
             viewAllHref="/products"
             variant="category"
-            items={homeCats.map((cat) => ({
-              id: cat.id,
-              label: cat.name,
-              href: "/" + encodeURIComponent(cat.slug),
-              imageUrl: (cat as { image_url?: string | null }).image_url ?? null,
-            }))}
+            items={items}
           />
-        ) : null;
+        );
       })()}
 
       {newest.length > 0 ? (
