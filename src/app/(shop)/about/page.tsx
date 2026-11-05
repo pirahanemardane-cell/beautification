@@ -13,7 +13,7 @@ export default function AboutPage() {
  title="درباره اکسسوری شاد"
  description="اکسسوری شاد فروشگاه تخصصی اکسسوری دست‌ساز است. روی طراحی تمیز، مواد باکیفیت و تجربه خرید شفاف تمرکز داریم — از انتخاب تا پشتیبانی پس از خرید."
  breakout={{
- src: "/brand/logo-light-transparent.webp",
+ src: "",
  alt: "اکسسوری شاد",
  title: "اکسسوری دست‌ساز",
  description:
