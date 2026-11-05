@@ -24,7 +24,7 @@ import { toggleWishlistAction } from "@/app/(shop)/actions/shop";
 import { cartAdd } from "@/lib/cart-api";
 import { useServerCartStore } from "@/lib/server-cart-store";
 
-import { motion } from "framer-motion";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -74,6 +74,8 @@ export interface ProductCard1Props {
  brandHref?: string;
  isSpecialSale?: boolean;
  className?: string;
+ /** Responsive sizes hint for next/image (PSI) — not product size variants */
+ imageSizes?: string;
 }
 
 
@@ -101,6 +103,7 @@ export function ProductCard1({
  brand,
  brandHref,
  isSpecialSale = false,
+ imageSizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
 }: ProductCard1Props) {
  const safeImages =
  images.length > 0 ? images : [];
@@ -399,15 +402,14 @@ if (res.ok === false && res.error === "login_required") {
  {/* بج‌ها افقی: جدید | دسته | برند */}
  {/* لایک + مقایسه کنار هم */}
  {hasImage ? (
- <motion.img
+ <Image
  key={currentImageIndex}
  src={safeImages[currentImageIndex]}
  alt={name}
+ fill
+ sizes={imageSizes}
+ quality={75}
  className="z-0 absolute inset-0 h-full w-full object-cover object-center"
- 
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- transition={{ duration: 0.25 }}
  />
  ) : (
  <div className="text-muted-foreground flex h-full w-full items-center justify-center px-4 text-center text-sm">

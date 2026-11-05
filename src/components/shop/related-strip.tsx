@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 type Item = {
@@ -26,13 +27,15 @@ export function RelatedStrip({
  href={it.href}
  className="border-border group overflow-hidden rounded-2xl border transition hover:shadow-sm"
  >
- <div className="bg-muted aspect-[3/4] overflow-hidden">
+ <div className="bg-muted relative aspect-[3/4] overflow-hidden">
  {it.image ? (
- // eslint-disable-next-line @next/next/no-img-element
- <img
+ <Image
  src={it.image}
  alt={it.title}
- className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+ fill
+ sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+ quality={75}
+ className="object-cover transition group-hover:scale-[1.02]"
  />
  ) : (
  <div className="text-muted-foreground flex h-full items-center justify-center text-xs">

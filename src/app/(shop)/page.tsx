@@ -34,8 +34,15 @@ export const metadata: Metadata = {
 function HomeHeroPreloads() {
  return (
  <>
- <link rel="preload" as="image" href="/hero/hero-poster.jpg" type="image/webp" />
- <link rel="preload" as="image" href="/hero/frames/frame-001.jpg" type="image/webp" />
+ {/* Single LCP candidate — mobile-first 1080w; avoid competing frame preload */}
+ <link
+ rel="preload"
+ as="image"
+ href="/hero/hero-poster-1080.webp"
+ type="image/webp"
+ imageSrcSet="/hero/hero-poster-1080.webp 1080w, /hero/hero-poster.webp 1440w"
+ imageSizes="100vw"
+ />
  </>
  );
 }

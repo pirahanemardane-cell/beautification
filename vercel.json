@@ -31,7 +31,88 @@
  ]
  },
  {
+ "source": "/brands/(.*)",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=31536000, immutable"
+ }
+ ]
+ },
+ {
+ "source": "/products/(.*)",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=31536000, immutable"
+ }
+ ]
+ },
+ {
+ "source": "/geo/(.*)",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=31536000, immutable"
+ }
+ ]
+ },
+ {
+ "source": "/_next/static/(.*)",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=31536000, immutable"
+ }
+ ]
+ },
+ {
  "source": "/og-image(.*)",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=86400, stale-while-revalidate=604800"
+ }
+ ]
+ },
+ {
+ "source": "/favicon.ico",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=86400, stale-while-revalidate=604800"
+ }
+ ]
+ },
+ {
+ "source": "/icon.png",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=86400, stale-while-revalidate=604800"
+ }
+ ]
+ },
+ {
+ "source": "/icon.svg",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=86400, stale-while-revalidate=604800"
+ }
+ ]
+ },
+ {
+ "source": "/apple-touch-icon.png",
+ "headers": [
+ {
+ "key": "Cache-Control",
+ "value": "public, max-age=86400, stale-while-revalidate=604800"
+ }
+ ]
+ },
+ {
+ "source": "/site.webmanifest",
  "headers": [
  {
  "key": "Cache-Control",

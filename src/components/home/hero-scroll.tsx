@@ -6,6 +6,8 @@ import { ArrowFillButton } from "@/components/ui/arrow-fill-button";
 
 const FRAME_COUNT = 70;
 const SCROLL_VH = 320;
+const POSTER_SRC = "/hero/hero-poster.webp";
+const POSTER_SRC_1080 = "/hero/hero-poster-1080.webp";
 
 /** بازه‌های متن (ایندکس فریم ۰-based، مطابق اسکراب فعلی) */
 const SLIDES = [
@@ -18,7 +20,7 @@ const FADE_FRAMES = 2.5;
 const BUTTON_FROM = 48;
 
 function frameSrc(i: number) {
- return `/hero/frames/frame-${String(i).padStart(3, "0")}.jpg`;
+ return `/hero/frames/frame-${String(i).padStart(3, "0")}.webp`;
 }
 
 /** opacity نرم داخل بازه [start, end] */
@@ -121,6 +123,7 @@ export function HeroScroll() {
  const imgs: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
  imagesRef.current = imgs;
  let cancelled = false;
+
  const loadOne = (i: number) =>
  new Promise<void>((resolve) => {
  const img = new Image();
@@ -138,18 +141,41 @@ export function HeroScroll() {
  img.onerror = () => resolve();
  img.src = frameSrc(i + 1);
  });
- (async () => {
- await loadOne(0);
+
+ const loadRest = async () => {
  let next = 1;
+ // Keep concurrency modest so LCP/INP aren't starved after first paint.
+ const workers = 4;
  await Promise.all(
- Array.from({ length: 16 }, async () => {
+ Array.from({ length: workers }, async () => {
  while (next < FRAME_COUNT) {
  const i = next++;
  await loadOne(i);
  }
  }),
  );
+ };
+
+ void (async () => {
+ await loadOne(0);
+ if (cancelled) return;
+ const startRest = () => {
+ if (cancelled) return;
+ void loadRest();
+ };
+ const w = window as Window & {
+ requestIdleCallback?: (
+ cb: () => void,
+ opts?: { timeout: number },
+ ) => number;
+ };
+ if (typeof w.requestIdleCallback === "function") {
+ w.requestIdleCallback(startRest, { timeout: 1200 });
+ } else {
+ w.setTimeout(startRest, 200);
+ }
  })();
+
  return () => {
  cancelled = true;
  };
@@ -231,10 +257,15 @@ export function HeroScroll() {
  {!firstReady && (
  // eslint-disable-next-line @next/next/no-img-element
  <img
- src="/hero/hero-poster.jpg"
+ src={POSTER_SRC_1080}
+ srcSet={`${POSTER_SRC_1080} 1080w, ${POSTER_SRC} 1440w`}
+ sizes="100vw"
+ width={1440}
+ height={1800}
  alt=""
  className="absolute inset-0 h-full w-full object-cover"
  style={{ objectPosition: "center center" }}
+ decoding="async"
  fetchPriority="high"
  />
  )}
