@@ -117,40 +117,26 @@ export async function HomeBelowFold() {
         variant="brand"
         items={
           brands.length > 0
-            ? brands
-                .filter((b) => {
-                  const s = String(b.slug || "").toLowerCase();
-                  const n = String(b.name || "").toLowerCase();
-                  return !(
-                    s.includes("tommy") ||
-                    s.includes("hilfiger") ||
-                    s.includes("تامی") ||
-                    n.includes("tommy") ||
-                    n.includes("hilfiger") ||
-                    n.includes("تامی") ||
-                    n.includes("هیلفیگر")
-                  );
-                })
-                .map((b) => {
-                  const slug = String(b.slug || "").toLowerCase();
-                  const name = String(b.name || "");
-                  const fromStatic = HOME_BRAND_SLIDES.find(
-                    (s) =>
-                      s.id === slug ||
-                      s.href.endsWith("/" + slug) ||
-                      s.label.toLowerCase() === name.toLowerCase(),
-                  );
-                  return {
-                    id: b.id,
-                    label: b.name,
-                    labelFa: (b as { name_fa?: string }).name_fa || b.name,
-                    href: `/${encodeURIComponent(b.slug)}`,
-                    imageUrl:
-                      (b as { logo_url?: string | null }).logo_url ||
-                      fromStatic?.imageUrl ||
-                      null,
-                  };
-                })
+            ? brands.map((b) => {
+                const slug = String(b.slug || "").toLowerCase();
+                const name = String(b.name || "");
+                const fromStatic = HOME_BRAND_SLIDES.find(
+                  (s) =>
+                    s.id === slug ||
+                    s.href.endsWith("/" + slug) ||
+                    s.label.toLowerCase() === name.toLowerCase(),
+                );
+                return {
+                  id: b.id,
+                  label: b.name,
+                  labelFa: (b as { name_fa?: string }).name_fa || b.name,
+                  href: `/${encodeURIComponent(b.slug)}`,
+                  imageUrl:
+                    (b as { logo_url?: string | null }).logo_url ||
+                    fromStatic?.imageUrl ||
+                    null,
+                };
+              })
             : HOME_BRAND_SLIDES.map((s) => ({
                 id: s.id,
                 label: s.label,
