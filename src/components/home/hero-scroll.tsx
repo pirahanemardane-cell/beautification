@@ -37,10 +37,11 @@ function rangeOpacity(idx: number, start: number, end: number, fade = FADE_FRAME
 
 /**
  * One shared SIZE per breakpoint so each slide stays on a single line.
- * Weights stay as designed: heavy / thin / brand (parent `font-black` + `font-thin`).
+ * Sized to the max that fits the longest Persian line (IRANYekanX Heavy+Thin,
+ * px-6 + max-w-3xl). Weights stay as designed: parent `font-black` + `font-thin`.
  */
 const HERO_LINE =
-  "whitespace-nowrap text-[17px] text-white sm:text-[20px] md:text-[36px] lg:text-[44px]";
+  "whitespace-nowrap text-[22px] text-white sm:text-[42px] md:text-[52px] lg:text-[55px]";
 
 function TitleContent({ text }: { text: string }) {
   if (text === "اکسسوری دست‌ساز برای سلیقه تو") {
