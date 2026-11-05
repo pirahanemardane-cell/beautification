@@ -1,20 +1,6 @@
-# Phase 5 — Catalog content status
+# Phase 5 — catalog
 
-Date: 2026-10-20
+Demo product seed (`020_catalog_demo_products.sql`) is a **no-op**.  
+Live/demo rows are cleared with `063_clear_demo_content.sql` / `docs/clear-demo-content.sql`.
 
-| Item | Status |
-|------|--------|
-| Catalog structure (filter, slug, PLP) | done (prior) |
-| Demo products seed SQL | done (`020_catalog_demo_products.sql`) |
-| Size guide page + fallback table | done |
-| FAQ defaults (richer) | done (`static-pages.ts`) |
-| About page copy | done |
-| Terms / privacy / shipping / returns defaults | done |
-| Admin-editable pages via site_settings | done (prior CMS) |
-| Owner final product photos/copy | owner data (replace demo anytime in admin) |
-
-## Apply if catalog empty
-Run in Supabase: `supabase/migrations/020_catalog_demo_products.sql`
-
-## Do not
-Rewrite PLP/PDP architecture for seed content.
+Owner creates real products in `/admin/products`.

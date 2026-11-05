@@ -48,7 +48,7 @@ CREATE POLICY "admin write site_settings"
   );
 
 INSERT INTO public.site_settings (key, value) VALUES
-  ('store', jsonb_build_object('name', 'پیراهن مردانه', 'currency', 'IRR')),
+  ('store', jsonb_build_object('name', 'جواهر شاد', 'currency', 'IRR')),
   ('shipping_warehouse', jsonb_build_object('city', 'تهران', 'lat', null, 'lng', null)),
   ('seo', jsonb_build_object('allow_index', false))
 ON CONFLICT (key) DO NOTHING;

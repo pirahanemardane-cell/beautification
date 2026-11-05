@@ -128,6 +128,10 @@ export function HeroScroll() {
  new Promise<void>((resolve) => {
  const img = new Image();
  img.decoding = "async";
+ if ("fetchPriority" in img) {
+ (img as HTMLImageElement & { fetchPriority: string }).fetchPriority =
+ i === 0 ? "high" : "low";
+ }
  img.onload = () => {
  if (!cancelled) {
  imgs[i] = img;
@@ -265,6 +269,7 @@ export function HeroScroll() {
  alt=""
  className="absolute inset-0 h-full w-full object-cover"
  style={{ objectPosition: "center center" }}
+ loading="eager"
  decoding="async"
  fetchPriority="high"
  />

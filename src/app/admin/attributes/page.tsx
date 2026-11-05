@@ -436,7 +436,7 @@ export default function AdminAttributesPage() {
  })}
  {!items.length ? (
  <p className="text-muted-foreground text-center text-sm">
- مشخصه‌ای نیست — از فرم بالا اضافه کنید یا SQL seed را اجرا کنید.
+ مشخصه‌ای نیست — از فرم بالا اضافه کنید.
  </p>
  ) : null}
  </div>
