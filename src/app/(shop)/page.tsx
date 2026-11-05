@@ -142,21 +142,7 @@ export default async function HomePage() {
  variant="brand"
  items={
  brands.length > 0
- ? brands
- .filter((b) => {
- const s = String(b.slug || "").toLowerCase();
- const n = String(b.name || "").toLowerCase();
- return !(
- s.includes("tommy") ||
- s.includes("hilfiger") ||
- s.includes("تامی") ||
- n.includes("tommy") ||
- n.includes("hilfiger") ||
- n.includes("تامی") ||
- n.includes("هیلفیگر")
- );
- })
- .map((b) => {
+ ? brands.map((b) => {
  const slug = String(b.slug || "").toLowerCase();
  const name = String(b.name || "");
  const fromStatic = HOME_BRAND_SLIDES.find(
