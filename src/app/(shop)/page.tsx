@@ -25,6 +25,18 @@ const HERO_SLIDES = [
     image: "/hero/polaroid-02.webp",
     alt: "جواهرات دست‌ساز",
   },
+  {
+    image: "/hero/polaroid-03.webp",
+    alt: "گردنبند دست‌ساز",
+  },
+  {
+    image: "/hero/polaroid-04.webp",
+    alt: "دستبند دست‌ساز",
+  },
+  {
+    image: "/hero/polaroid-05.webp",
+    alt: "انگشتر دست‌ساز",
+  },
 ] as const;
 
 /** Early LCP hints — first polaroid image for the carousel. */
@@ -50,7 +62,7 @@ export default function HomePage() {
       <PolaroidLineCarousel
         showChrome={false}
         slides={[...HERO_SLIDES]}
-        height="100svh"
+        height="min(100svh, 36rem)"
         background="#F8F9FA"
         ariaLabel="گالری عکس محصولات"
       />
