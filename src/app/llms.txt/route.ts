@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "");
 
 export function GET() {
- const body = `# جواهر شاد
+ const body = `# اکسسوری شاد
 > فروشگاه تخصصی اکسسوری دست ساز، دستبند، ست و اکسسوری
 
 ## صفحات اصلی

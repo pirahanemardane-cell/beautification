@@ -1,4 +1,4 @@
-# Deployment Strategy — جواهر شاد
+# Deployment Strategy — اکسسوری شاد
 
 نسخه: ۱.۰ | ۲۰۲۶-۱۰-۲۰
 

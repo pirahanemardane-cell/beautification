@@ -5,7 +5,7 @@ import { ShippingView } from "@/components/content/shipping-view";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
- title: "ارسال و تحویل | جواهر شاد",
+ title: "ارسال و تحویل | اکسسوری شاد",
  description: "روش‌ها و زمان تقریبی ارسال سفارش‌ها",
 };
 

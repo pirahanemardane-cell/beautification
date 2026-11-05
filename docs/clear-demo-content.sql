@@ -92,14 +92,14 @@ BEGIN
     value = jsonb_set(
       COALESCE(value, '{}'::jsonb),
       '{name}',
-      to_jsonb('جواهر شاد'::text),
+      to_jsonb('اکسسوری شاد'::text),
       true
     ),
     updated_at = now()
   WHERE key = 'store'
     AND (
       value->>'name' IS NULL
-      OR value->>'name' IN ('پیراهن مردانه', 'Pirahan Mardane', 'Demo Store')
+      OR value->>'name' IN ('پیراهن مردانه', 'Pirahan Mardane', 'Demo Store', 'جواهر شاد')
     );
 
   DELETE FROM public.site_settings

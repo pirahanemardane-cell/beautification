@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { About3 } from "@/components/ui/about-3";
 
 export const metadata: Metadata = {
- title: "درباره ما | جواهر شاد",
+ title: "درباره ما | اکسسوری شاد",
  description:
  "فروشگاه تخصصی اکسسوری دست‌ساز — گردنبند، گوشواره، انگشتر، دستبند و ست",
 };
@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 export default function AboutPage() {
  return (
  <About3
- title="درباره جواهر شاد"
- description="جواهر شاد فروشگاه تخصصی اکسسوری دست‌ساز است. روی طراحی تمیز، مواد باکیفیت و تجربه خرید شفاف تمرکز داریم — از انتخاب تا پشتیبانی پس از خرید."
+ title="درباره اکسسوری شاد"
+ description="اکسسوری شاد فروشگاه تخصصی اکسسوری دست‌ساز است. روی طراحی تمیز، مواد باکیفیت و تجربه خرید شفاف تمرکز داریم — از انتخاب تا پشتیبانی پس از خرید."
  breakout={{
  src: "/brand/logo-light-transparent.webp",
- alt: "جواهر شاد",
+ alt: "اکسسوری شاد",
  title: "اکسسوری دست‌ساز",
  description:
  "گردنبند، گوشواره، انگشتر و دستبند — با راهنمای سایز شفاف و پشتیبانی واقعی.",

@@ -5,7 +5,7 @@ export function organizationSchema() {
  "@context": "https://schema.org",
  "@type": "Organization",
  "@id": `${SITE}/#organization`,
- name: "جواهر شاد",
+ name: "اکسسوری شاد",
  url: SITE,
  logo: {
  "@type": "ImageObject",
@@ -21,7 +21,7 @@ export function websiteSchema() {
  "@type": "WebSite",
  "@id": `${SITE}/#website`,
  url: SITE,
- name: "جواهر شاد",
+ name: "اکسسوری شاد",
  inLanguage: "fa-IR",
  publisher: { "@id": `${SITE}/#organization` },
  potentialAction: {
@@ -111,11 +111,11 @@ export function articleSchema(input: {
  dateModified: input.dateModified || input.datePublished || undefined,
  author: {
  "@type": "Person",
- name: input.authorName || "جواهر شاد",
+ name: input.authorName || "اکسسوری شاد",
  },
  publisher: {
  "@type": "Organization",
- name: "جواهر شاد",
+ name: "اکسسوری شاد",
  logo: {
  "@type": "ImageObject",
  url: `${SITE}/icon.png`,

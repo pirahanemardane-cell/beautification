@@ -8,7 +8,7 @@ import { HomeBelowFold } from "@/components/home/home-below-fold";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
+  title: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
   description:
     "خرید گردنبند، گوشواره، انگشتر، دستبند و ست‌های اکسسوری دست ساز از فروشگاه تخصصی اکسسوری دست ساز",
 };

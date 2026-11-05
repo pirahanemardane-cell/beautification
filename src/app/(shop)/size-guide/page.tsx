@@ -4,7 +4,7 @@ import { StaticPage } from "@/components/content/static-page";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "راهنمای سایز | جواهر شاد",
+  title: "راهنمای سایز | اکسسوری شاد",
   description:
     "جدول استاندارد سایز انگشتر، گردنبند و دستبند مطابق استاندارد ایران و بین‌المللی",
 };

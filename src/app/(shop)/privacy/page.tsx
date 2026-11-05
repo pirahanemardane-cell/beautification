@@ -5,7 +5,7 @@ import { LegalView } from "@/components/content/legal-view";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
- title: "حریم خصوصی | جواهر شاد",
+ title: "حریم خصوصی | اکسسوری شاد",
  description: "نحوه جمع‌آوری و استفاده از اطلاعات کاربران",
 };
 

@@ -5,7 +5,7 @@ import { ReturnsView } from "@/components/content/returns-view";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
- title: "سیاست مرجوعی | جواهر شاد",
+ title: "سیاست مرجوعی | اکسسوری شاد",
  description: "شرایط بازگرداندن و تعویض کالا",
 };
 

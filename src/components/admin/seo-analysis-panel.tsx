@@ -44,7 +44,7 @@ export type SeoAnalysisPanelProps = {
  onChange: (next: SeoPanelValue) => void;
 };
 
-const DEFAULT_SITE = "جواهر شاد";
+const DEFAULT_SITE = "اکسسوری شاد";
 
 function scoreColor(score: number): string {
  if (score >= 75) return "text-green-600 dark:text-green-400";
