@@ -306,12 +306,19 @@ export default function PolaroidLineCarousel({
     if (!root) return
     const ro = new ResizeObserver(() => {
       const r = root.getBoundingClientRect()
-      const cw = Math.round(Math.max(150, Math.min(cardWidth, r.width * 0.42, r.height * 0.42)))
+      // Chrome-free heroes omit the bottom bar; don't shrink prints with height
+      // so a tighter container can sit flush above the next section.
+      const cw = Math.round(
+        Math.max(
+          150,
+          Math.min(cardWidth, r.width * 0.42, showChrome ? r.height * 0.42 : cardWidth),
+        ),
+      )
       setSize({ w: r.width, h: r.height, cw })
     })
     ro.observe(root)
     return () => ro.disconnect()
-  }, [cardWidth])
+  }, [cardWidth, showChrome])
 
   // keep the target on the active print when the spacing changes
   React.useEffect(() => {
