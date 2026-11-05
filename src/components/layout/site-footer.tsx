@@ -26,7 +26,7 @@ function InstagramIcon({ className }: { className?: string }) {
 export function SiteFooter() {
  return (
  <Footer
- brandName="جواهر شاد"
+ brandName="اکسسوری شاد"
  watermarkName="ShadJewel"
  brandDescription="فروشگاه تخصصی اکسسوری دست ساز"
  socialLinks={[

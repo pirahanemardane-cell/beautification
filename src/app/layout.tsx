@@ -14,16 +14,16 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir";
 export const metadata: Metadata = {
  metadataBase: new URL(siteUrl),
  title: {
- default: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
- template: "%s | جواهر شاد",
+ default: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
+ template: "%s | اکسسوری شاد",
  },
  description:
  "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری اکسسوری دست ساز",
- applicationName: "جواهر شاد",
- authors: [{ name: "جواهر شاد" }],
+ applicationName: "اکسسوری شاد",
+ authors: [{ name: "اکسسوری شاد" }],
  generator: "Next.js",
  keywords: [
- "جواهر شاد",
+ "اکسسوری شاد",
  "گردنبند",
  "گوشواره",
  "دستبند",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
  ],
  manifest: "/site.webmanifest",
  appleWebApp: {
- title: "جواهر شاد",
+ title: "اکسسوری شاد",
  },
  icons: {
  icon: [
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
  type: "website",
  locale: "fa_IR",
  url: siteUrl,
- siteName: "جواهر شاد",
- title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
+ siteName: "اکسسوری شاد",
+ title: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
  description:
  "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری",
  images: [
@@ -55,13 +55,13 @@ export const metadata: Metadata = {
  url: "/og-image.webp",
  width: 1200,
  height: 630,
- alt: "جواهر شاد",
+ alt: "اکسسوری شاد",
  },
  ],
  },
  twitter: {
  card: "summary_large_image",
- title: "جواهر شاد | فروشگاه تخصصی اکسسوری دست ساز",
+ title: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
  description:
  "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری",
  images: ["/og-image.webp"],
@@ -128,8 +128,8 @@ export default function RootLayout({
  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
  <link rel="manifest" href="/site.webmanifest" />
- <meta name="apple-mobile-web-app-title" content="جواهر شاد" />
- <meta name="application-name" content="جواهر شاد" />
+ <meta name="apple-mobile-web-app-title" content="اکسسوری شاد" />
+ <meta name="application-name" content="اکسسوری شاد" />
  <meta name="theme-color" content="#023047" />
  </head>
  <body className="min-h-screen font-sans antialiased max-w-full" suppressHydrationWarning>

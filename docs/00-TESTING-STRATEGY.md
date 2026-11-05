@@ -1,4 +1,4 @@
-# Testing Strategy — جواهر شاد
+# Testing Strategy — اکسسوری شاد
 
 نسخه: ۲.۰ | ۲۰۲۶-۱۰-۲۴
 

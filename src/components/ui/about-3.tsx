@@ -29,7 +29,7 @@ const defaultAchievements = [
 
 export function About3({
  title = "درباره ما",
- description = "جواهر شاد؛ فروشگاه تخصصی اکسسوری دست‌ساز — گردنبند، گوشواره، انگشتر، دستبند و ست.",
+ description = "اکسسوری شاد؛ فروشگاه تخصصی اکسسوری دست‌ساز — گردنبند، گوشواره، انگشتر، دستبند و ست.",
  // Unused in layout today; kept optional for callers. No stock/demo URLs.
  mainImage,
  secondaryImage,

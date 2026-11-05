@@ -28,7 +28,7 @@ interface FooterProps {
 }
 
 export function Footer({
- brandName = "جواهر شاد",
+ brandName = "اکسسوری شاد",
  watermarkName = "ShadJewel",
  brandDescription = "فروشگاه تخصصی اکسسوری دست ساز — رسمی، اسپرت، دستبند، ست و اکسسوری",
  socialLinks = [],

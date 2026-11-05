@@ -24,7 +24,7 @@ function pickKeyphrase(input: SuggestInput): string {
 
 /** عنوان پیشنهادی با رعایت پیکسل دسکتاپ */
 export function suggestMetaTitle(input: SuggestInput): string {
- const site = input.siteName || "جواهر شاد";
+ const site = input.siteName || "اکسسوری شاد";
  const kp = pickKeyphrase(input);
  const name = (input.pageName || "").trim() || kp;
  const candidates = [

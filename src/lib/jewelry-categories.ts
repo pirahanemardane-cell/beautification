@@ -1,4 +1,4 @@
-/** دسته‌بندی‌های استاندارد جواهر شاد */
+/** دسته‌بندی‌های استاندارد اکسسوری شاد */
 export const JEWELRY_CATEGORIES = [
   { name: "گردنبند", slug: "necklace", icon: "necklace" },
   { name: "گوشواره", slug: "earring", icon: "earring" },

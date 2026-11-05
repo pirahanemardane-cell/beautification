@@ -1,4 +1,4 @@
-# جواهر شاد | shadjewel.ir
+# اکسسوری شاد | shadjewel.ir
 
 فروشگاه تخصصی اکسسوری دست ساز – ساخته‌شده با Next.js 15 + Supabase + Vercel + Cloudflare + R2
 

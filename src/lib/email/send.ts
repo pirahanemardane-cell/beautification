@@ -16,7 +16,7 @@ export async function sendTransactionalEmail(opts: {
  const from =
  process.env.EMAIL_FROM?.trim() ||
  process.env.RESEND_FROM?.trim() ||
- "جواهر شاد <onboarding@resend.dev>";
+ "اکسسوری شاد <onboarding@resend.dev>";
 
  if (!apiKey) {
  console.warn("[email] skip: missing RESEND_API_KEY");
@@ -79,7 +79,7 @@ export async function emailOrderPlaced(opts: {
  const amt = escapeHtml(String(opts.amount ?? ""));
  return sendTransactionalEmail({
  to: opts.to,
- subject: `سفارش ${oid} ثبت شد — جواهر شاد`,
+ subject: `سفارش ${oid} ثبت شد — اکسسوری شاد`,
  html: `<p>${name} عزیز،</p><p>سفارش <strong>${oid}</strong> با موفقیت ثبت شد.${amt ? ` مبلغ: <strong>${amt}</strong> تومان.` : ""}</p><p><a href="https://shadjewel.ir/dashboard?tab=orders">پیگیری سفارش</a></p>`,
  text: `${name} عزیز، سفارش ${oid} ثبت شد.${amt ? ` مبلغ: ${amt} تومان.` : ""}`,
  });
@@ -97,7 +97,7 @@ export async function emailPaymentSuccess(opts: {
  const amt = escapeHtml(String(opts.amount ?? ""));
  return sendTransactionalEmail({
  to: opts.to,
- subject: `پرداخت سفارش ${oid} موفق — جواهر شاد`,
+ subject: `پرداخت سفارش ${oid} موفق — اکسسوری شاد`,
  html: `<p>${name} عزیز،</p><p>پرداخت سفارش <strong>${oid}</strong> با موفقیت انجام شد.${amt ? ` مبلغ: <strong>${amt}</strong> تومان.` : ""}</p>`,
  text: `${name} عزیز، پرداخت سفارش ${oid} موفق بود.${amt ? ` مبلغ: ${amt} تومان.` : ""}`,
  });
@@ -115,7 +115,7 @@ export async function emailShipped(opts: {
  const track = opts.tracking ? escapeHtml(String(opts.tracking)) : "";
  return sendTransactionalEmail({
  to: opts.to,
- subject: `سفارش ${oid} ارسال شد — جواهر شاد`,
+ subject: `سفارش ${oid} ارسال شد — اکسسوری شاد`,
  html: `<p>${name} عزیز،</p><p>سفارش <strong>${oid}</strong> ارسال شد.${track ? ` کد رهگیری: <strong>${track}</strong>` : ""}</p>`,
  text: `${name} عزیز، سفارش ${oid} ارسال شد.${track ? ` کد رهگیری: ${track}` : ""}`,
  });

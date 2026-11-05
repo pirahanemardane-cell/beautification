@@ -23,9 +23,9 @@ export function Logo({ className, size = "md" }: Props) {
  sizes[size],
  className
  )}
- aria-label="جواهر شاد"
+ aria-label="اکسسوری شاد"
  >
- جواهر شاد
+ اکسسوری شاد
  </Link>
  );
 }
