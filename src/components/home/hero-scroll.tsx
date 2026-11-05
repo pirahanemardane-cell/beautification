@@ -6,6 +6,8 @@ import { ArrowFillButton } from "@/components/ui/arrow-fill-button";
 
 const FRAME_COUNT = 70;
 const SCROLL_VH = 320;
+const POSTER_SRC = "/hero/hero-poster.webp";
+const POSTER_SRC_1080 = "/hero/hero-poster-1080.webp";
 
 /** بازه‌های متن (ایندکس فریم ۰-based، مطابق اسکراب فعلی) */
 const SLIDES = [
@@ -18,7 +20,7 @@ const FADE_FRAMES = 2.5;
 const BUTTON_FROM = 48;
 
 function frameSrc(i: number) {
- return `/hero/frames/frame-${String(i).padStart(3, "0")}.jpg`;
+ return `/hero/frames/frame-${String(i).padStart(3, "0")}.webp`;
 }
 
 /** opacity نرم داخل بازه [start, end] */
@@ -117,65 +119,71 @@ export function HeroScroll() {
  ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2 - panY, dw, dh);
  }, []);
 
-  useEffect(() => {
-    const imgs: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
-    imagesRef.current = imgs;
-    let cancelled = false;
-    const loadOne = (i: number) =>
-      new Promise<void>((resolve) => {
-        const img = new Image();
-        img.decoding = "async";
-        // Keep LCP bandwidth for poster + frame 0; defer the scrub sequence.
-        if ("fetchPriority" in img) {
-          (img as HTMLImageElement & { fetchPriority: string }).fetchPriority =
-            i === 0 ? "high" : "low";
-        }
-        img.onload = () => {
-          if (!cancelled) {
-            imgs[i] = img;
-            if (i === 0) {
-              setFirstReady(true);
-              requestAnimationFrame(() => drawIndex(0, true));
-            }
-          }
-          resolve();
-        };
-        img.onerror = () => resolve();
-        img.src = frameSrc(i + 1);
-      });
-    // Frame 0 immediately; remaining frames in idle batches so they don't
-    // race the hero poster / first paint.
-    (async () => {
-      await loadOne(0);
-      if (cancelled) return;
-      const loadRest = async () => {
-        const batch = 4;
-        for (let i = 1; i < FRAME_COUNT; i += batch) {
-          if (cancelled) return;
-          const slice: Promise<void>[] = [];
-          for (let j = i; j < Math.min(FRAME_COUNT, i + batch); j++) {
-            slice.push(loadOne(j));
-          }
-          await Promise.all(slice);
-        }
-      };
-      const w = window as Window & {
-        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-      };
-      if (typeof w.requestIdleCallback === "function") {
-        w.requestIdleCallback(() => {
-          void loadRest();
-        }, { timeout: 1200 });
-      } else {
-        window.setTimeout(() => {
-          void loadRest();
-        }, 50);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [drawIndex]);
+ useEffect(() => {
+ const imgs: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
+ imagesRef.current = imgs;
+ let cancelled = false;
+
+ const loadOne = (i: number) =>
+ new Promise<void>((resolve) => {
+ const img = new Image();
+ img.decoding = "async";
+ if ("fetchPriority" in img) {
+ (img as HTMLImageElement & { fetchPriority: string }).fetchPriority =
+ i === 0 ? "high" : "low";
+ }
+ img.onload = () => {
+ if (!cancelled) {
+ imgs[i] = img;
+ if (i === 0) {
+ setFirstReady(true);
+ requestAnimationFrame(() => drawIndex(0, true));
+ }
+ }
+ resolve();
+ };
+ img.onerror = () => resolve();
+ img.src = frameSrc(i + 1);
+ });
+
+ const loadRest = async () => {
+ let next = 1;
+ // Keep concurrency modest so LCP/INP aren't starved after first paint.
+ const workers = 4;
+ await Promise.all(
+ Array.from({ length: workers }, async () => {
+ while (next < FRAME_COUNT) {
+ const i = next++;
+ await loadOne(i);
+ }
+ }),
+ );
+ };
+
+ void (async () => {
+ await loadOne(0);
+ if (cancelled) return;
+ const startRest = () => {
+ if (cancelled) return;
+ void loadRest();
+ };
+ const w = window as Window & {
+ requestIdleCallback?: (
+ cb: () => void,
+ opts?: { timeout: number },
+ ) => number;
+ };
+ if (typeof w.requestIdleCallback === "function") {
+ w.requestIdleCallback(startRest, { timeout: 1200 });
+ } else {
+ w.setTimeout(startRest, 200);
+ }
+ })();
+
+ return () => {
+ cancelled = true;
+ };
+ }, [drawIndex]);
 
  useEffect(() => {
  if (!firstReady) return;
@@ -250,18 +258,22 @@ export function HeroScroll() {
  backgroundColor: "#111",
  }}
  >
-      {!firstReady && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src="/hero/hero-poster.jpg"
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: "center center" }}
-          fetchPriority="high"
-          loading="eager"
-          decoding="async"
-        />
-      )}
+ {!firstReady && (
+ // eslint-disable-next-line @next/next/no-img-element
+ <img
+ src={POSTER_SRC_1080}
+ srcSet={`${POSTER_SRC_1080} 1080w, ${POSTER_SRC} 1440w`}
+ sizes="100vw"
+ width={1440}
+ height={1800}
+ alt=""
+ className="absolute inset-0 h-full w-full object-cover"
+ style={{ objectPosition: "center center" }}
+ loading="eager"
+ decoding="async"
+ fetchPriority="high"
+ />
+ )}
 
  <canvas
  ref={canvasRef}

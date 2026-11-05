@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const SpeedInsights = dynamic(
+ () =>
+ import("@vercel/speed-insights/next").then((m) => m.SpeedInsights),
+ { ssr: false },
+);
 
 type Metric = {
  name: string;
@@ -39,15 +45,46 @@ function sendToApi(metric: Metric) {
  }).catch(() => {});
 }
 
+function runWhenIdle(cb: () => void, timeout = 4000) {
+ if (typeof window === "undefined") return () => {};
+ let id = 0;
+ const ric = (
+ window as Window & {
+ requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+ cancelIdleCallback?: (id: number) => void;
+ }
+ ).requestIdleCallback;
+ if (typeof ric === "function") {
+ id = ric(cb, { timeout });
+ return () =>
+ (
+ window as Window & { cancelIdleCallback?: (id: number) => void }
+ ).cancelIdleCallback?.(id);
+ }
+ id = window.setTimeout(cb, Math.min(timeout, 1500));
+ return () => window.clearTimeout(id);
+}
+
 /**
  * جمع‌آوری CWV در production + Vercel Speed Insights
- * آماده‌سازی قبل از ایندکس — بدون وابستگی به Storybook
+ * Deferred until idle so third-party script does not contend with LCP/INP.
  */
 export function WebVitalsReporter() {
+ const [ready, setReady] = useState(false);
+
  useEffect(() => {
  let cancelled = false;
+ const stopIdle = runWhenIdle(() => {
+ if (!cancelled) setReady(true);
+ });
+
  void (async () => {
  try {
+ // Defer web-vitals listeners slightly so first input/paint win the race.
+ await new Promise<void>((resolve) => {
+ runWhenIdle(() => resolve(), 2500);
+ });
+ if (cancelled) return;
  const { onCLS, onINP, onLCP, onFCP, onTTFB } = await import("web-vitals");
  if (cancelled) return;
  const report = (m: Metric) => sendToApi(m);
@@ -60,10 +97,13 @@ export function WebVitalsReporter() {
  console.warn("[web-vitals]", e);
  }
  })();
+
  return () => {
  cancelled = true;
+ stopIdle();
  };
  }, []);
 
+ if (!ready) return null;
  return <SpeedInsights />;
 }

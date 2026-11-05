@@ -5,6 +5,9 @@ const withBundleAnalyzer = bundleAnalyzer({
  enabled: process.env.ANALYZE === "true"
 });
 
+const LONG_CACHE = "public, max-age=31536000, immutable";
+const DAY_CACHE = "public, max-age=86400, stale-while-revalidate=604800";
+
 const nextConfig: NextConfig = {
  compress: true,
  poweredByHeader: false,
@@ -36,16 +39,56 @@ const nextConfig: NextConfig = {
  return [
  {
  source: "/hero/:path*",
- headers: [
- { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
- ]
-},
+ headers: [{ key: "Cache-Control", value: LONG_CACHE }],
+ },
  {
  source: "/fonts/:path*",
- headers: [
- { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
- ]
-},
+ headers: [{ key: "Cache-Control", value: LONG_CACHE }],
+ },
+ {
+ source: "/brand/:path*",
+ headers: [{ key: "Cache-Control", value: LONG_CACHE }],
+ },
+ {
+ source: "/brands/:path*",
+ headers: [{ key: "Cache-Control", value: LONG_CACHE }],
+ },
+ {
+ source: "/products/:path*",
+ headers: [{ key: "Cache-Control", value: LONG_CACHE }],
+ },
+ {
+ source: "/geo/:path*",
+ headers: [{ key: "Cache-Control", value: LONG_CACHE }],
+ },
+ {
+ source: "/_next/static/:path*",
+ headers: [{ key: "Cache-Control", value: LONG_CACHE }],
+ },
+ {
+ source: "/og-image.webp",
+ headers: [{ key: "Cache-Control", value: DAY_CACHE }],
+ },
+ {
+ source: "/favicon.ico",
+ headers: [{ key: "Cache-Control", value: DAY_CACHE }],
+ },
+ {
+ source: "/icon.png",
+ headers: [{ key: "Cache-Control", value: DAY_CACHE }],
+ },
+ {
+ source: "/icon.svg",
+ headers: [{ key: "Cache-Control", value: DAY_CACHE }],
+ },
+ {
+ source: "/apple-touch-icon.png",
+ headers: [{ key: "Cache-Control", value: DAY_CACHE }],
+ },
+ {
+ source: "/site.webmanifest",
+ headers: [{ key: "Cache-Control", value: DAY_CACHE }],
+ },
  {
  source: "/:path*",
  headers: [
@@ -67,11 +110,11 @@ const nextConfig: NextConfig = {
  key: "Content-Security-Policy",
  value: [
  "default-src 'self'",
- "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
  "style-src 'self' 'unsafe-inline'",
  "img-src 'self' data: blob: https://media.shadjewel.ir https://*.supabase.co https://*.r2.dev https://placehold.co",
  "font-src 'self' data:",
- "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://rest.payamak-panel.com",
+ "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://rest.payamak-panel.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
  "media-src 'self' https://media.shadjewel.ir",
  "object-src 'none'",
  "base-uri 'self'",
@@ -103,7 +146,8 @@ const nextConfig: NextConfig = {
  formats: ["image/avif", "image/webp"],
  deviceSizes: [640, 750, 828, 1080, 1200],
  imageSizes: [16, 32, 48, 64, 96, 128, 256],
- minimumCacheTTL: 60 * 60 * 24 * 30,
+ qualities: [65, 75, 80],
+ minimumCacheTTL: 60 * 60 * 24 * 365,
  remotePatterns: [
  {
  protocol: "https",
