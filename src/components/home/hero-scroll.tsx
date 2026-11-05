@@ -8,12 +8,16 @@ const FRAME_COUNT = 70;
 const SCROLL_VH = 320;
 const POSTER_SRC = "/hero/hero-poster.webp";
 const POSTER_SRC_1080 = "/hero/hero-poster-1080.webp";
+/** Earring focal point — matches poster object-position */
+const FOCAL_DESKTOP = { x: 0.6, y: 0.25 } as const;
+const FOCAL_MOBILE = { x: 0.5, y: 0.2 } as const;
+const FOCAL_MQ = "(min-width: 768px)";
 
 /** بازه‌های متن (ایندکس فریم ۰-based، مطابق اسکراب فعلی) */
 const SLIDES = [
- { start: 0, end: 23, text: "زیبایی که حس می‌شود" },
- { start: 24, end: 48, text: "هنر در هر قطعه" },
- { start: 48, end: 69, text: "جواهر شاد" },
+  { start: 0, end: 23, text: "گوشواره دست‌ساز برای سلیقه تو" },
+  { start: 24, end: 48, text: "با ظرافت جواهرساز" },
+  { start: 48, end: 69, text: "جواهر شاد" },
 ] as const;
 
 const FADE_FRAMES = 2.5;
@@ -31,28 +35,30 @@ function rangeOpacity(idx: number, start: number, end: number, fade = FADE_FRAME
  return Math.min(fadeIn, fadeOut);
 }
 
-/** سایز دسکتاپ فقط — موبایل همان clamp والد */
+/** سایز دسکتاپ فقط — موبایل همان clamp والد؛ وزن‌ها مثل قبل: heavy + thin / thin + heavy / brand */
 function TitleContent({ text }: { text: string }) {
- if (text === "زیبایی که حس می‌شود") {
- return (
- <>
- <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">زیبایی</span>{" "}
- <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">که حس می‌شود</span>
- </>
- );
- }
- if (text === "هنر در هر قطعه") {
- return (
- <>
- <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">انواع</span>{" "}
- <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">هنر در هر قطعه</span>
- </>
- );
- }
- if (text === "جواهر شاد") {
- return <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">جواهر شاد</span>;
- }
- return <>{text}</>;
+  if (text === "گوشواره دست‌ساز برای سلیقه تو") {
+    return (
+      <>
+        <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">گوشواره</span>{" "}
+        <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">
+          دست‌ساز برای سلیقه تو
+        </span>
+      </>
+    );
+  }
+  if (text === "با ظرافت جواهرساز") {
+    return (
+      <>
+        <span className="text-[20px] font-thin text-white md:text-[30px] lg:text-[40px]">با</span>{" "}
+        <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">ظرافت جواهرساز</span>
+      </>
+    );
+  }
+  if (text === "جواهر شاد") {
+    return <span className="text-[40px] md:text-[55px] lg:text-[90px] text-white">جواهر شاد</span>;
+  }
+  return <>{text}</>;
 }
 
 export function HeroScroll() {
@@ -101,23 +107,29 @@ export function HeroScroll() {
  canvas.width = tw;
  canvas.height = th;
  }
- ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
- const progress = idx / Math.max(1, FRAME_COUNT - 1);
- const zoom = 1.0 + progress * 0.4;
- const panY = progress * 40;
- const ir = img.naturalWidth / img.naturalHeight;
- const cr = w / h;
- let dw: number;
- let dh: number;
- if (ir > cr) {
- dh = h * zoom;
- dw = dh * ir;
- } else {
- dw = w * zoom;
- dh = dw / ir;
- }
- ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2 - panY, dw, dh);
- }, []);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const progress = idx / Math.max(1, FRAME_COUNT - 1);
+      const zoom = 1.0 + progress * 0.4;
+      const panY = progress * 40;
+      const ir = img.naturalWidth / img.naturalHeight;
+      const cr = w / h;
+      let dw: number;
+      let dh: number;
+      if (ir > cr) {
+        dh = h * zoom;
+        dw = dh * ir;
+      } else {
+        dw = w * zoom;
+        dh = dw / ir;
+      }
+      // object-position equivalent: keep earring in frame on desktop + mobile
+      const desktop = window.matchMedia(FOCAL_MQ).matches;
+      const fx = desktop ? FOCAL_DESKTOP.x : FOCAL_MOBILE.x;
+      const fy = desktop ? FOCAL_DESKTOP.y : FOCAL_MOBILE.y;
+      const dx = (w - dw) * fx;
+      const dy = (h - dh) * fy - panY;
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }, []);
 
  useEffect(() => {
  const imgs: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
@@ -267,13 +279,12 @@ export function HeroScroll() {
  width={1440}
  height={1800}
  alt=""
- className="absolute inset-0 h-full w-full object-cover"
- style={{ objectPosition: "center center" }}
- loading="eager"
- decoding="async"
- fetchPriority="high"
- />
- )}
+          className="absolute inset-0 h-full w-full object-cover object-[center_20%] md:object-[60%_25%]"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+        />
+      )}
 
  <canvas
  ref={canvasRef}
@@ -333,7 +344,7 @@ export function HeroScroll() {
  transition: "opacity 40ms linear",
  }}
  >
- <ArrowFillButton href="/products" btnText="خرید آنلاین" className="pointer-events-auto" />
+ <ArrowFillButton href="/products" btnText="مشاهده کالکشن" className="pointer-events-auto" />
  </div>
 
 
@@ -350,7 +361,7 @@ export function HeroScroll() {
  aria-hidden
  >
  <span className="text-sm font-semibold tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.55)] sm:text-base">
- اسکرول کنید
+ کاوش کنید
  </span>
  <span className="hero-scroll-hint inline-flex items-center justify-center text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
  <ChevronDown className="h-12 w-12 sm:h-16 sm:w-16 lg:h-[100px] lg:w-[100px]" strokeWidth={2.25} />
