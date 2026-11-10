@@ -180,6 +180,16 @@ export function productsHref(query?: string): string {
   return `${STOREFRONT_PATHS.products}${q}`;
 }
 
+/**
+ * Percent-encode a public href for Next.js `redirect()` / Location headers.
+ * HTTP headers must be ByteString (code points ≤ 255); raw Persian paths throw
+ * during prerender ("Cannot convert argument to a ByteString…").
+ * `encodeURI` keeps `/ ? & =` intact while encoding non-ASCII segments.
+ */
+export function locationHref(pathWithOptionalQuery: string): string {
+  return encodeURI(pathWithOptionalQuery);
+}
+
 /** Default jewelry category slugs (Persian). Icon map still matches by name/slug text. */
 export const CATEGORY_SLUG_EN_TO_FA: Record<string, string> = {
   necklace: "گردنبند",

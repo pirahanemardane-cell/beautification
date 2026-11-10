@@ -3,6 +3,7 @@ import {
   brandPath,
   categoryPath,
   englishPathToPersian,
+  locationHref,
   persianPathToEnglish,
   productPath,
   STOREFRONT_PATHS,
@@ -33,5 +34,11 @@ describe("storefront-paths", () => {
     expect(categoryPath("گردنبند")).toBe("/گردنبند");
     expect(brandPath("شاد")).toBe("/شاد");
     expect(STOREFRONT_PATHS.search).toBe("/جستجو");
+  });
+
+  it("encodes Persian paths for Location / redirect()", () => {
+    const href = locationHref(`${STOREFRONT_PATHS.dashboard}?tab=profile`);
+    expect(href).toBe("/%D8%AF%D8%A7%D8%B4%D8%A8%D9%88%D8%B1%D8%AF?tab=profile");
+    expect([...href].every((ch) => ch.charCodeAt(0) <= 255)).toBe(true);
   });
 });
