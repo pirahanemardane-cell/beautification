@@ -173,17 +173,6 @@ export function IconCategoryDefault(props: IconProps) {
   );
 }
 
-/** @deprecated Use IconNecklace */
-export const IconShirtFormal = IconNecklace;
-/** @deprecated Use IconRing */
-export const IconShirtCasual = IconRing;
-/** @deprecated Use IconEarring */
-export const IconSportWork = IconEarring;
-/** @deprecated Use IconBracelet */
-export const IconFit = IconBracelet;
-/** @deprecated Use IconJewelrySet */
-export const IconFabric = IconJewelrySet;
-
 export type CategoryIconId =
   | "necklace"
   | "ring"

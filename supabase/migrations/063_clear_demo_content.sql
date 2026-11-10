@@ -93,7 +93,7 @@ INSERT INTO public.site_settings (key, value, updated_at) VALUES
 ON CONFLICT (key) DO UPDATE
   SET value = EXCLUDED.value, updated_at = now();
 
--- Fix legacy shirt-store seed name if present; keep other store fields.
+-- Fix legacy store display names if present; keep other store fields.
 DO $$
 BEGIN
   IF to_regclass('public.site_settings') IS NULL THEN

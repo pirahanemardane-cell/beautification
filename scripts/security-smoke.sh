@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-https://pirahanmardane.ir}"
+BASE_URL="${BASE_URL:-https://shadjewel.ir}"
 echo "== Security smoke against $BASE_URL =="
 
 echo "-- health"
