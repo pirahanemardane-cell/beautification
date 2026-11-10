@@ -10,7 +10,12 @@ import { SizeRepository } from "@/repositories/size.repository";
 import { ProductInfiniteList } from "@/components/product/product-infinite-list";
 import { ProductFiltersSidebar } from "@/components/product/product-filters-sidebar";
 import { ProductFiltersMobile } from "@/components/product/product-filters-mobile";
-import { facetSlugsForCategory } from "@/lib/facet-map";
+import {
+ filterJewelryFacets,
+ filterJewelrySizeChips,
+ parseAttrFacetsFromParams,
+ parseInStockParam,
+} from "@/lib/facet-map";
 import { toPersianDigits } from "@/lib/numbers";
 import { JsonLd } from "@/components/seo/json-ld";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
@@ -36,27 +41,6 @@ function decodeSlug(raw: string): string {
  }
  return s;
 }
-
-const FACET_KEYS = [
- "fabric",
- "pattern",
- "season",
- "collar",
- "collar-type",
- "sleeve",
- "sleeve-type",
- "button-type",
- "fit",
- "thickness",
- "closure",
- "pocket",
- "occasion",
- "origin",
- "tie-width",
- "tie-length",
- "bow-tie-type",
- "cufflink-material",
-] as const;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
  const slug = decodeSlug((await params).slug);
@@ -121,18 +105,14 @@ export default async function CategoryListingPage({
  const colorSlug =
  typeof sp.color === "string" && sp.color ? sp.color : undefined;
  const sizeSlug = typeof sp.size === "string" && sp.size ? sp.size : undefined;
+ const inStock = parseInStockParam(sp.inStock);
 
- const attrs: Record<string, string> = {};
- for (const key of FACET_KEYS) {
- const v = sp[key];
- if (typeof v === "string" && v) attrs[key] = v;
- }
+ const attrs = parseAttrFacetsFromParams(sp);
 
  const attributeService = new AttributeService();
  const facetsResult = await attributeService.getFilterableFacets();
  const allFacets = (facetsResult.success && facetsResult.data) ? facetsResult.data : [];
- const allowed = new Set(facetSlugsForCategory(slug));
- const facets = allFacets.filter((f) => allowed.has(f.slug));
+ const facets = filterJewelryFacets(allFacets, slug);
 
  const colorAttr = allFacets.find((f) => f.slug === "color");
  const sizeAttr = allFacets.find((f) => f.slug === "size");
@@ -170,6 +150,7 @@ export default async function CategoryListingPage({
  sizes = legacySizes.map((s) => ({ id: s.id, name: s.name, slug: s.slug }));
  }
  }
+ sizes = filterJewelrySizeChips(sizes);
  const colorOpt = colorSlug
  ? colors.find((c) => c.slug === colorSlug || c.name === colorSlug)
  : undefined;
@@ -204,6 +185,7 @@ export default async function CategoryListingPage({
  sizeId,
  sizeValue,
  colorValue,
+ inStock,
  });
 
  if (!result.success || !result.data) {
@@ -254,6 +236,7 @@ export default async function CategoryListingPage({
  sizes={sizes}
  colorSlug={colorSlug}
  sizeSlug={sizeSlug}
+ inStock={inStock}
  facets={facets}
  current={attrs}
  categories={categories}
@@ -277,6 +260,7 @@ export default async function CategoryListingPage({
  sizes={sizes}
  colorSlug={colorSlug}
  sizeSlug={sizeSlug}
+ inStock={inStock}
  facets={facets}
  current={attrs}
  categories={categories}
@@ -293,6 +277,9 @@ export default async function CategoryListingPage({
  <ProductInfiniteList
  colorId={colorId}
  sizeId={sizeId}
+ colorValue={colorValue}
+ sizeValue={sizeValue}
+ inStock={inStock}
  initialProducts={products}
  initialPage={page}
  initialHasMore={page < totalPages}
