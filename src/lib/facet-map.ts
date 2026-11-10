@@ -50,7 +50,6 @@ export const APPAREL_ATTR_BLOCKLIST = [
   "cufflink-material",
   "gender",
   "gender-tee",
-  "shirt-size",
   "tee-size",
   "waist",
   "inseam",
@@ -185,7 +184,7 @@ export function filterJewelryFacets<T extends { slug: string }>(
   });
 }
 
-/** Apparel tee/shirt letter sizes — hide from jewelry PLP size chips. */
+/** Legacy apparel letter sizes — hide from jewelry PLP size chips. */
 const APPAREL_SIZE_SLUGS = new Set([
   "xxs",
   "xs",
