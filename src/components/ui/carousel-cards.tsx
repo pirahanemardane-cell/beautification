@@ -267,7 +267,7 @@ export function CarouselLinks({
  aria-label={item.label}
  />
  ) : null}
- <span className="mt-1.5 line-clamp-2 px-1 text-center text-[20px] font-thin leading-snug tracking-wide text-white dark:text-[#212529]">
+ <span className="mt-1.5 line-clamp-2 px-1 text-center text-[20px] font-thin leading-snug tracking-wide text-[#111111] dark:text-[#212529]">
  {item.labelFa || item.label}
  </span>
  </Link>
