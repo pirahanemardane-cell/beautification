@@ -14,7 +14,7 @@ describe("productFilterSchema", () => {
 
  it("accepts valid categorySlug and sort", () => {
  const result = productFilterSchema.safeParse({
- categorySlug: "dress-shirts",
+ categorySlug: "necklace",
  sort: "newest",
  page: 1,
  pageSize: 12,
@@ -27,7 +27,7 @@ describe("productCreateSchema", () => {
  it("requires name and valid slug", () => {
  const result = productCreateSchema.safeParse({
  name: "گردنبند سفید",
- slug: "dress-shirt-white",
+ slug: "necklace-pearl-white",
  categoryId: "a1000001-0000-4000-8000-000000000011",
  });
  expect(result.success).toBe(true);

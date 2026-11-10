@@ -32,7 +32,7 @@ export const JEWELRY_ATTR_FACET_SLUGS = [
 
 export type JewelryAttrFacetSlug = (typeof JEWELRY_ATTR_FACET_SLUGS)[number];
 
-/** Explicit apparel / shirt-store leftovers — never surface in shop filters. */
+/** Explicit legacy apparel attribute leftovers — never surface in shop filters. */
 export const APPAREL_ATTR_BLOCKLIST = [
   "fabric",
   "pattern",

@@ -25,7 +25,7 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
-          NEXT_PUBLIC_SITE_URL: https://pirahanmardane.ir
+          NEXT_PUBLIC_SITE_URL: https://shadjewel.ir
 
   build:
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
-          NEXT_PUBLIC_SITE_URL: https://pirahanmardane.ir
+          NEXT_PUBLIC_SITE_URL: https://shadjewel.ir
           SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING: "1"
 
   security-smoke:
@@ -59,7 +59,7 @@ jobs:
         run: chmod +x scripts/security-smoke.sh
       - name: Run security smoke
         env:
-          BASE_URL: https://pirahanmardane.ir
+          BASE_URL: https://shadjewel.ir
         run: bash scripts/security-smoke.sh
 
   e2e-smoke:
@@ -83,5 +83,5 @@ jobs:
       - name: E2E smoke against production
         run: npm run test:e2e:smoke
         env:
-          PLAYWRIGHT_BASE_URL: https://pirahanmardane.ir
+          PLAYWRIGHT_BASE_URL: https://shadjewel.ir
           CI: "true"
