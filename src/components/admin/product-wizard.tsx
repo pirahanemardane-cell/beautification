@@ -10,8 +10,14 @@ import {
  adminUpdateProductAction,
  adminSyncProductVariantsAction,
  adminAddProductGalleryImageAction,
+ adminUpdateProductImageRoleAction,
  adminCheckProductSlugAction,
 } from "@/app/admin/actions/products";
+import {
+ PRODUCT_IMAGE_ROLES,
+ PRODUCT_IMAGE_ROLE_LABELS,
+ normalizeImageRole,
+} from "@/lib/product-image-roles";
 import {
  adminListAttributesAction,
  adminGetProductAttributeValuesAction,
@@ -130,6 +136,7 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  const [status, setStatus] = useState<"draft" | "published">("draft");
  const [featured, setFeatured] = useState(false);
  const [isNew, setIsNew] = useState(true);
+ const [isHypoallergenic, setIsHypoallergenic] = useState(false);
  const [isActive, setIsActive] = useState(true);
  const [seo, setSeo] = useState<SeoPanelValue>(emptySeoValue());
  const [productType, setProductType] = useState<"simple" | "variable">("variable");
@@ -137,7 +144,9 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  const [simpleStock, setSimpleStock] = useState("0");
  const [variants, setVariants] = useState<VRow[]>([]);
  const [imageUrl, setImageUrl] = useState("");
- const [gallery, setGallery] = useState<{ id?: string; url: string }[]>([]);
+ const [gallery, setGallery] = useState<
+ { id?: string; url: string; image_role?: string }[]
+ >([]);
  const [attrDefs, setAttrDefs] = useState<AttrWithOptions[]>([]);
  const sizeAttr = attrDefs.find((a) => isSizeAttribute(a.slug, a.name));
  const colorAttr = attrDefs.find((a) => isColorAttribute(a.slug, a.name));
@@ -213,6 +222,7 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  setStatus((p.status as "draft" | "published") || "draft");
  setFeatured(!!p.is_featured);
  setIsNew(p.is_new !== false);
+ setIsHypoallergenic(!!p.is_hypoallergenic);
  setIsActive(p.is_active !== false);
  setImageUrl(String(p.image_url ?? ""));
  setSizeGuideId(String(p.size_guide_id ?? "") || "");
@@ -307,6 +317,7 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  url: string;
  is_primary?: boolean;
  variant_id?: string | null;
+ image_role?: string | null;
  }>) || [];
  setGallery(
  imgs
@@ -317,7 +328,11 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  !i.variant_id &&
  i.url !== p.image_url,
  )
- .map((i) => ({ id: i.id, url: i.url })),
+ .map((i) => ({
+ id: i.id,
+ url: i.url,
+ image_role: normalizeImageRole(i.image_role),
+ })),
  );
  const av = await adminGetProductAttributeValuesAction(initialId);
  if (av.ok) {
@@ -488,6 +503,7 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  status: resolvedStatus,
  is_featured: featured,
  is_new: isNew,
+ is_hypoallergenic: isHypoallergenic,
  image_url: imageUrl || null,
  tag_ids: selectedTags,
  size_guide_id: sizeGuideId || null,
@@ -1273,9 +1289,9 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  <div>
  <p className="mb-2 text-sm font-medium">گالری</p>
  {gallery.length > 0 ? (
- <div className="mb-2 flex flex-wrap gap-2">
+ <div className="mb-2 flex flex-wrap gap-3">
  {gallery.map((g) => (
- <div key={g.id || g.url} className="relative">
+ <div key={g.id || g.url} className="relative space-y-1">
  {/* eslint-disable-next-line @next/next/no-img-element */}
  <img
  src={g.url}
@@ -1291,6 +1307,33 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  >
  ×
  </button>
+ {g.id ? (
+ <select
+ className="border-input bg-background w-20 rounded border px-0.5 text-[10px]"
+ value={normalizeImageRole(g.image_role)}
+ disabled={busy}
+ onChange={(e) => {
+ const role = normalizeImageRole(e.target.value);
+ setGallery((list) =>
+ list.map((x) =>
+ x.id === g.id || x.url === g.url
+ ? { ...x, image_role: role }
+ : x,
+ ),
+ );
+ void adminUpdateProductImageRoleAction({
+ imageId: g.id!,
+ image_role: role,
+ });
+ }}
+ >
+ {PRODUCT_IMAGE_ROLES.map((r) => (
+ <option key={r} value={r}>
+ {PRODUCT_IMAGE_ROLE_LABELS[r]}
+ </option>
+ ))}
+ </select>
+ ) : null}
  </div>
  ))}
  </div>
@@ -1581,6 +1624,14 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  <label className="flex items-center gap-2 text-sm">
  <input type="checkbox" checked={isNew} onChange={(e) => setIsNew(e.target.checked)} />
  نشان «جدید»
+ </label>
+ <label className="flex items-center gap-2 text-sm">
+ <input
+ type="checkbox"
+ checked={isHypoallergenic}
+ onChange={(e) => setIsHypoallergenic(e.target.checked)}
+ />
+ نشان «ضد حساسیت»
  </label>
  <label className="flex items-center gap-2 text-sm">
  <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />

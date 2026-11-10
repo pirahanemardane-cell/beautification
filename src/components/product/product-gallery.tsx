@@ -8,12 +8,18 @@ import { cn } from "@/lib/utils";
 import { X, ChevronRight, ChevronLeft } from "lucide-react";
 import { ProductWishCompareStack } from "@/components/product/product-wish-compare";
 import { colorNorm, colorKey } from "@/lib/variant-availability";
+import {
+ normalizeImageRole,
+ PRODUCT_IMAGE_ROLE_LABELS,
+ type ProductImageRole,
+} from "@/lib/product-image-roles";
 
 export type GalleryImage = {
  url: string;
  is_primary?: boolean;
  alt?: string | null;
  variant_id?: string | null;
+ image_role?: string | null;
 };
 
 type VariantLite = { id: string; color?: string | null };
@@ -203,10 +209,15 @@ export function ProductGallery({
  {/* تامب‌نیل‌ها — همیشه گالری، ثابت با تغییر رنگ */}
  {thumbs.length > 1 ? (
  <div className="flex gap-2 overflow-x-auto pb-1">
- {thumbs.map((img, i) => (
+ {thumbs.map((img, i) => {
+ const role = normalizeImageRole(img.image_role) as ProductImageRole;
+ const roleLabel =
+ role !== "gallery" ? PRODUCT_IMAGE_ROLE_LABELS[role] : null;
+ return (
  <button
  key={`${img.url}-${i}`}
  type="button"
+ title={roleLabel || undefined}
  onClick={() => {
  setIdx(i);
  setPreferThumb(true);
@@ -225,8 +236,14 @@ export function ProductGallery({
  className="object-cover p-0"
  sizes="56px"
  />
+ {roleLabel ? (
+ <span className="bg-background/85 absolute inset-x-0 bottom-0 truncate px-0.5 py-px text-[8px] leading-tight">
+ {roleLabel}
+ </span>
+ ) : null}
  </button>
- ))}
+ );
+ })}
  </div>
  ) : null}
 

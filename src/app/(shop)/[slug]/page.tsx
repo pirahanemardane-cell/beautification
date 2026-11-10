@@ -34,7 +34,7 @@ const RESERVED = new Set([
  "about", "blog", "brands", "cart", "categories", "checkout", "contact",
  "dashboard", "faq", "login", "products", "register", "privacy", "returns",
  "shipping", "size-guide", "terms", "track", "tag", "wishlist", "compare",
- "recently-viewed", "api", "admin", "ورود", "ثبت-نام", "علاقه-مندی-ها", "مقایسه",
+ "recently-viewed", "warranty", "api", "admin", "ورود", "ثبت-نام", "علاقه-مندی-ها", "مقایسه",
  "سبد-خرید", "محصولات", "آخرین-مشاهده-ها",
 ]);
 

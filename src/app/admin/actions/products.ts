@@ -155,6 +155,7 @@ export async function adminSetProductFlagsAction(
  is_featured: boolean;
  is_new: boolean;
  is_bestseller: boolean;
+ is_hypoallergenic: boolean;
  }>,
 ) {
  const gate = await requireAdmin();
@@ -218,6 +219,7 @@ type CreateProductInput = {
  is_featured?: boolean;
  is_new?: boolean;
  is_bestseller?: boolean;
+ is_hypoallergenic?: boolean;
  price?: number;
  original_price?: number | null;
  stock_quantity?: number;
@@ -309,6 +311,7 @@ export async function adminCreateProductAction(input: CreateProductInput) {
  is_featured: !!input.is_featured,
  is_new: !!input.is_new,
  is_bestseller: !!input.is_bestseller,
+ is_hypoallergenic: !!input.is_hypoallergenic,
  size_guide_id: input.size_guide_id || null,
  published_at: input.published_at || null,
  meta_title: input.meta_title?.trim() || null,
@@ -348,6 +351,7 @@ export async function adminCreateProductAction(input: CreateProductInput) {
  robots_follow: _rf,
  is_cornerstone: _ic,
  canonical_url: _cu,
+ is_hypoallergenic: _hypo,
  ...basicPayload
  } = productPayloadFull;
  const basicIns = await gate.supabase
@@ -560,6 +564,7 @@ export async function adminUpdateProductAction(
  is_featured?: boolean;
  is_new?: boolean;
  is_bestseller?: boolean;
+ is_hypoallergenic?: boolean;
  is_active?: boolean;
  sku?: string | null;
  price?: number;
@@ -630,6 +635,8 @@ export async function adminUpdateProductAction(
  if (input.is_featured !== undefined) patch.is_featured = !!input.is_featured;
  if (input.is_new !== undefined) patch.is_new = !!input.is_new;
  if (input.is_bestseller !== undefined) patch.is_bestseller = !!input.is_bestseller;
+ if (input.is_hypoallergenic !== undefined)
+ patch.is_hypoallergenic = !!input.is_hypoallergenic;
  // products has no is_active column (only variants/categories/brands)
  if (input.size_guide_id !== undefined) patch.size_guide_id = input.size_guide_id || null;
  if (input.published_at !== undefined) patch.published_at = input.published_at || null;
@@ -1222,6 +1229,7 @@ export async function adminAddProductGalleryImageAction(input: {
  productId: string;
  url: string;
  alt_text?: string | null;
+ image_role?: string | null;
 }) {
  const gate = await requireAdmin();
  if (!gate.ok) return { ok: false as const, error: gate.error };
@@ -1231,6 +1239,17 @@ export async function adminAddProductGalleryImageAction(input: {
  if (!productId || !url) {
  return { ok: false as const, error: "invalid" as const };
  }
+
+ const roleRaw = String(input.image_role || "gallery").trim().toLowerCase();
+ const image_role = [
+ "gallery",
+ "neutral",
+ "lifestyle",
+ "angle",
+ "model",
+ ].includes(roleRaw)
+ ? roleRaw
+ : "gallery";
 
  const { data: maxRow } = await gate.supabase
  .from("product_images")
@@ -1244,7 +1263,26 @@ export async function adminAddProductGalleryImageAction(input: {
 
  const sort_order = (maxRow?.sort_order ?? 0) + 1;
 
- const { data, error } = await gate.supabase
+ let insert = await gate.supabase
+ .from("product_images")
+ .insert({
+ product_id: productId,
+ url,
+ alt_text: (input.alt_text || "").trim() || null,
+ is_primary: false,
+ variant_id: null,
+ sort_order,
+ image_role,
+ } as never)
+ .select("id, url, alt_text, sort_order, image_role")
+ .single();
+
+ if (
+ insert.error &&
+ (String(insert.error.message || "").includes("image_role") ||
+ String(insert.error.message || "").includes("42703"))
+ ) {
+ insert = await gate.supabase
  .from("product_images")
  .insert({
  product_id: productId,
@@ -1256,13 +1294,92 @@ export async function adminAddProductGalleryImageAction(input: {
  })
  .select("id, url, alt_text, sort_order")
  .single();
+ }
 
- if (error) {
- console.error("[adminAddProductGalleryImage]", error);
- return { ok: false as const, error: "server" as const, detail: error.message };
+ if (insert.error) {
+ console.error("[adminAddProductGalleryImage]", insert.error);
+ return {
+ ok: false as const,
+ error: "server" as const,
+ detail: insert.error.message,
+ };
  }
  await revalidateProductPaths(gate.supabase, productId);
+ return { ok: true as const, image: insert.data };
+}
+
+export async function adminUpdateProductImageRoleAction(input: {
+ imageId: string;
+ image_role: string;
+}) {
+ const gate = await requireAdmin();
+ if (!gate.ok) return { ok: false as const, error: gate.error };
+ const imageId = (input.imageId || "").trim();
+ const roleRaw = String(input.image_role || "gallery").trim().toLowerCase();
+ const image_role = [
+ "gallery",
+ "neutral",
+ "lifestyle",
+ "angle",
+ "model",
+ ].includes(roleRaw)
+ ? roleRaw
+ : "gallery";
+ if (!imageId) return { ok: false as const, error: "invalid" as const };
+
+ const { data, error } = await gate.supabase
+ .from("product_images")
+ .update({ image_role } as never)
+ .eq("id", imageId)
+ .select("id, product_id, image_role")
+ .maybeSingle();
+ if (error) {
+ console.error("[adminUpdateProductImageRole]", error);
+ return { ok: false as const, error: "server" as const, detail: error.message };
+ }
+ if (data?.product_id) {
+ await revalidateProductPaths(gate.supabase, data.product_id as string);
+ }
  return { ok: true as const, image: data };
+}
+
+export async function adminSetProductComplementsAction(input: {
+ productId: string;
+ kind: "buy_with" | "set";
+ complementProductIds: string[];
+}) {
+ const gate = await requireAdmin();
+ if (!gate.ok) return { ok: false as const, error: gate.error };
+ const productId = (input.productId || "").trim();
+ const kind = input.kind === "set" ? "set" : "buy_with";
+ if (!productId) return { ok: false as const, error: "invalid" as const };
+
+ const ids = [...new Set((input.complementProductIds || []).map((x) => String(x).trim()).filter(Boolean))]
+ .filter((id) => id !== productId)
+ .slice(0, 12);
+
+ await gate.supabase
+ .from("product_complements")
+ .delete()
+ .eq("product_id", productId)
+ .eq("kind", kind);
+
+ if (ids.length) {
+ const { error } = await gate.supabase.from("product_complements").insert(
+ ids.map((complement_product_id, i) => ({
+ product_id: productId,
+ complement_product_id,
+ kind,
+ sort_order: i,
+ })) as never,
+ );
+ if (error) {
+ console.error("[adminSetProductComplements]", error);
+ return { ok: false as const, error: "server" as const, detail: error.message };
+ }
+ }
+ await revalidateProductPaths(gate.supabase, productId);
+ return { ok: true as const };
 }
 
 

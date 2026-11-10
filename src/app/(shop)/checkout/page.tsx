@@ -127,6 +127,9 @@ export default function CheckoutPage() {
  city: "",
  postal: "",
  note: "",
+ giftPackaging: false,
+ giftMessage: "",
+ scheduledDeliveryDate: "",
  });
 
  const [savedAddresses, setSavedAddresses] = useState<
@@ -541,6 +544,9 @@ export default function CheckoutPage() {
  ]
  .filter(Boolean)
  .join(" | ") || undefined,
+ giftPackaging: form.giftPackaging,
+ giftMessage: form.giftPackaging ? form.giftMessage.trim() || undefined : undefined,
+ scheduledDeliveryDate: form.scheduledDeliveryDate.trim() || undefined,
  discountCode: (discountPreview?.code || discountCode).trim() || undefined,
  paymentMethod: payMethod,
  shippingMethodId: shipMethod || undefined,
@@ -922,6 +928,57 @@ export default function CheckoutPage() {
  dir="rtl"
  />
  </label>
+
+ <div className="border-border space-y-3 rounded-xl border border-dashed p-3">
+ <p className="text-sm font-medium text-primary">هدیه</p>
+ <label className="flex items-center gap-2 text-sm">
+ <input
+ type="checkbox"
+ checked={form.giftPackaging}
+ onChange={(e) =>
+ setForm((f) => ({ ...f, giftPackaging: e.target.checked }))
+ }
+ />
+ <span>بسته‌بندی هدیه</span>
+ </label>
+ {form.giftPackaging ? (
+ <label className="block space-y-1 text-sm">
+ <span>متن کارت هدیه (اختیاری)</span>
+ <textarea
+ value={form.giftMessage}
+ onChange={(e) =>
+ setForm((f) => ({
+ ...f,
+ giftMessage: e.target.value.slice(0, 500),
+ }))
+ }
+ rows={2}
+ maxLength={500}
+ className="border-input bg-background w-full rounded-xl border px-3 py-2"
+ dir="rtl"
+ placeholder="پیام کوتاه روی کارت…"
+ />
+ </label>
+ ) : null}
+ <label className="block space-y-1 text-sm">
+ <span>تاریخ تحویل زمان‌بندی‌شده (اختیاری)</span>
+ <input
+ type="date"
+ value={form.scheduledDeliveryDate}
+ onChange={(e) =>
+ setForm((f) => ({
+ ...f,
+ scheduledDeliveryDate: e.target.value,
+ }))
+ }
+ className="border-input bg-background h-10 w-full rounded-xl border px-3"
+ dir="ltr"
+ />
+ <span className="text-muted-foreground text-[11px]">
+ حداکثر ۶۰ روز آینده — در صورت امکان ارسال
+ </span>
+ </label>
+ </div>
 
  <div className="flex gap-2 pt-2">
  <button

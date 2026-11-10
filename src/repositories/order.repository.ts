@@ -23,6 +23,9 @@ export type CreateOrderInput = {
  shippingMethodId?: string | null;
  shippingMethodTitle?: string | null;
  note?: string;
+ giftPackaging?: boolean;
+ giftMessage?: string | null;
+ scheduledDeliveryDate?: string | null;
  discountCode?: string | null;
  discountAmount?: number;
  paymentMethod?: "cod" | "online";
@@ -141,6 +144,9 @@ export class OrderRepository extends BaseRepository {
  shipping_city: input.shipping.city ?? null,
  shipping_postal: input.shipping.postal ?? null,
  note: input.note ?? null,
+ gift_packaging: Boolean(input.giftPackaging),
+ gift_message: input.giftMessage?.trim() || null,
+ scheduled_delivery_date: input.scheduledDeliveryDate || null,
  };
  let order: { id: string } | null = null;
  let oErr: { message?: string } | null = null;
@@ -158,6 +164,9 @@ export class OrderRepository extends BaseRepository {
  payment_status: _p,
  discount_code: _c,
  discount_amount: _d,
+ gift_packaging: _g,
+ gift_message: _gm,
+ scheduled_delivery_date: _sd,
  ...basicPayload
  } = orderPayloadFull;
  const basicIns = await service

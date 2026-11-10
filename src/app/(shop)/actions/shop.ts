@@ -478,6 +478,9 @@ export type CreateOrderPayload = {
  province?: string;
  postal?: string;
  note?: string;
+ giftPackaging?: boolean;
+ giftMessage?: string;
+ scheduledDeliveryDate?: string;
  discountCode?: string;
  paymentMethod?: "cod" | "online";
  shippingMethodId?: string;
@@ -686,6 +689,20 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  shippingMethodId: methodId,
  shippingMethodTitle,
  note: noteOk.text || undefined,
+ giftPackaging: Boolean(payload.giftPackaging),
+ giftMessage: payload.giftMessage?.trim()?.slice(0, 500) || null,
+ scheduledDeliveryDate: (() => {
+ const d = (payload.scheduledDeliveryDate || "").trim();
+ if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return null;
+ const ts = Date.parse(d + "T12:00:00Z");
+ if (!Number.isFinite(ts)) return null;
+ const today = new Date();
+ today.setHours(0, 0, 0, 0);
+ if (ts < today.getTime()) return null;
+ // max 60 days ahead
+ if (ts > today.getTime() + 60 * 86400000) return null;
+ return d;
+ })(),
  discountCode,
  discountAmount,
  paymentMethod: payload.paymentMethod === "online" ? "online" : "cod",

@@ -40,7 +40,9 @@ export type SmsPatternKey =
  | "ADMIN_CRITICAL"
  | "ADMIN_FRAUD"
  | "ADMIN_PAYMENT_OUTAGE"
- | "ADMIN_SMS_OUTAGE";
+ | "ADMIN_SMS_OUTAGE"
+ | "STOCK_ALERT"
+ | "PRICE_ALERT";
 
 export type PatternDef = {
  key: SmsPatternKey;
@@ -97,6 +99,8 @@ export const SMS_PATTERNS: Record<SmsPatternKey, PatternDef> = {
  ADMIN_FRAUD: p("ADMIN_FRAUD", 2, "فعالیت مشکوک/Fraud در اکسسوری شاد: {0} {1} https://shadjewel.ir لغو11", "recommended"),
  ADMIN_PAYMENT_OUTAGE: p("ADMIN_PAYMENT_OUTAGE", 1, "اختلال جدی در درگاه پرداخت اکسسوری شاد: {0} https://shadjewel.ir لغو11"),
  ADMIN_SMS_OUTAGE: p("ADMIN_SMS_OUTAGE", 1, "اختلال در سرویس پیامک اکسسوری شاد: {0} https://shadjewel.ir لغو11", "recommended"),
+ STOCK_ALERT: p("STOCK_ALERT", 2, "{0} عزیز، {1} در اکسسوری شاد دوباره موجود شد. https://shadjewel.ir لغو11", "recommended"),
+ PRICE_ALERT: p("PRICE_ALERT", 2, "{0} عزیز، تغییر قیمت/تخفیف برای {1} در اکسسوری شاد. https://shadjewel.ir لغو11", "recommended"),
 };
 
 export function resolveBodyId(key: SmsPatternKey): string | undefined {

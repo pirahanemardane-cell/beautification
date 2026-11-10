@@ -78,6 +78,18 @@ export async function recordProductPrice(opts: {
  variant_id: opts.variantId ?? null,
  price,
  });
+
+ // Fire price-drop alerts when price decreased vs last recorded
+ if (lastPrice != null && price < lastPrice) {
+ try {
+ const { notifyPriceAlertsForProduct } = await import(
+ "@/lib/price-alerts/notify"
+ );
+ await notifyPriceAlertsForProduct(opts.productId, price);
+ } catch (ne) {
+ console.error("[recordProductPrice price alerts]", ne);
+ }
+ }
  } catch (e) {
  console.error("[recordProductPrice]", e);
  }

@@ -15,6 +15,7 @@ export const JEWELRY_ATTR_FACET_SLUGS = [
   "gemstone",
   "finish",
   "style",
+  "hypoallergenic",
   "clasp",
   "chain-type",
   "chain-length",
@@ -76,6 +77,7 @@ const CORE_JEWELRY_FACETS = [
   "gemstone",
   "finish",
   "style",
+  "hypoallergenic",
   "occasion",
   "origin",
 ] as const;
