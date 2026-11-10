@@ -39,13 +39,13 @@ const HERO_SLIDES = [
   },
 ] as const;
 
-/** Early LCP hints — first polaroid image for the carousel. */
+/** Early LCP hints — middle polaroid (initial active print) for the carousel. */
 function HomeHeroPreloads() {
   return (
     <link
       rel="preload"
       as="image"
-      href="/hero/polaroid-earring.webp"
+      href="/hero/polaroid-02.webp"
       type="image/webp"
     />
   );
