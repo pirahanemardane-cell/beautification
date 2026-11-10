@@ -471,7 +471,7 @@ export default function AdminPage() {
  <div className="flex flex-wrap items-center gap-2">
  <Link
  href={`/admin/categories/${r.id}/edit`}
- className="text-[#e8899a] text-xs hover:underline dark:text-[#fdedef]"
+ className="text-[#f4978e] text-xs hover:underline dark:text-[#ffdab9]"
  >
  ویرایش
  </Link>

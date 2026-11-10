@@ -130,7 +130,7 @@ export default function RootLayout({
  <link rel="manifest" href="/site.webmanifest" />
  <meta name="apple-mobile-web-app-title" content="اکسسوری شاد" />
  <meta name="application-name" content="اکسسوری شاد" />
- <meta name="theme-color" content="#f5a3af" />
+ <meta name="theme-color" content="#f08080" />
  </head>
  <body className="min-h-screen font-sans antialiased max-w-full" suppressHydrationWarning>
  <JsonLd data={[organizationSchema(), websiteSchema()]} />

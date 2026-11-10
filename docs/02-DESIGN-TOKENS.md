@@ -2,21 +2,29 @@
 
 Source: src/app/globals.css
 
+## Coral–peach palette
+- Light Coral `#f08080` — primary light accent
+- Sweet Salmon `#f4978e`
+- Powder Blush `#f8ad9d`
+- Peach Fuzz `#fbc4ab`
+- Soft Apricot `#ffdab9` — dark-mode accent
+
 ## Colors (light)
 - background #F8F9FA
-- foreground #212529 (readable body); brand-tinted text #5c3a42 where accented
-- primary / secondary / ring #f5a3af
-- primary-foreground #212529
+- foreground / body / UI text #111111 (contrast on pastel)
+- primary / secondary / ring #f08080
+- primary-foreground #111111
 - muted #DEE2E6 / #E9ECEF
 - muted-foreground #495057
 - destructive #DC2626 / #B3261E
-- chart companion pastel #f9c5cd
+- chart companions #f4978e / #f8ad9d / #fbc4ab / #ffdab9
 
 ## Colors (dark)
 - background #212529
-- foreground / primary / secondary / ring #fdedef
-- primary-foreground #212529
-- accent #f5a3af (soft pastel derivative)
+- foreground / body / UI text #F8F9FA (near-white)
+- primary / secondary / ring #ffdab9
+- primary-foreground #111111 (readable on Soft Apricot)
+- accent #f08080
 - No turquoise/teal/cyan brand accents
 
 ## Radius

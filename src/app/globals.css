@@ -56,8 +56,8 @@ h4, .h4 {
 
 :root {
  --secondary-foreground: #111111;
- --secondary: #f5a3af;
- --foreground: #212529;
+ --secondary: #f08080;
+ --foreground: #111111;
  --primary-foreground: #111111;
  --surface-primary: #F8F9FA;
  --surface-muted: #e9ecef;
@@ -176,37 +176,37 @@ h4, .h4 {
 
 :root {
  --background: #F8F9FA;
- --foreground: #5c3a42;
+ --foreground: #111111;
  --card: #FFFFFF;
- --card-foreground: #5c3a42;
+ --card-foreground: #111111;
  --popover: #FFFFFF;
- --popover-foreground: #5c3a42;
- --primary: #f5a3af;
+ --popover-foreground: #111111;
+ --primary: #f08080;
  --primary-foreground: #111111;
- --secondary: #f5a3af;
+ --secondary: #f08080;
  --secondary-foreground: #111111;
  --muted: #DEE2E6;
  --muted-foreground: #495057;
  --accent: #DEE2E6;
- --accent-foreground: #5c3a42;
+ --accent-foreground: #111111;
  --destructive: #DC2626;
- --border: #f5a3af;
+ --border: #f08080;
  --input: #DEE2E6;
- --ring: #f5a3af;
- --chart-1: #f5a3af;
- --chart-2: #f9c5cd;
- --chart-3: #495057;
- --chart-4: #DEE2E6;
- --chart-5: #212529;
+ --ring: #f08080;
+ --chart-1: #f08080;
+ --chart-2: #f4978e;
+ --chart-3: #f8ad9d;
+ --chart-4: #fbc4ab;
+ --chart-5: #ffdab9;
  --radius: 0.625rem;
  --sidebar: #FFFFFF;
- --sidebar-foreground: #5c3a42;
- --sidebar-primary: #f5a3af;
+ --sidebar-foreground: #111111;
+ --sidebar-primary: #f08080;
  --sidebar-primary-foreground: #111111;
  --sidebar-accent: #DEE2E6;
- --sidebar-accent-foreground: #5c3a42;
+ --sidebar-accent-foreground: #111111;
  --sidebar-border: #DEE2E6;
- --sidebar-ring: #f5a3af;
+ --sidebar-ring: #f08080;
 }
 
 .dark {
@@ -218,31 +218,31 @@ h4, .h4 {
  --card-foreground: #F8F9FA;
  --popover: #2A2E32;
  --popover-foreground: #F8F9FA;
- --primary: #fdedef;
- --primary-foreground: #212529;
- --secondary: #fdedef;
- --secondary-foreground: #212529;
+ --primary: #ffdab9;
+ --primary-foreground: #111111;
+ --secondary: #ffdab9;
+ --secondary-foreground: #111111;
  --muted: #495057;
  --muted-foreground: #DEE2E6;
  --accent: #495057;
  --accent-foreground: #F8F9FA;
  --destructive: #EF4444;
- --border: #fdedef;
+ --border: #ffdab9;
  --input: #495057;
- --ring: #fdedef;
- --chart-1: #fdedef;
- --chart-2: #DEE2E6;
- --chart-3: #495057;
- --chart-4: #F8F9FA;
- --chart-5: #f5a3af;
+ --ring: #ffdab9;
+ --chart-1: #ffdab9;
+ --chart-2: #fbc4ab;
+ --chart-3: #f8ad9d;
+ --chart-4: #f4978e;
+ --chart-5: #f08080;
  --sidebar: #2A2E32;
  --sidebar-foreground: #F8F9FA;
- --sidebar-primary: #fdedef;
- --sidebar-primary-foreground: #212529;
+ --sidebar-primary: #ffdab9;
+ --sidebar-primary-foreground: #111111;
  --sidebar-accent: #495057;
  --sidebar-accent-foreground: #F8F9FA;
  --sidebar-border: #495057;
- --sidebar-ring: #fdedef;
+ --sidebar-ring: #ffdab9;
 }
 
 @layer base {
@@ -368,47 +368,47 @@ h4, .h4 { font-weight: 600 !important; }
 /* ========== PM Design Tokens (full system) ========== */
 :root {
  --background: #F8F9FA;
- --foreground: #212529;
+ --foreground: #111111;
  --card: #FFFFFF;
- --card-foreground: #212529;
+ --card-foreground: #111111;
  --popover: #FFFFFF;
- --popover-foreground: #212529;
- --primary: #f5a3af;
+ --popover-foreground: #111111;
+ --primary: #f08080;
  --primary-foreground: #111111;
- --secondary: #f5a3af;
+ --secondary: #f08080;
  --secondary-foreground: #111111;
  --muted: #E9ECEF;
  --muted-foreground: #495057;
  --accent: #DEE2E6;
- --accent-foreground: #5c3a42;
+ --accent-foreground: #111111;
  --destructive: #B3261E;
  --destructive-foreground: #FFFFFF;
  --border: #DEE2E6;
  --input: #DEE2E6;
- --ring: #f5a3af;
+ --ring: #f08080;
  --radius: 0.75rem;
 }
 
 .dark {
  --background: #212529;
- --foreground: #fdedef;
+ --foreground: #F8F9FA;
  --card: #2A2E32;
- --card-foreground: #fdedef;
+ --card-foreground: #F8F9FA;
  --popover: #2A2E32;
- --popover-foreground: #fdedef;
- --primary: #fdedef;
- --primary-foreground: #212529;
- --secondary: #fdedef;
- --secondary-foreground: #212529;
+ --popover-foreground: #F8F9FA;
+ --primary: #ffdab9;
+ --primary-foreground: #111111;
+ --secondary: #ffdab9;
+ --secondary-foreground: #111111;
  --muted: #343A40;
  --muted-foreground: #ADB5BD;
- --accent: #f5a3af;
- --accent-foreground: #212529;
+ --accent: #f08080;
+ --accent-foreground: #111111;
  --destructive: #F2B8B5;
  --destructive-foreground: #601410;
  --border: #495057;
  --input: #495057;
- --ring: #fdedef;
+ --ring: #ffdab9;
 }
 
 /* === PM-OVERFLOW-GUARD (auto) === */
@@ -569,11 +569,11 @@ img, video, canvas, svg {
 
 /* Site loader — brand colors only */
 :root {
- --pm-loader-bg: #f5a3af;
+ --pm-loader-bg: #f08080;
  --pm-loader-spin: #212529;
 }
 .dark {
- --pm-loader-bg: #fdedef;
+ --pm-loader-bg: #ffdab9;
  --pm-loader-spin: #212529;
 }
 .pm-site-loader {
@@ -586,7 +586,7 @@ img, video, canvas, svg {
  outline: none;
 }
 :focus-visible {
- outline: 2px solid var(--sidebar-ring, #f5a3af);
+ outline: 2px solid var(--sidebar-ring, #f08080);
  outline-offset: 2px;
 }
 a:focus-visible,
@@ -596,7 +596,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
- outline: 2px solid var(--sidebar-ring, #f5a3af);
+ outline: 2px solid var(--sidebar-ring, #f08080);
  outline-offset: 2px;
 }
 /* هدر چسبان فوکوس را نپوشاند */
