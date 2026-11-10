@@ -1,3 +1,10 @@
+import {
+  blogPath,
+  brandPath,
+  productPath,
+  STOREFRONT_PATHS,
+} from "@/lib/seo/storefront-paths";
+
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "");
 
 export function organizationSchema() {
@@ -28,7 +35,7 @@ export function websiteSchema() {
  "@type": "SearchAction",
  target: {
  "@type": "EntryPoint",
- urlTemplate: `${SITE}/products?q={search_term_string}`,
+ urlTemplate: `${SITE}${STOREFRONT_PATHS.products}?q={search_term_string}`,
  },
  "query-input": "required name=search_term_string",
  },
@@ -62,7 +69,7 @@ export function productSchema(input: {
  availability?: "InStock" | "OutOfStock" | "PreOrder";
  categoryName?: string | null;
 }) {
- const url = `${SITE}/products/${input.slug}`;
+ const url = `${SITE}${productPath(input.slug)}`;
  const offers =
  input.price != null && Number.isFinite(input.price)
  ? {
@@ -100,7 +107,7 @@ export function articleSchema(input: {
  dateModified?: string | null;
  authorName?: string;
 }) {
- const url = `${SITE}/blog/${input.slug}`;
+ const url = `${SITE}${blogPath(input.slug)}`;
  return {
  "@context": "https://schema.org",
  "@type": "Article",
@@ -158,7 +165,7 @@ export function brandPageSchema(input: {
  "@type": "Brand",
  name: input.name,
  description: input.description || undefined,
- url: `${SITE}/brands/${input.slug}`,
+ url: `${SITE}${brandPath(input.slug)}`,
  logo: input.logo || undefined,
  };
 }

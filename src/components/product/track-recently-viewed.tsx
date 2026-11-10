@@ -22,7 +22,7 @@ export function TrackRecentlyViewed(props: {
  price: props.price,
  image: props.image,
  brand: props.brand,
- href: props.href || `/products/${props.id}`,
+ href: props.href || `/محصولات/${props.id}`,
  };
  add(item);
  try {

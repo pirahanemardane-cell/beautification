@@ -120,6 +120,6 @@ export async function createTestNotificationAction() {
  title: "اعلان آزمایشی",
  body: "این یک اعلان تستی برای پنل مشتری است و در سوابق می‌ماند.",
  type: "system",
- link: "/dashboard?tab=notifications",
+ link: "/داشبورد?tab=notifications",
  });
 }

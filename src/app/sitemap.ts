@@ -1,6 +1,13 @@
 import type { MetadataRoute } from "next";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isSiteIndexable, SITE_URL } from "@/lib/seo/indexing";
+import {
+  blogPath,
+  brandPath,
+  categoryPath,
+  productPath,
+  STOREFRONT_PATHS,
+} from "@/lib/seo/storefront-paths";
 
 /**
  * زیرساخت sitemap آماده است.
@@ -15,27 +22,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
  const now = new Date();
  const staticPaths = [
  "",
- "/products",
- "/categories",
- "/brands",
- "/blog",
- "/about",
- "/contact",
- "/faq",
- "/shipping",
- "/returns",
- "/privacy",
- "/terms",
- "/size-guide",
- "/search",
- "/track",
+ STOREFRONT_PATHS.products,
+ STOREFRONT_PATHS.categories,
+ STOREFRONT_PATHS.brands,
+ STOREFRONT_PATHS.blog,
+ STOREFRONT_PATHS.about,
+ STOREFRONT_PATHS.contact,
+ STOREFRONT_PATHS.faq,
+ STOREFRONT_PATHS.shipping,
+ STOREFRONT_PATHS.returns,
+ STOREFRONT_PATHS.privacy,
+ STOREFRONT_PATHS.terms,
+ STOREFRONT_PATHS.sizeGuide,
+ STOREFRONT_PATHS.search,
+ STOREFRONT_PATHS.track,
+ STOREFRONT_PATHS.warranty,
  ];
 
  const entries: MetadataRoute.Sitemap = staticPaths.map((path) => ({
  url: `${SITE_URL}${path}`,
  lastModified: now,
  changeFrequency: path === "" ? "daily" : "weekly",
- priority: path === "" ? 1 : path === "/products" ? 0.9 : 0.6,
+ priority: path === "" ? 1 : path === STOREFRONT_PATHS.products ? 0.9 : 0.6,
  }));
 
  try {
@@ -52,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
  const slug = (p as { slug?: string }).slug;
  if (!slug) continue;
  entries.push({
- url: `${SITE_URL}/products/${slug}`,
+ url: `${SITE_URL}${productPath(slug)}`,
  lastModified: (p as { updated_at?: string }).updated_at
  ? new Date(String((p as { updated_at: string }).updated_at))
  : now,
@@ -71,7 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
  const slug = (c as { slug?: string }).slug;
  if (!slug) continue;
  entries.push({
- url: `${SITE_URL}/categories/${slug}`,
+ url: `${SITE_URL}${categoryPath(slug)}`,
  lastModified: now,
  changeFrequency: "weekly",
  priority: 0.7,
@@ -88,7 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
  const slug = (b as { slug?: string }).slug;
  if (!slug) continue;
  entries.push({
- url: `${SITE_URL}/brands/${slug}`,
+ url: `${SITE_URL}${brandPath(slug)}`,
  lastModified: now,
  changeFrequency: "weekly",
  priority: 0.7,
@@ -105,7 +113,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
  const slug = (post as { slug?: string }).slug;
  if (!slug) continue;
  entries.push({
- url: `${SITE_URL}/blog/${slug}`,
+ url: `${SITE_URL}${blogPath(slug)}`,
  lastModified: (post as { updated_at?: string }).updated_at
  ? new Date(String((post as { updated_at: string }).updated_at))
  : now,

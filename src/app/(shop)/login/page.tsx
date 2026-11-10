@@ -13,7 +13,7 @@ function LoginInner() {
  <AuthForm
  initialMode="login"
  hideRegister={admin}
- defaultNext={admin ? "/admin/dashboard" : "/dashboard"}
+ defaultNext={admin ? "/admin/dashboard" : "/داشبورد"}
  />
  </div>
  </div>

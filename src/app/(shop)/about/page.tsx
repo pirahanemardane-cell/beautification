@@ -19,7 +19,7 @@ export default function AboutPage() {
  description:
  "گردنبند، گوشواره، انگشتر و دستبند — با راهنمای سایز شفاف و پشتیبانی واقعی.",
  buttonText: "مشاهده محصولات",
- buttonUrl: "/products",
+ buttonUrl: "/محصولات",
  }}
  companiesTitle="تمرکز ما"
  companies={[]}

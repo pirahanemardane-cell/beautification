@@ -83,7 +83,7 @@ export async function adminUpdateOrderStatusAction(
  title: tpl.title,
  body: `${tpl.body} (کد: ${shortId}…)`,
  type: tpl.type,
- link: "/dashboard?tab=orders",
+ link: "/داشبورد?tab=orders",
  });
  }
  }
@@ -343,7 +343,7 @@ export async function adminSetOrderTrackingAction(
  title: tpl.title,
  body: `${tpl.body} کد رهگیری: ${code}`,
  type: tpl.type,
- link: "/dashboard?tab=orders",
+ link: "/داشبورد?tab=orders",
  });
  }
  }

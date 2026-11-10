@@ -645,7 +645,7 @@ useEffect(() => {
  <div className="flex flex-wrap items-center gap-2">
  {tab === "cart" ? (
  <Link
- href="/checkout"
+ href="/تسویه-حساب"
  className="bg-primary text-primary-foreground inline-flex h-9 items-center rounded-xl px-3 text-xs font-medium"
  >
  تسویه حساب
@@ -772,7 +772,7 @@ useEffect(() => {
  return;
  }
  setReorderMsg(`${res.added} قلم به سبد اضافه شد.`);
- window.location.href = "/dashboard?tab=cart";
+ window.location.href = "/داشبورد?tab=cart";
  }}
  >
  {reorderBusy === o.id ? "…" : "خرید مجدد"}
@@ -915,7 +915,7 @@ useEffect(() => {
  <div>
  {a.product_slug ? (
  <Link
- href={`/products/${a.product_slug}`}
+ href={`/محصولات/${a.product_slug}`}
  className="text-primary font-medium hover:underline"
  >
  {a.product_name || "محصول"}
@@ -979,7 +979,7 @@ useEffect(() => {
  <div>
  {a.product_slug ? (
  <Link
- href={`/products/${a.product_slug}`}
+ href={`/محصولات/${a.product_slug}`}
  className="text-primary font-medium hover:underline"
  >
  {a.product_name || "محصول"}
@@ -1623,7 +1623,7 @@ useEffect(() => {
  <div className="flex flex-wrap items-center justify-between gap-2">
  <p className="text-muted-foreground text-sm">محصولات فروشگاه</p>
  <Link
- href="/products"
+ href="/محصولات"
  className="text-primary text-xs hover:underline"
  >
  همه محصولات
@@ -1794,7 +1794,7 @@ useEffect(() => {
  ))}
  </ul>
  )}
- <Link href="/checkout" className="text-primary text-sm hover:underline">
+ <Link href="/تسویه-حساب" className="text-primary text-sm hover:underline">
  رفتن به تسویه حساب
  </Link>
  </div>
@@ -2120,7 +2120,7 @@ useEffect(() => {
  </button>
  {line.slug ? (
  <Link
- href={`/products/${line.slug}`}
+ href={`/محصولات/${line.slug}`}
  className="text-primary text-xs hover:underline"
  >
  مشاهده
@@ -2149,7 +2149,7 @@ useEffect(() => {
  </span>
  </div>
  <Link
- href="/checkout"
+ href="/تسویه-حساب"
  className="bg-primary text-primary-foreground inline-flex h-11 w-full items-center justify-center rounded-xl text-sm font-medium"
  >
  تسویه حساب
@@ -2216,7 +2216,7 @@ useEffect(() => {
  title: w.title,
  price: w.price,
  image: w.image,
- href: w.slug ? `/products/${w.slug}` : undefined,
+ href: w.slug ? `/محصولات/${w.slug}` : undefined,
  }))
  : wishlist)
  : tab === "compare"
@@ -2272,7 +2272,7 @@ useEffect(() => {
  ) : null}
  {(p.href || p.slug) ? (
  <Link
- href={p.href || `/products/${p.slug}`}
+ href={p.href || `/محصولات/${p.slug}`}
  className="text-primary text-xs hover:underline"
  >
  مشاهده

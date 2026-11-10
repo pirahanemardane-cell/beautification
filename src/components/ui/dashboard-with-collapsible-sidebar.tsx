@@ -17,10 +17,10 @@ export default function DashboardWithSidebar({ isAdmin = false }: Props) {
  { icon: Settings, label: "تنظیمات", href: "/admin/settings" },
  ]
  : [
- { icon: Home, label: "داشبورد", href: "/dashboard" },
- { icon: ShoppingCart, label: "سفارش‌های من", href: "/dashboard?tab=orders" },
- { icon: Package, label: "علاقه‌مندی‌ها", href: "/dashboard?tab=wishlist" },
- { icon: Settings, label: "تنظیمات", href: "/dashboard?tab=profile" },
+ { icon: Home, label: "داشبورد", href: "/داشبورد" },
+ { icon: ShoppingCart, label: "سفارش‌های من", href: "/داشبورد?tab=orders" },
+ { icon: Package, label: "علاقه‌مندی‌ها", href: "/داشبورد?tab=wishlist" },
+ { icon: Settings, label: "تنظیمات", href: "/داشبورد?tab=profile" },
  ];
 
  return (

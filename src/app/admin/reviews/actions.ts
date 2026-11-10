@@ -33,7 +33,7 @@ export async function updateReviewApproval(id: string, isApproved: boolean) {
  title: "نظر شما تأیید شد",
  body: "نظر شما روی محصول منتشر شد. از بازخوردتان سپاسگزاریم.",
  type: "system",
- link: "/dashboard?tab=notifications",
+ link: "/داشبورد?tab=notifications",
  });
  } catch (ne) {
  console.error("[updateReviewApproval notify]", ne);

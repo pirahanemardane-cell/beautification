@@ -40,7 +40,7 @@ export function About3({
  description:
  "طراحی تمیز، مواد باکیفیت و پشتیبانی واقعی پس از خرید.",
  buttonText: "مشاهده محصولات",
- buttonUrl: "/products",
+ buttonUrl: "/محصولات",
  },
  companiesTitle = "تمرکز ما",
  companies = [],

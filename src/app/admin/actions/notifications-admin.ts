@@ -78,7 +78,7 @@ export async function adminSendNotificationAction(input: {
  title,
  body,
  type,
- link: "/dashboard?tab=notifications",
+ link: "/داشبورد?tab=notifications",
  });
  if (error) return { ok: false as const, error: error.message };
  return { ok: true as const, sent: 1 };
@@ -95,7 +95,7 @@ export async function adminSendNotificationAction(input: {
  title,
  body,
  type,
- link: "/dashboard?tab=notifications",
+ link: "/داشبورد?tab=notifications",
  }));
  if (rows.length === 0) return { ok: true as const, sent: 0 };
 

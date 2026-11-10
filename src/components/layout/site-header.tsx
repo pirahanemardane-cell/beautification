@@ -14,13 +14,13 @@ import { Heart, GitCompareArrows, ShoppingCart, History, Menu, X, Sun, Moon, Che
 import { cn } from "@/lib/utils";
 import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_NAV = [
  { href: "/", label: "خانه", mega: null as null | "categories" | "brands" | "sale" },
- { href: "/products", label: "فروشگاه", mega: null },
- { href: "/contact", label: "تماس با ما", mega: null },
- { href: "/blog", label: "بلاگ", mega: null },
- { href: "/products", label: "دسته‌بندی‌ها", mega: "categories" as const },
- { href: "/brands", label: "برندها", mega: "brands" as const },
- { href: "/products?featured=1", label: "شگفت‌انگیز", mega: null },
-]; const EXTRA_NAV = [ { href: "/blog", label: "بلاگ" }, { href: "/about", label: "درباره ما" }, { href: "/contact", label: "تماس با ما" },
+ { href: "/محصولات", label: "فروشگاه", mega: null },
+ { href: "/تماس", label: "تماس با ما", mega: null },
+ { href: "/بلاگ", label: "بلاگ", mega: null },
+ { href: "/محصولات", label: "دسته‌بندی‌ها", mega: "categories" as const },
+ { href: "/برندها", label: "برندها", mega: "brands" as const },
+ { href: "/محصولات?featured=1", label: "شگفت‌انگیز", mega: null },
+]; const EXTRA_NAV = [ { href: "/بلاگ", label: "بلاگ" }, { href: "/درباره-ما", label: "درباره ما" }, { href: "/تماس", label: "تماس با ما" },
 ]; function ThemeToggle() { const [dark, setDark] = useState(false); useEffect(() => { const root = document.documentElement; const stored = localStorage.getItem("theme"); const isDark = stored === "dark" || (!stored && root.classList.contains("dark")); setDark(isDark); root.classList.toggle("dark", isDark); }, []); function toggle() { const next = !dark; setDark(next); document.documentElement.classList.toggle("dark", next); localStorage.setItem("theme", next ? "dark" : "light"); } return ( <button type="button" onClick={toggle} className="border-border hover:bg-primary hover:text-primary-foreground relative inline-flex h-10 w-10 items-center justify-center rounded-xl border bg-background" aria-label="تغییر تم" > {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />} </button> );
 } function HeaderIcons({ onOpenPanel, hideCart }: { onOpenPanel?: (tab: string) => void; hideCart?: boolean }) { const counts = useShopCounts(); const item = "border-border hover:bg-primary hover:text-primary-foreground relative inline-flex h-10 w-10 items-center justify-center rounded-xl border bg-background"; return ( <div className="flex flex-wrap items-center justify-center gap-1.5"> <button type="button" className={item} title="علاقه‌مندی‌ها" onClick={() => onOpenPanel?.("wishlist")}> <Heart className="h-4 w-4" /> <CountBadge count={counts.wishlist} /> </button> <button type="button" className={item} title="مقایسه" onClick={() => onOpenPanel?.("compare")}> <GitCompareArrows className="h-4 w-4" /> <CountBadge count={counts.compare} /> </button> <button type="button" className={item} title="بازدیدهای اخیر" onClick={() => onOpenPanel?.("recent")}> <History className="h-4 w-4" /> <CountBadge count={counts.recent} /> </button> <ThemeToggle /> <button type="button" className={item} title="اعلان‌ها" onClick={() => onOpenPanel?.("notifications")}><Bell className="h-4 w-4" /><NotificationCountBadge /></button> 
 {!hideCart ? (
@@ -44,7 +44,7 @@ import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_N
  return (
  <div className="py-5">
  <Link
- href="/products?featured=1"
+ href="/محصولات?featured=1"
  onClick={onNavigate}
  className="from-primary/20 via-primary/10 to-transparent group flex flex-col gap-2 rounded-2xl bg-gradient-to-l p-6 transition hover:from-primary/30"
  >
@@ -76,7 +76,7 @@ import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_N
  <p className="text-muted-foreground text-xs">گردنبند، گوشواره، انگشتر و دستبند</p>
  </div>
  <Link
- href="/products"
+ href="/محصولات"
  onClick={onNavigate}
  className="bg-primary text-primary-foreground hover:bg-primary/90 hidden rounded-full px-4 py-1.5 text-xs font-medium sm:inline-flex"
  >
@@ -138,7 +138,7 @@ import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_N
  </div>
  <div className="mt-4 flex justify-center sm:hidden">
  <Link
- href="/products"
+ href="/محصولات"
  onClick={onNavigate}
  className="bg-primary text-primary-foreground rounded-full px-5 py-2 text-xs font-medium"
  >
@@ -162,7 +162,7 @@ import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_N
  <p className="text-muted-foreground text-xs">انتخاب برند مورد علاقه</p>
  </div>
  <Link
- href="/brands"
+ href="/برندها"
  onClick={onNavigate}
  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-4 py-1.5 text-xs font-medium"
  >

@@ -11,6 +11,7 @@ import {
   MATERIAL_FACET_SLUGS,
   filterJewelrySizeChips,
 } from "@/lib/facet-map";
+import { productsHref } from "@/lib/seo/storefront-paths";
 
 export type CategoryChip = { name: string; slug: string };
 
@@ -132,7 +133,7 @@ function buildHref(
   if (maxP != null && maxP > 0) params.set("maxPrice", String(maxP));
 
   const qs = params.toString();
-  return qs ? `/products?${qs}` : "/products";
+  return productsHref(qs || undefined);
 }
 
 function FilterLink({

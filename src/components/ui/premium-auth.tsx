@@ -248,9 +248,9 @@ export function AuthForm({
  let dest =
  qNext && qNext.startsWith("/") && !qNext.startsWith("//")
  ? qNext
- : defaultNext || (isAdmin ? "/admin/dashboard" : "/dashboard");
- if (!dest.startsWith("/")) dest = "/dashboard";
- if (dest.startsWith("/admin") && !isAdmin) dest = "/dashboard";
+ : defaultNext || (isAdmin ? "/admin/dashboard" : "/داشبورد");
+ if (!dest.startsWith("/")) dest = "/داشبورد";
+ if (dest.startsWith("/admin") && !isAdmin) dest = "/داشبورد";
  setIsLoading(false);
  window.location.assign(dest);
  return;
@@ -308,9 +308,9 @@ export function AuthForm({
     let dest =
       qNext && qNext.startsWith("/") && !qNext.startsWith("//")
         ? qNext
-        : defaultNext || (isAdmin ? "/admin/dashboard" : "/dashboard");
-    if (!dest.startsWith("/")) dest = "/dashboard";
-    if (dest.startsWith("/admin") && !isAdmin) dest = "/dashboard";
+        : defaultNext || (isAdmin ? "/admin/dashboard" : "/داشبورد");
+    if (!dest.startsWith("/")) dest = "/داشبورد";
+    if (dest.startsWith("/admin") && !isAdmin) dest = "/داشبورد";
     if (isAdmin && !(qNext || "").startsWith("/")) dest = "/admin/dashboard";
 
     setIsLoading(false);
@@ -389,7 +389,7 @@ export function AuthForm({
             return;
           }
           void onSuccess?.({ email, phone: phone || undefined, name: fullName });
-          window.location.assign("/dashboard");
+          window.location.assign("/داشبورد");
           return;
         } catch (e) {
           console.error("[signup email]", e);

@@ -45,7 +45,7 @@ export default function ComparePage() {
           compare.map((p) => ({
             productId: p.id,
             title: p.title,
-            href: p.href || `/products`,
+            href: p.href || `/محصولات`,
             image: p.image,
             price: p.price,
             inStock: true,
@@ -86,7 +86,7 @@ export default function ComparePage() {
           </p>
         </div>
         <Link
-          href="/dashboard?tab=compare"
+          href="/داشبورد?tab=compare"
           className="text-primary text-sm hover:underline"
         >
           داشبورد
@@ -95,7 +95,7 @@ export default function ComparePage() {
 
       {compare.length === 0 ? (
         <Link
-          href="/products"
+          href="/محصولات"
           className="text-primary inline-block text-sm hover:underline"
         >
           مشاهده محصولات

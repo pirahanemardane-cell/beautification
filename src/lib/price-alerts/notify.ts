@@ -37,7 +37,7 @@ export async function notifyPriceAlertsForProduct(
   if (!alerts.length) return { notified: 0 };
 
   const label = product.name;
-  const link = product.slug ? `/products/${product.slug}` : "/products";
+  const link = product.slug ? `/محصولات/${product.slug}` : "/محصولات";
   let n = 0;
 
   for (const a of alerts) {

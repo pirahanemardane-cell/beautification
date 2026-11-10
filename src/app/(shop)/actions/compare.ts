@@ -81,7 +81,7 @@ export async function getCompareMatrixAction(productIds: string[]) {
         return {
           productId: p.id,
           title: p.name,
-          href: `/products/${p.slug}`,
+          href: `/محصولات/${p.slug}`,
           image: imgMap.get(p.id) ?? null,
           price: priceMap.get(p.id) ?? null,
           inStock: stockMap.get(p.id) === true,

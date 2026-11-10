@@ -18,16 +18,31 @@ const LABEL_MAP: Record<string, string> = {
  about: "درباره ما",
  contact: "تماس با ما",
  "recently-viewed": "آخرین مشاهده‌ها",
+ checkout: "تسویه حساب",
+ search: "جستجو",
+ brands: "برندها",
+ blog: "بلاگ",
+ categories: "دسته‌ها",
+ warranty: "ضمانت",
+ tag: "برچسب",
  "ورود": "ورود",
  "ثبت-نام": "ثبت‌نام",
  "محصولات": "محصولات",
  "سبد-خرید": "سبد خرید",
+ "تسویه-حساب": "تسویه حساب",
  "علاقه-مندی-ها": "علاقه‌مندی‌ها",
  "مقایسه": "مقایسه",
  "داشبورد": "داشبورد",
  "درباره-ما": "درباره ما",
+ "تماس": "تماس با ما",
  "تماس-با-ما": "تماس با ما",
  "آخرین-مشاهده-ها": "آخرین مشاهده‌ها",
+ "جستجو": "جستجو",
+ "برندها": "برندها",
+ "بلاگ": "بلاگ",
+ "دسته-ها": "دسته‌ها",
+ "ضمانت": "ضمانت",
+ "برچسب": "برچسب",
 };
 
 /** مسیر انگلیسی داخلی → فارسی برای لینک breadcrumb */
@@ -36,12 +51,26 @@ const EN_TO_FA: Record<string, string> = {
  login: "ورود",
  register: "ثبت-نام",
  cart: "سبد-خرید",
+ checkout: "تسویه-حساب",
  wishlist: "علاقه-مندی-ها",
  compare: "مقایسه",
  dashboard: "داشبورد",
  about: "درباره-ما",
- contact: "تماس-با-ما",
+ contact: "تماس",
  "recently-viewed": "آخرین-مشاهده-ها",
+ search: "جستجو",
+ brands: "برندها",
+ blog: "بلاگ",
+ categories: "دسته-ها",
+ warranty: "ضمانت",
+ tag: "برچسب",
+ faq: "سوالات-متداول",
+ terms: "شرایط-استفاده",
+ privacy: "حریم-خصوصی",
+ shipping: "ارسال",
+ returns: "مرجوعی",
+ "size-guide": "راهنمای-سایز",
+ track: "پیگیری-سفارش",
 };
 
 function labelize(seg: string) {
@@ -78,9 +107,9 @@ export function AppBreadcrumb({
  // سبد / چک‌اوت — بدون breadcrumb (داشبورد مثل بقیه صفحات نمایش داده می‌شود)
  const path = decodeURIComponent(pathname);
  if (
- path === "/cart" ||
+ path === "/سبد-خرید" ||
  path.startsWith("/سبد") ||
- path.startsWith("/checkout") ||
+ path.startsWith("/تسویه-حساب") ||
  path.startsWith("/چک")
  ) {
  return null;

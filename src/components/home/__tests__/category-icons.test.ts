@@ -3,29 +3,32 @@ import { resolveCategoryIconId } from "@/components/home/category-icons";
 
 describe("resolveCategoryIconId", () => {
   it("maps Persian jewelry category names", () => {
-    expect(resolveCategoryIconId("گردنبند", "necklace")).toBe("necklace");
-    expect(resolveCategoryIconId("گوشواره", "earring")).toBe("earring");
-    expect(resolveCategoryIconId("انگشتر", "ring")).toBe("ring");
-    expect(resolveCategoryIconId("دستبند", "bracelet")).toBe("bracelet");
-    expect(resolveCategoryIconId("ست", "set")).toBe("set");
+    expect(resolveCategoryIconId("گردنبند", "گردنبند")).toBe("necklace");
+    expect(resolveCategoryIconId("گوشواره", "گوشواره")).toBe("earring");
+    expect(resolveCategoryIconId("انگشتر", "انگشتر")).toBe("ring");
+    expect(resolveCategoryIconId("دستبند", "دستبند")).toBe("bracelet");
+    expect(resolveCategoryIconId("ست", "ست")).toBe("set");
   });
 
-  it("maps English slugs from href-style paths", () => {
+  it("maps English and Persian slugs from href-style paths", () => {
     expect(resolveCategoryIconId(null, "/necklace")).toBe("necklace");
+    expect(resolveCategoryIconId(null, "/گردنبند")).toBe("necklace");
     expect(resolveCategoryIconId(null, "/earring")).toBe("earring");
+    expect(resolveCategoryIconId(null, "/گوشواره")).toBe("earring");
     expect(resolveCategoryIconId(null, "/ring")).toBe("ring");
+    expect(resolveCategoryIconId(null, "/انگشتر")).toBe("ring");
     expect(resolveCategoryIconId(null, "/bracelet")).toBe("bracelet");
     expect(resolveCategoryIconId(null, "/set")).toBe("set");
   });
 
   it("does not confuse earring with ring", () => {
-    expect(resolveCategoryIconId("گوشواره", "earring")).toBe("earring");
+    expect(resolveCategoryIconId("گوشواره", "گوشواره")).toBe("earring");
     expect(resolveCategoryIconId(null, "/ear-ring")).toBe("earring");
   });
 
   it("falls back to gem default", () => {
     expect(resolveCategoryIconId("متفرقه", "misc")).toBe("default");
-    expect(resolveCategoryIconId("اکسسوری", "accessory")).toBe("default");
+    expect(resolveCategoryIconId("اکسسوری", "اکسسوری")).toBe("default");
   });
 
   it("maps all JEWELRY_CATEGORIES slugs to expected icons", async () => {

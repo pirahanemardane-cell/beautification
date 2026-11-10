@@ -27,7 +27,7 @@ export async function adminSuggestInternalLinksAction(input: {
  .limit(limit);
  for (const p of products ?? []) {
  if (input.excludeSlug && p.slug === input.excludeSlug) continue;
- links.push({ title: p.name, href: `/products/${p.slug}`, type: "محصول" });
+ links.push({ title: p.name, href: `/محصولات/${p.slug}`, type: "محصول" });
  }
 
  const { data: posts } = await gate.supabase
@@ -38,7 +38,7 @@ export async function adminSuggestInternalLinksAction(input: {
  .limit(5);
  for (const post of posts ?? []) {
  if (input.excludeSlug && post.slug === input.excludeSlug) continue;
- links.push({ title: post.title, href: `/blog/${post.slug}`, type: "مقاله" });
+ links.push({ title: post.title, href: `/بلاگ/${post.slug}`, type: "مقاله" });
  }
 
  const { data: cats } = await gate.supabase
@@ -48,7 +48,7 @@ export async function adminSuggestInternalLinksAction(input: {
  .ilike("name", `%${q}%`)
  .limit(5);
  for (const c of cats ?? []) {
- links.push({ title: c.name, href: `/categories/${c.slug}`, type: "دسته" });
+ links.push({ title: c.name, href: `/${c.slug}`, type: "دسته" });
  }
  }
  return { ok: true as const, links: links.slice(0, limit) };

@@ -200,7 +200,7 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  }),
  breadcrumbSchema([
  { name: "خانه", url: ((process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "")) + "/" },
- { name: "برندها", url: ((process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "")) + "/brands" },
+ { name: "برندها", url: ((process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "")) + "/برندها" },
  { name: brand.name, url: ((process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir").replace(/\/$/, "")) + "/" + encodeURIComponent(slug) },
  ]),
  ]}
@@ -232,7 +232,7 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  }),
  breadcrumbSchema([
  { name: "خانه", url: "/" },
- { name: "برندها", url: "/brands" },
+ { name: "برندها", url: "/برندها" },
  { name: brand.name, url: "/" + encodeURIComponent(slug) },
  ]),
  ]}

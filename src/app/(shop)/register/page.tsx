@@ -9,7 +9,7 @@ export default function RegisterPage() {
  <AuthForm
  initialMode="signup"
  onSuccess={() => {
- window.location.href = "/dashboard";
+ window.location.href = "/داشبورد";
  }}
  />
  </div>
