@@ -50,6 +50,19 @@ export default async function ReviewsAdminPage() {
  }
 
  const rows = data ?? [];
+ const reviewIds = rows.map((r: { id: string }) => r.id);
+ let imagesByReview = new Map<string, { id: string; url: string }[]>();
+ if (reviewIds.length) {
+ const { data: imgs } = await supabase
+ .from("review_images" as never)
+ .select("id, review_id, url")
+ .in("review_id", reviewIds);
+ for (const img of (imgs ?? []) as { id: string; review_id: string; url: string }[]) {
+ const list = imagesByReview.get(img.review_id) ?? [];
+ list.push({ id: img.id, url: img.url });
+ imagesByReview.set(img.review_id, list);
+ }
+ }
  const counts = {
  all: rows.length,
  pending: rows.filter((r) => !r.is_approved).length,
@@ -142,6 +155,28 @@ export default async function ReviewsAdminPage() {
  <p className="text-muted-foreground line-clamp-4 whitespace-pre-wrap">
  {r.body}
  </p>
+ {(imagesByReview.get(r.id) ?? []).length ? (
+ <div className="mt-2 flex flex-wrap gap-1">
+ {(imagesByReview.get(r.id) ?? []).slice(0, 4).map((img) => (
+ <a
+ key={img.id}
+ href={img.url}
+ target="_blank"
+ rel="noopener noreferrer"
+ className="border-border block h-12 w-12 overflow-hidden rounded border"
+ >
+ {/* eslint-disable-next-line @next/next/no-img-element */}
+ <img src={img.url} alt="" className="h-full w-full object-cover" />
+ </a>
+ ))}
+ <a
+ href="/admin/review-images"
+ className="text-primary self-center text-[10px] hover:underline"
+ >
+ مدیریت تصاویر
+ </a>
+ </div>
+ ) : null}
  {replySupported && r.admin_reply ? (
  <div className="bg-muted/50 mt-2 rounded-lg border-r-2 border-primary p-2 text-xs">
  <p className="mb-0.5 font-medium text-primary">پاسخ فروشگاه</p>

@@ -37,12 +37,14 @@ const NAV_MAIN: CustomerNavItem[] = [
  { id: "orders", title: "سفارش‌ها", icon: Package },
  { id: "track", title: "پیگیری", icon: Search },
  { id: "wishlist", title: "علاقه‌مندی‌ها", icon: Heart },
+ { id: "alerts", title: "هشدارها", icon: Bell },
  { id: "compare", title: "مقایسه", icon: GitCompare },
  { id: "recent", title: "بازدید اخیر", icon: History },
  { id: "addresses", title: "آدرس‌ها", icon: MapPin },
  { id: "coupons", title: "کد تخفیف", icon: Tag },
  { id: "tickets", title: "پشتیبانی", icon: Ticket },
  { id: "returns", title: "بازگشت کالا", icon: RotateCcw },
+ { id: "gift-orders", title: "سفارش هدیه", icon: Package },
  { id: "notifications", title: "اعلان‌ها", icon: Bell },
 ];
 

@@ -258,6 +258,7 @@ export class OrderRepository extends BaseRepository {
  id, status, payment_status, total_amount, discount_code, discount_amount,
  shipping_fee, shipping_method_title, shipping_name, shipping_phone,
  shipping_address, shipping_city, tracking_number, shipped_at, created_at,
+ gift_packaging, gift_message, scheduled_delivery_date,
  order_items(id, title, size_name, color_name, unit_price, quantity, line_total)
  `;
  const basic = `
@@ -379,7 +380,8 @@ export class OrderRepository extends BaseRepository {
  id, status, payment_status, total_amount, discount_code, discount_amount,
  shipping_fee, shipping_method_id, shipping_method_title, shipping_name,
  shipping_phone, shipping_city, shipping_address, tracking_number, shipped_at,
- note, created_at, order_items(id, title, quantity, line_total)
+ note, created_at, gift_packaging, gift_message, scheduled_delivery_date,
+ order_items(id, title, quantity, line_total)
  `;
  const basic = `
  id, status, total_amount, shipping_fee, shipping_method_id, shipping_method_title,
@@ -522,7 +524,8 @@ export class OrderRepository extends BaseRepository {
  const full = `
  id, user_id, status, payment_status, total_amount, discount_code, discount_amount,
  shipping_name, shipping_phone, shipping_address, shipping_city, shipping_postal,
- note, created_at,
+ note, created_at, tracking_number, shipped_at,
+ gift_packaging, gift_message, scheduled_delivery_date,
  order_items(id, title, size_name, color_name, unit_price, quantity, line_total, variant_id)
  `;
  const basic = `

@@ -52,6 +52,14 @@ import {
  listMyReturnsAction,
  createReturnAction,
 } from "@/app/(shop)/actions/returns";
+import {
+ listMyStockAlertsAction,
+ listMyPriceAlertsAction,
+ cancelMyStockAlertAction,
+ cancelMyPriceAlertAction,
+ type MyStockAlertRow,
+ type MyPriceAlertRow,
+} from "@/app/(shop)/actions/my-alerts";
 import { cancelMyOrderAction } from "@/app/(shop)/actions/orders-customer";
 import {
  changeMyPasswordAction,
@@ -76,8 +84,10 @@ const TABS = [
  { id: "shop", label: "فروشگاه" },
  { id: "cart", label: "سبد خرید" },
  { id: "orders", label: "سفارش‌ها" },
+ { id: "gift-orders", label: "سفارش هدیه" },
  { id: "track", label: "پیگیری" },
  { id: "wishlist", label: "علاقه‌مندی‌ها" },
+ { id: "alerts", label: "هشدارها" },
  { id: "compare", label: "مقایسه" },
  { id: "recent", label: "بازدید اخیر" },
  { id: "addresses", label: "آدرس‌ها" },
@@ -116,6 +126,9 @@ export default function BuyerDashboardPage() {
  const [removingId, setRemovingId] = useState<string | null>(null);
  const [myOrders, setMyOrders] = useState<any[]>([]);
  const [ordersLoading, setOrdersLoading] = useState(false);
+ const [stockAlerts, setStockAlerts] = useState<MyStockAlertRow[]>([]);
+ const [priceAlerts, setPriceAlerts] = useState<MyPriceAlertRow[]>([]);
+ const [alertsLoading, setAlertsLoading] = useState(false);
  const [reorderBusy, setReorderBusy] = useState<string | null>(null);
  const [reorderMsg, setReorderMsg] = useState<string | null>(null);
  const [activeDiscounts, setActiveDiscounts] = useState<
@@ -324,7 +337,7 @@ useEffect(() => {
  }, [tab, refreshServerCart]);
 
  useEffect(() => {
- if (tab !== "orders") return;
+ if (tab !== "orders" && tab !== "gift-orders") return;
  setOrdersLoading(true);
  (async () => {
  const res = await listMyOrdersAction();
@@ -334,8 +347,25 @@ useEffect(() => {
  }, [tab]);
 
  useEffect(() => {
+ if (tab !== "alerts") return;
+ let cancelled = false;
+ setAlertsLoading(true);
+ void Promise.all([listMyStockAlertsAction(), listMyPriceAlertsAction()]).then(
+ ([stock, price]) => {
+ if (cancelled) return;
+ setAlertsLoading(false);
+ if (stock.ok) setStockAlerts(stock.items);
+ if (price.ok) setPriceAlerts(price.items);
+ },
+ );
+ return () => {
+ cancelled = true;
+ };
+ }, [tab]);
+
+ useEffect(() => {
  function onOrders() {
- if (tab !== "orders") return;
+ if (tab !== "orders" && tab !== "gift-orders") return;
  void (async () => {
  const res = await listMyOrdersAction();
  if (res.ok) setMyOrders(res.items);
@@ -348,7 +378,7 @@ useEffect(() => {
  // پیگیری زنده: وقتی ادمین وضعیت/رهگیری را عوض کند
  useEffect(() => {
  function onOrdersLive() {
- if (tab === "orders") {
+ if (tab === "orders" || tab === "gift-orders") {
  void (async () => {
  const res = await listMyOrdersAction();
  if (res.ok) setMyOrders(res.items);
@@ -681,6 +711,24 @@ useEffect(() => {
  {o.shipping_city ? `، ${o.shipping_city}` : ""}
  </p>
  ) : null}
+ {(o.gift_packaging || o.gift_message || o.scheduled_delivery_date) ? (
+ <div className="bg-muted/40 mt-2 space-y-1 rounded-lg p-2 text-xs">
+ <p className="font-medium">هدیه</p>
+ {o.gift_packaging ? (
+ <p className="text-muted-foreground">بسته‌بندی هدیه: بله</p>
+ ) : null}
+ {o.gift_message ? (
+ <p className="text-muted-foreground whitespace-pre-wrap">
+ پیام: {o.gift_message}
+ </p>
+ ) : null}
+ {o.scheduled_delivery_date ? (
+ <p className="text-muted-foreground">
+ زمان‌بندی تحویل: {formatJalaliDate(o.scheduled_delivery_date)}
+ </p>
+ ) : null}
+ </div>
+ ) : null}
  {o.tracking_number ? (
  <p className="mt-2 text-xs">
  <span className="text-muted-foreground">کد رهگیری: </span>
@@ -778,6 +826,211 @@ useEffect(() => {
  </li>
  ))}
  </ul>
+ )
+ ) : tab === "gift-orders" ? (
+ ordersLoading ? (
+ <div className="flex justify-center py-10" dir="rtl"><LumaSpin /></div>
+ ) : myOrders.filter(
+ (o: any) =>
+ o.gift_packaging ||
+ (o.gift_message && String(o.gift_message).trim()) ||
+ o.scheduled_delivery_date,
+ ).length === 0 ? (
+ <p className="text-muted-foreground text-sm">
+ هنوز سفارش هدیه‌ای ندارید. در تسویه‌حساب می‌توانید بسته‌بندی و کارت هدیه انتخاب کنید.
+ </p>
+ ) : (
+ <ul className="space-y-4">
+ {myOrders
+ .filter(
+ (o: any) =>
+ o.gift_packaging ||
+ (o.gift_message && String(o.gift_message).trim()) ||
+ o.scheduled_delivery_date,
+ )
+ .map((o: any) => (
+ <li key={o.id} className="border-border rounded-xl border p-4 text-right">
+ <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+ <span className="text-sm font-bold">
+ {(Number(o.total_amount) || 0).toLocaleString("fa-IR")} تومان
+ </span>
+ <span className="text-muted-foreground text-xs">
+ {o.created_at ? formatJalaliDate(o.created_at) : ""}
+ </span>
+ </div>
+ <ul className="text-muted-foreground mb-2 space-y-1 text-xs">
+ {(o.order_items ?? []).map((it: any) => (
+ <li key={it.id}>
+ {it.title}
+ {it.size_name ? ` · ${it.size_name}` : ""}
+ {it.quantity > 1 ? ` × ${it.quantity}` : ""}
+ </li>
+ ))}
+ </ul>
+ <div className="bg-muted/40 space-y-1 rounded-lg p-2 text-xs">
+ <p className="font-medium">جزئیات هدیه</p>
+ <p className="text-muted-foreground">
+ بسته‌بندی هدیه: {o.gift_packaging ? "بله" : "خیر"}
+ </p>
+ {o.gift_message ? (
+ <p className="text-muted-foreground whitespace-pre-wrap">
+ پیام کارت: {o.gift_message}
+ </p>
+ ) : null}
+ {o.scheduled_delivery_date ? (
+ <p className="text-muted-foreground">
+ زمان‌بندی تحویل: {formatJalaliDate(o.scheduled_delivery_date)}
+ </p>
+ ) : null}
+ </div>
+ <button
+ type="button"
+ className="text-primary mt-3 text-xs hover:underline"
+ onClick={() => setTab("orders")}
+ >
+ مشاهده در سفارش‌ها
+ </button>
+ </li>
+ ))}
+ </ul>
+ )
+ ) : tab === "alerts" ? (
+ alertsLoading ? (
+ <div className="flex justify-center py-10" dir="rtl"><LumaSpin /></div>
+ ) : (
+ <div className="space-y-8" dir="rtl">
+ <section className="space-y-3">
+ <h3 className="text-sm font-semibold">هشدار موجودی</h3>
+ {stockAlerts.length === 0 ? (
+ <p className="text-muted-foreground text-sm">
+ هشدار موجودی فعالی ندارید.
+ </p>
+ ) : (
+ <ul className="space-y-2">
+ {stockAlerts.map((a) => (
+ <li
+ key={a.id}
+ className="border-border flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-sm"
+ >
+ <div>
+ {a.product_slug ? (
+ <Link
+ href={`/products/${a.product_slug}`}
+ className="text-primary font-medium hover:underline"
+ >
+ {a.product_name || "محصول"}
+ </Link>
+ ) : (
+ <span className="font-medium">{a.product_name || "محصول"}</span>
+ )}
+ <p className="text-muted-foreground text-xs">
+ {[a.size, a.color_name].filter(Boolean).join(" / ") || "واریانت"}
+ {" · "}
+ {a.status === "pending"
+ ? "در انتظار"
+ : a.status === "notified"
+ ? "اطلاع داده شد"
+ : a.status === "cancelled"
+ ? "لغو"
+ : a.status}
+ {" · "}
+ {formatJalaliDate(a.created_at)}
+ </p>
+ </div>
+ {a.status === "pending" ? (
+ <button
+ type="button"
+ className="text-destructive text-xs hover:underline"
+ onClick={async () => {
+ const res = await cancelMyStockAlertAction(a.id);
+ if (!res.ok) {
+ toast.error("لغو ناموفق");
+ return;
+ }
+ toast.success("هشدار لغو شد");
+ setStockAlerts((list) =>
+ list.map((x) =>
+ x.id === a.id ? { ...x, status: "cancelled" } : x,
+ ),
+ );
+ }}
+ >
+ لغو
+ </button>
+ ) : null}
+ </li>
+ ))}
+ </ul>
+ )}
+ </section>
+ <section className="space-y-3">
+ <h3 className="text-sm font-semibold">هشدار قیمت / تخفیف</h3>
+ {priceAlerts.length === 0 ? (
+ <p className="text-muted-foreground text-sm">
+ هشدار قیمت فعالی ندارید.
+ </p>
+ ) : (
+ <ul className="space-y-2">
+ {priceAlerts.map((a) => (
+ <li
+ key={a.id}
+ className="border-border flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-sm"
+ >
+ <div>
+ {a.product_slug ? (
+ <Link
+ href={`/products/${a.product_slug}`}
+ className="text-primary font-medium hover:underline"
+ >
+ {a.product_name || "محصول"}
+ </Link>
+ ) : (
+ <span className="font-medium">{a.product_name || "محصول"}</span>
+ )}
+ <p className="text-muted-foreground text-xs">
+ {a.alert_type === "discount" ? "تخفیف" : "کاهش قیمت"}
+ {a.target_price != null
+ ? ` · هدف ${Number(a.target_price).toLocaleString("fa-IR")} تومان`
+ : ""}
+ {" · "}
+ {a.status === "pending"
+ ? "در انتظار"
+ : a.status === "notified"
+ ? "اطلاع داده شد"
+ : a.status === "cancelled"
+ ? "لغو"
+ : a.status}
+ {" · "}
+ {formatJalaliDate(a.created_at)}
+ </p>
+ </div>
+ {a.status === "pending" ? (
+ <button
+ type="button"
+ className="text-destructive text-xs hover:underline"
+ onClick={async () => {
+ const res = await cancelMyPriceAlertAction(a.id);
+ if (!res.ok) {
+ toast.error("لغو ناموفق");
+ return;
+ }
+ toast.success("هشدار لغو شد");
+ setPriceAlerts((list) =>
+ list.map((x) =>
+ x.id === a.id ? { ...x, status: "cancelled" } : x,
+ ),
+ );
+ }}
+ >
+ لغو
+ </button>
+ ) : null}
+ </li>
+ ))}
+ </ul>
+ )}
+ </section>
+ </div>
  )
  ) : tab === "notifications" ? (
  <div className="space-y-4" dir="rtl">
