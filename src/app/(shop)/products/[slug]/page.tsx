@@ -1,6 +1,8 @@
 import { Price } from "@/components/ui/price";
 import { RelatedStrip } from "@/components/shop/related-strip";
 import { getRelatedProducts } from "@/lib/related-products";
+import { getProductComplements } from "@/lib/complements";
+import { PriceAlertForm } from "@/components/product/price-alert-form";
 import type { Metadata } from "next";
 // ISR: HTML کامل سرور-ساید، کش ۶۰ ثانیه — ظاهر و عملکرد دست‌نخورده
 import Image from "next/image";
@@ -190,6 +192,13 @@ export default async function ProductDetailPage({ params }: Props) {
  product.category_id ?? product.category?.id ?? null,
  8,
  );
+ const complements = await getProductComplements(
+ product.id,
+ product.category?.slug ?? null,
+ );
+ const isHypoallergenic = Boolean(
+ (product as { is_hypoallergenic?: boolean | null }).is_hypoallergenic,
+ );
  const priceHistoryRaw = await getProductPriceHistory(String(product.id), 40);
  // میانگین از همه واریانت‌هایی که قیمت معتبر دارند (حتی اگر is_active null باشد)
  const variantsForAvg = (product.variants ?? []).filter(
@@ -249,6 +258,8 @@ export default async function ProductDetailPage({ params }: Props) {
  alt: img.alt_text ?? product.name,
  is_primary: !!img.is_primary,
  variant_id: (img as { variant_id?: string | null }).variant_id ?? null,
+ image_role:
+ (img as { image_role?: string | null }).image_role ?? "gallery",
  }))}
  variants={variantOptions}
  childrenTitle={
@@ -265,6 +276,11 @@ export default async function ProductDetailPage({ params }: Props) {
  {product.is_featured ? (
  <Badge className="inline-flex h-6 items-center border-0 bg-amber-100 px-2.5 text-xs text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
  شگفت‌انگیز
+ </Badge>
+ ) : null}
+ {isHypoallergenic ? (
+ <Badge className="inline-flex h-6 items-center border-0 bg-sky-100 px-2.5 text-xs text-sky-900 dark:bg-sky-900/40 dark:text-sky-100">
+ ضد حساسیت
  </Badge>
  ) : null}
  {product.category?.slug ? (
@@ -361,7 +377,17 @@ export default async function ProductDetailPage({ params }: Props) {
  تعویض و بازگشت تا ۷ روز کاری
  </p>
  </div>
+ <div>
+ <Link href="/warranty" className="text-muted-foreground font-medium underline-offset-4 hover:underline">
+ ضمانت و اصالت
+ </Link>
+ <p className="text-muted-foreground mt-1 text-[11px] leading-relaxed">
+ مشخصات اعلام‌شده و کیفیت ساخت
+ </p>
  </div>
+ </div>
+
+ <PriceAlertForm productId={String(product.id)} />
 
  {product.description ? (
  <section className="mt-6 border-t pt-6" aria-label="توضیحات محصول">
@@ -399,7 +425,16 @@ export default async function ProductDetailPage({ params }: Props) {
  تعویض و بازگشت تا ۷ روز کاری
  </p>
  </div>
+ <div>
+ <Link href="/warranty" className="text-muted-foreground font-medium underline-offset-4 hover:underline">
+ ضمانت و اصالت
+ </Link>
+ <p className="text-muted-foreground mt-1 text-[11px] leading-relaxed">
+ مشخصات اعلام‌شده و کیفیت ساخت
+ </p>
  </div>
+ </div>
+ <PriceAlertForm productId={String(product.id)} />
 
  {product.description ? (
  <section className="mt-6 border-t pt-6" aria-label="توضیحات محصول">
@@ -413,6 +448,34 @@ export default async function ProductDetailPage({ params }: Props) {
 
 
 
+
+ {complements.buyWith.length ? (
+ <div className="mt-12 w-full max-w-none">
+ <RelatedStrip
+ title="با این بخر"
+ items={complements.buyWith.map((p) => ({
+ title: p.name,
+ href: `/products/${p.slug}`,
+ image: p.image_url ?? undefined,
+ price: p.price,
+ }))}
+ />
+ </div>
+ ) : null}
+
+ {complements.sets.length ? (
+ <div className="mt-12 w-full max-w-none">
+ <RelatedStrip
+ title="ست‌های پیشنهادی"
+ items={complements.sets.map((p) => ({
+ title: p.name,
+ href: `/products/${p.slug}`,
+ image: p.image_url ?? undefined,
+ price: p.price,
+ }))}
+ />
+ </div>
+ ) : null}
 
  {relatedProducts?.length ? (
  <div className="mt-12 w-full max-w-none">

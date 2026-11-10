@@ -274,7 +274,7 @@ if (filters.sizeId) {
  const normalized = normalizeProductSlug(slug);
  if (!normalized) return null;
 
- const selectCols = `
+ const selectBase = `
  id,
  name,
  slug,
@@ -295,18 +295,46 @@ if (filters.sizeId) {
  images:product_images(id, url, alt_text, is_primary, sort_order, variant_id),
  variants:product_variants(id, price, original_price, stock_quantity, size, color_name, color_hex, is_active, sku, weight_grams)
  `;
+ // Prefer columns from migration 066 when present; fall back if not applied yet.
+ const selectCols = selectBase.replace(
+ "is_bestseller,",
+ "is_bestseller,\n is_hypoallergenic,",
+ ).replace(
+ "variant_id),",
+ "variant_id, image_role),",
+ );
  // NOTE: live DB has no products.og_* / robots_* / canonical_url columns.
  // Selecting them makes PostgREST reject the whole query (PDP 404).
 
- // 1) exact match
- {
- const { data, error } = await client
+ async function selectOne(slugValue: string) {
+ const primary = await client
  .from("products")
  .select(selectCols)
- .eq("slug", normalized)
+ .eq("slug", slugValue)
  .eq("status", "published")
  .is("deleted_at", null)
  .maybeSingle();
+ if (
+ primary.error &&
+ (String(primary.error.message || "").includes("42703") ||
+ String(primary.error.message || "").includes("does not exist") ||
+ String(primary.error.message || "").includes("image_role") ||
+ String(primary.error.message || "").includes("is_hypoallergenic"))
+ ) {
+ return client
+ .from("products")
+ .select(selectBase)
+ .eq("slug", slugValue)
+ .eq("status", "published")
+ .is("deleted_at", null)
+ .maybeSingle();
+ }
+ return primary;
+ }
+
+ // 1) exact match
+ {
+ const { data, error } = await selectOne(normalized);
 
  if (error && error.code !== "PGRST116") {
  console.error("[findBySlug exact]", normalized, error);
@@ -318,13 +346,7 @@ if (filters.sizeId) {
  // 2) raw param (اگر decode فرق داشته)
  const raw = (slug || "").trim();
  if (raw && raw !== normalized) {
- const { data, error } = await client
- .from("products")
- .select(selectCols)
- .eq("slug", raw)
- .eq("status", "published")
- .is("deleted_at", null)
- .maybeSingle();
+ const { data, error } = await selectOne(raw);
  if (error && error.code !== "PGRST116") {
  console.error("[findBySlug raw]", raw, error);
  throw error;
@@ -333,19 +355,37 @@ if (filters.sizeId) {
  }
 
  // 3) fallback: بین publishedها اسلاگ نرمال‌شده را پیدا کن
- const { data: rows, error: listErr } = await client
+ let listRes: {
+ data: unknown[] | null;
+ error: { message?: string; code?: string } | null;
+ } = await client
  .from("products")
  .select(selectCols)
  .eq("status", "published")
  .is("deleted_at", null)
  .order("created_at", { ascending: false })
  .limit(200);
- if (listErr) {
- console.error("[findBySlug fallback list]", listErr);
- throw listErr;
+ if (
+ listRes.error &&
+ (String(listRes.error.message || "").includes("42703") ||
+ String(listRes.error.message || "").includes("does not exist"))
+ ) {
+ listRes = await client
+ .from("products")
+ .select(selectBase)
+ .eq("status", "published")
+ .is("deleted_at", null)
+ .order("created_at", { ascending: false })
+ .limit(200);
  }
- const hit = (rows ?? []).find(
- (r) => normalizeProductSlug(String((r as { slug?: string }).slug ?? "")) === normalized,
+ if (listRes.error) {
+ console.error("[findBySlug fallback list]", listRes.error);
+ throw listRes.error;
+ }
+ const hit = (listRes.data ?? []).find(
+ (r) =>
+ normalizeProductSlug(String((r as { slug?: string }).slug ?? "")) ===
+ normalized,
  );
  return (hit as ProductWithRelations) ?? null;
  }

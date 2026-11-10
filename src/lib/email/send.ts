@@ -120,3 +120,50 @@ export async function emailShipped(opts: {
  text: `${name} عزیز، سفارش ${oid} ارسال شد.${track ? ` کد رهگیری: ${track}` : ""}`,
  });
 }
+
+export async function emailStockBackInStock(opts: {
+ to?: string | null;
+ productLabel: string;
+ link?: string | null;
+}) {
+ if (!opts.to?.trim()) return { ok: false as const, error: "no_email", skipped: true };
+ const label = escapeHtml(opts.productLabel);
+ const href = opts.link
+  ? escapeHtml(
+      opts.link.startsWith("http")
+        ? opts.link
+        : `https://shadjewel.ir${opts.link.startsWith("/") ? "" : "/"}${opts.link}`,
+    )
+  : "https://shadjewel.ir/products";
+ return sendTransactionalEmail({
+ to: opts.to,
+ subject: `موجود شد: ${opts.productLabel} — اکسسوری شاد`,
+ html: `<p>خبر خوب!</p><p><strong>${label}</strong> دوباره موجود شد.</p><p><a href="${href}">مشاهده محصول</a></p>`,
+ text: `${opts.productLabel} دوباره موجود شد. ${opts.link || ""}`,
+ });
+}
+
+export async function emailPriceAlert(opts: {
+ to?: string | null;
+ productLabel: string;
+ link?: string | null;
+ kind?: "price_drop" | "discount";
+}) {
+ if (!opts.to?.trim()) return { ok: false as const, error: "no_email", skipped: true };
+ const label = escapeHtml(opts.productLabel);
+ const kindLabel =
+  opts.kind === "discount" ? "تخفیف روی" : "کاهش قیمت";
+ const href = opts.link
+  ? escapeHtml(
+      opts.link.startsWith("http")
+        ? opts.link
+        : `https://shadjewel.ir${opts.link.startsWith("/") ? "" : "/"}${opts.link}`,
+    )
+  : "https://shadjewel.ir/products";
+ return sendTransactionalEmail({
+ to: opts.to,
+ subject: `${kindLabel} ${opts.productLabel} — اکسسوری شاد`,
+ html: `<p>${kindLabel} <strong>${label}</strong> فعال شد.</p><p><a href="${href}">مشاهده محصول</a></p>`,
+ text: `${kindLabel} ${opts.productLabel}. ${opts.link || ""}`,
+ });
+}

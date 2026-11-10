@@ -174,6 +174,7 @@ export type Database = {
  is_featured: boolean;
  is_new: boolean;
  is_bestseller: boolean;
+ is_hypoallergenic: boolean;
  meta_title: string | null;
  meta_description: string | null;
  og_title: string | null;
@@ -206,6 +207,7 @@ export type Database = {
  is_featured?: boolean;
  is_new?: boolean;
  is_bestseller?: boolean;
+ is_hypoallergenic?: boolean;
  meta_title?: string | null;
  meta_description?: string | null;
  og_title?: string | null;
@@ -238,6 +240,7 @@ export type Database = {
  is_featured?: boolean;
  is_new?: boolean;
  is_bestseller?: boolean;
+ is_hypoallergenic?: boolean;
  meta_title?: string | null;
  meta_description?: string | null;
  og_title?: string | null;
@@ -442,6 +445,7 @@ export type Database = {
  alt_text: string | null;
  sort_order: number;
  is_primary: boolean;
+ image_role: string;
  created_at: string;
  };
  Insert: {
@@ -452,6 +456,7 @@ export type Database = {
  alt_text?: string | null;
  sort_order?: number;
  is_primary?: boolean;
+ image_role?: string;
  created_at?: string;
  };
  Update: {
@@ -462,6 +467,7 @@ export type Database = {
  alt_text?: string | null;
  sort_order?: number;
  is_primary?: boolean;
+ image_role?: string;
  created_at?: string;
  };
  Relationships: [
@@ -788,6 +794,9 @@ export type Database = {
  shipping_method_id: string | null;
  shipping_method_title: string | null;
  note: string | null;
+ gift_packaging: boolean;
+ gift_message: string | null;
+ scheduled_delivery_date: string | null;
  discount_code: string | null;
  discount_amount: number | null;
  paid_at: string | null;
@@ -812,6 +821,9 @@ export type Database = {
  shipping_method_id?: string | null;
  shipping_method_title?: string | null;
  note?: string | null;
+ gift_packaging?: boolean;
+ gift_message?: string | null;
+ scheduled_delivery_date?: string | null;
  discount_code?: string | null;
  discount_amount?: number | null;
  paid_at?: string | null;
@@ -836,6 +848,9 @@ export type Database = {
  shipping_method_id?: string | null;
  shipping_method_title?: string | null;
  note?: string | null;
+ gift_packaging?: boolean;
+ gift_message?: string | null;
+ scheduled_delivery_date?: string | null;
  discount_code?: string | null;
  discount_amount?: number | null;
  paid_at?: string | null;

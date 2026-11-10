@@ -64,7 +64,9 @@ export function productToCarouselCardItem(
  : variants.some((v) => Number(v.stock_quantity ?? 0) > 0);
 
  let badge: string | undefined;
- if (product.is_new) badge = "جدید";
+ if ((product as { is_hypoallergenic?: boolean }).is_hypoallergenic) {
+ badge = "ضد حساسیت";
+ } else if (product.is_new) badge = "جدید";
  else if (product.is_bestseller) badge = "پرفروش";
  else if (product.is_featured) badge = "ویژه";
 
