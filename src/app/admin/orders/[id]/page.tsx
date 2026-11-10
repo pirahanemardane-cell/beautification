@@ -229,6 +229,31 @@ export default function AdminOrderDetailPage() {
  {order.note}
  </p>
  ) : null}
+
+ {(order.gift_packaging ||
+ order.gift_message ||
+ order.scheduled_delivery_date) ? (
+ <div className="border-border space-y-1 rounded-xl border border-dashed p-3">
+ <p className="text-sm font-medium text-primary">گزینه‌های هدیه</p>
+ <p className="text-xs">
+ <span className="text-muted-foreground">بسته‌بندی هدیه: </span>
+ {order.gift_packaging ? "بله" : "خیر"}
+ </p>
+ {order.gift_message ? (
+ <p className="text-xs whitespace-pre-wrap">
+ <span className="text-muted-foreground">پیام کارت: </span>
+ {order.gift_message}
+ </p>
+ ) : null}
+ {order.scheduled_delivery_date ? (
+ <p className="text-xs">
+ <span className="text-muted-foreground">زمان‌بندی تحویل: </span>
+ {String(order.scheduled_delivery_date)}
+ </p>
+ ) : null}
+ </div>
+ ) : null}
+
  <p>
  <span className="text-muted-foreground">مبلغ: </span>
  {Number(order.total_amount).toLocaleString("fa-IR")} تومان

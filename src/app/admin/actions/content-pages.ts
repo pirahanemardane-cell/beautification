@@ -136,6 +136,7 @@ export async function adminGetAllContentPagesAction() {
  privacy: asTextPage("privacy", map.get(CONTENT_KEYS.privacy)),
  shipping: asTextPage("shipping", map.get(CONTENT_KEYS.shipping)),
  returns: asTextPage("returns", map.get(CONTENT_KEYS.returns)),
+ warranty: asTextPage("warranty", map.get(CONTENT_KEYS.warranty)),
  } as Record<string, TextPageContent>,
  tableMissing: false as const,
  };
