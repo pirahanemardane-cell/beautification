@@ -96,8 +96,8 @@ import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_N
  onClick={onNavigate}
  className="mb-2 flex items-center gap-2.5"
  >
- <span className="bg-primary/10 text-primary group-hover:bg-primary/15 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition">
- <CategorySvgIcon name={root.name} slug={root.href} className="h-5 w-5" />
+ <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-black ring-1 ring-black/10 transition group-hover:bg-white dark:bg-white dark:text-black">
+ <CategorySvgIcon name={root.name} slug={root.href} className="h-5 w-5 text-black" />
  </span>
  <span className="text-sm font-bold leading-tight group-hover:text-primary">
  {root.name}
@@ -253,8 +253,8 @@ return ( <> <header className={cn( "sticky top-0 z-50 border-b border-border/60"
  onClick={() => setMenuOpen(false)}
  className="hover:bg-primary hover:text-primary-foreground flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium"
  >
- <span className="bg-primary/10 text-primary inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
- <CategorySvgIcon name={root.name} slug={root.href} className="h-4 w-4" />
+ <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-black ring-1 ring-black/10 dark:bg-white dark:text-black">
+ <CategorySvgIcon name={root.name} slug={root.href} className="h-4 w-4 text-black" />
  </span>
  {root.name}
  </Link>

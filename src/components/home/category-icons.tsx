@@ -8,7 +8,7 @@ type IconProps = SVGProps<SVGSVGElement> & { className?: string };
 function svgProps(props: IconProps) {
   const { className, ...rest } = props;
   return {
-    className: cn("size-10 shrink-0 text-primary", className),
+    className: cn("size-10 shrink-0 text-black", className),
     viewBox: "0 0 48 48",
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg",

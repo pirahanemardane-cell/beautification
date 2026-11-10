@@ -64,7 +64,7 @@ export default function HomePage() {
         slides={[...HERO_SLIDES]}
         height={null}
         className="h-[min(70svh,22rem)] md:h-[min(100svh,36rem)]"
-        background="#F8F9FA"
+        background="var(--background)"
         ariaLabel="گالری عکس محصولات"
       />
       <Suspense fallback={null}>
