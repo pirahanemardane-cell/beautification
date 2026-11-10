@@ -112,7 +112,7 @@ BEGIN
   WHERE key = 'store'
     AND (
       value->>'name' IS NULL
-      OR value->>'name' IN ('پیراهن مردانه', 'Pirahan Mardane', 'Demo Store', 'جواهر شاد')
+      OR value->>'name' IN ('Demo Store', 'جواهر شاد')
     );
 
   -- Clear flash-sale demo end time if set
