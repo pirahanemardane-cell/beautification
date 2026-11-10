@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { productPath } from "@/lib/seo/storefront-paths";
 
 /** مسیر نسبی امن برای جدول ریدایرکت */
 export function normalizeRedirectPath(input: string): string | null {
@@ -82,6 +83,5 @@ export async function upsertUrlRedirect(input: {
 }
 
 export function productPathFromSlug(slug: string): string {
- const s = String(slug || "").trim().replace(/^\/+|\/+$/g, "");
- return `/products/${s}`;
+  return productPath(slug);
 }

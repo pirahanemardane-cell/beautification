@@ -55,13 +55,13 @@ export default function WishlistPage() {
  : "هنوز محصولی به علاقه‌مندی‌ها اضافه نشده است."}
  </p>
  </div>
- <Link href="/dashboard?tab=wishlist" className="text-primary text-sm hover:underline">
+ <Link href="/داشبورد?tab=wishlist" className="text-primary text-sm hover:underline">
  داشبورد
  </Link>
  </div>
 
  {wishlist.length === 0 ? (
- <Link href="/products" className="text-primary inline-block text-sm hover:underline">
+ <Link href="/محصولات" className="text-primary inline-block text-sm hover:underline">
  مشاهده محصولات
  </Link>
  ) : (
@@ -83,7 +83,7 @@ export default function WishlistPage() {
  )}
  <div className="min-w-0 flex-1">
  <Link
- href={p.href || `/products`}
+ href={p.href || `/محصولات`}
  className="block truncate text-sm font-medium hover:underline"
  >
  {p.title}

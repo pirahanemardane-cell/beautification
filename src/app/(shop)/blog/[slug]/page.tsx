@@ -81,12 +81,12 @@ export default async function BlogPostPage({ params }: Props) {
  }),
  breadcrumbSchema([
  { name: "خانه", url: siteBase + "/" },
- { name: "بلاگ", url: siteBase + "/blog" },
- { name: post.title, url: siteBase + "/blog/" + slug },
+ { name: "بلاگ", url: siteBase + "/بلاگ" },
+ { name: post.title, url: siteBase + "/بلاگ/" + slug },
  ]),
  ]}
  />
- <Link href="/blog" className="text-primary text-sm underline">
+ <Link href="/بلاگ" className="text-primary text-sm underline">
  ← بازگشت به بلاگ
  </Link>
  {post.category?.name ? (

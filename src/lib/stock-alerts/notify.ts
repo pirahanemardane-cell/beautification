@@ -36,7 +36,7 @@ export async function notifyStockAlertsForVariant(variantId: string): Promise<{
   const size = (variant as { size?: string | null }).size ?? "";
   const color = (variant as { color_name?: string | null }).color_name ?? "";
   const label = [titleName, color, size].filter(Boolean).join(" · ");
-  const link = slug ? `/products/${slug}` : "/";
+  const link = slug ? `/محصولات/${slug}` : "/";
 
   let n = 0;
   for (const a of alerts) {

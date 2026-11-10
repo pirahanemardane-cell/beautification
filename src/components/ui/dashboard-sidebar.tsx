@@ -49,7 +49,7 @@ const NAV_MAIN: CustomerNavItem[] = [
 ];
 
 const NAV_BOTTOM: CustomerNavItem[] = [
- { id: "profile", title: "پروفایل", href: "/dashboard?tab=profile", icon: User },
+ { id: "profile", title: "پروفایل", href: "/داشبورد?tab=profile", icon: User },
  { id: "logout", title: "خروج", icon: LogOut },
 ];
 

@@ -2,7 +2,7 @@
 -- Seed default jewelry categories (idempotent)
 -- Restores storefront category tiles + CategorySvgIcon
 -- mapping after demo-content wipe (063) emptied categories.
--- Slugs match src/lib/jewelry-categories.ts + icon rules.
+-- Persian slugs (URL): گردنبند, گوشواره, انگشتر, دستبند, ست, اکسسوری
 -- =====================================================
 
 BEGIN;
@@ -20,7 +20,7 @@ INSERT INTO public.categories (
 VALUES
   (
     'گردنبند',
-    'necklace',
+    'گردنبند',
     'گردنبندهای دست‌ساز',
     10,
     true,
@@ -30,7 +30,7 @@ VALUES
   ),
   (
     'گوشواره',
-    'earring',
+    'گوشواره',
     'گوشواره‌های دست‌ساز',
     20,
     true,
@@ -40,7 +40,7 @@ VALUES
   ),
   (
     'انگشتر',
-    'ring',
+    'انگشتر',
     'انگشترهای دست‌ساز',
     30,
     true,
@@ -50,7 +50,7 @@ VALUES
   ),
   (
     'دستبند',
-    'bracelet',
+    'دستبند',
     'دستبندهای دست‌ساز',
     40,
     true,
@@ -60,7 +60,7 @@ VALUES
   ),
   (
     'ست',
-    'set',
+    'ست',
     'ست‌های هماهنگ اکسسوری',
     50,
     true,
@@ -70,7 +70,7 @@ VALUES
   ),
   (
     'اکسسوری',
-    'accessory',
+    'اکسسوری',
     'سایر اکسسوری‌ها',
     60,
     true,

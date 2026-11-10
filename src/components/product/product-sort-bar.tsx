@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { productsHref } from "@/lib/seo/storefront-paths";
 
 const SORTS = [
   { value: "newest", label: "جدیدترین" },
@@ -44,7 +45,7 @@ function buildHref(sort: string, props: Omit<Props, "currentSort">) {
     }
   }
   const qs = params.toString();
-  return qs ? `/products?${qs}` : "/products";
+  return productsHref(qs || undefined);
 }
 
 export function ProductSortBar(props: Props) {

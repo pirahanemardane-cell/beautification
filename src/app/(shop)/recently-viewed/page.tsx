@@ -30,13 +30,13 @@ export default function RecentlyViewedPage() {
  : "هنوز محصولی بازدید نشده است."}
  </p>
  </div>
- <Link href="/dashboard?tab=recent" className="text-primary text-sm hover:underline">
+ <Link href="/داشبورد?tab=recent" className="text-primary text-sm hover:underline">
  داشبورد
  </Link>
  </div>
 
  {recent.length === 0 ? (
- <Link href="/products" className="text-primary inline-block text-sm hover:underline">
+ <Link href="/محصولات" className="text-primary inline-block text-sm hover:underline">
  مشاهده محصولات
  </Link>
  ) : (
@@ -58,7 +58,7 @@ export default function RecentlyViewedPage() {
  )}
  <div className="min-w-0 flex-1">
  <Link
- href={p.href || `/products`}
+ href={p.href || `/محصولات`}
  className="block truncate text-sm font-medium hover:underline"
  >
  {p.title}

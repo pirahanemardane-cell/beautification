@@ -413,14 +413,14 @@ export function ShopActivityDrawer({
  {tab === "cart" && (unifiedLines.length > 0) ? (
  <>
  <Link
- href="/checkout"
+ href="/تسویه-حساب"
  onClick={() => onOpenChange(false)}
  className="bg-primary text-primary-foreground flex h-11 w-full items-center justify-center rounded-xl text-sm font-bold"
  >
  تسویه حساب
  </Link>
  <Link
- href="/cart"
+ href="/سبد-خرید"
  onClick={() => onOpenChange(false)}
  className="border-border text-foreground hover:bg-muted flex h-10 w-full items-center justify-center rounded-xl border text-sm font-medium"
  >
@@ -429,7 +429,7 @@ export function ShopActivityDrawer({
  </>
  ) : null}
  <Link
- href="/dashboard"
+ href="/داشبورد"
  onClick={() => onOpenChange(false)}
  className="border-border text-foreground hover:bg-muted flex h-10 w-full items-center justify-center rounded-xl border text-sm font-medium"
  >

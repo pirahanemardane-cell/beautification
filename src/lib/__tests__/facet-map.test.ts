@@ -39,6 +39,10 @@ describe("facet-map jewelry standards", () => {
     expect(ring).not.toContain("fit");
     expect(ring).not.toContain("necklace-length");
 
+    const ringFa = filterJewelryFacets(facets, "انگشتر").map((f) => f.slug);
+    expect(ringFa).toContain("ring-size");
+    expect(ringFa).not.toContain("necklace-length");
+
     const all = filterJewelryFacets(facets).map((f) => f.slug);
     expect(all).toContain("material");
     expect(all).toContain("ring-size");

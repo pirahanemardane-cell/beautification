@@ -617,7 +617,7 @@ export default function AdminProductsPage() {
  ویرایش
  </Link>
  <Link
- href={`/products/${p.slug}`}
+ href={`/محصولات/${p.slug}`}
  target="_blank"
  className="text-muted-foreground text-xs hover:underline"
  >

@@ -200,7 +200,7 @@ export async function adminSetReturnStatusAction(
  title: "به‌روزرسانی مرجوعی",
  body: `وضعیت درخواست مرجوعی شما: ${label}`,
  type: "order",
- link: "/dashboard?tab=returns",
+ link: "/داشبورد?tab=returns",
  });
  }
  } catch (ne) {

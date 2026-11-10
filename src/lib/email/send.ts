@@ -80,7 +80,7 @@ export async function emailOrderPlaced(opts: {
  return sendTransactionalEmail({
  to: opts.to,
  subject: `سفارش ${oid} ثبت شد — اکسسوری شاد`,
- html: `<p>${name} عزیز،</p><p>سفارش <strong>${oid}</strong> با موفقیت ثبت شد.${amt ? ` مبلغ: <strong>${amt}</strong> تومان.` : ""}</p><p><a href="https://shadjewel.ir/dashboard?tab=orders">پیگیری سفارش</a></p>`,
+ html: `<p>${name} عزیز،</p><p>سفارش <strong>${oid}</strong> با موفقیت ثبت شد.${amt ? ` مبلغ: <strong>${amt}</strong> تومان.` : ""}</p><p><a href="https://shadjewel.ir/داشبورد?tab=orders">پیگیری سفارش</a></p>`,
  text: `${name} عزیز، سفارش ${oid} ثبت شد.${amt ? ` مبلغ: ${amt} تومان.` : ""}`,
  });
 }
@@ -134,7 +134,7 @@ export async function emailStockBackInStock(opts: {
         ? opts.link
         : `https://shadjewel.ir${opts.link.startsWith("/") ? "" : "/"}${opts.link}`,
     )
-  : "https://shadjewel.ir/products";
+  : "https://shadjewel.ir/محصولات";
  return sendTransactionalEmail({
  to: opts.to,
  subject: `موجود شد: ${opts.productLabel} — اکسسوری شاد`,
@@ -159,7 +159,7 @@ export async function emailPriceAlert(opts: {
         ? opts.link
         : `https://shadjewel.ir${opts.link.startsWith("/") ? "" : "/"}${opts.link}`,
     )
-  : "https://shadjewel.ir/products";
+  : "https://shadjewel.ir/محصولات";
  return sendTransactionalEmail({
  to: opts.to,
  subject: `${kindLabel} ${opts.productLabel} — اکسسوری شاد`,

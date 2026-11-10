@@ -276,7 +276,7 @@ async function revalidateProductPaths(
  const slug = (data?.slug || "").trim();
  if (slug) {
  revalidatePath(`/products/${slug}`);
- void submitIndexNow([productUrl(slug), "/products", "/"]);
+ void submitIndexNow([productUrl(slug), "/محصولات", "/"]);
  } else {
  revalidatePath("/");
  revalidatePath("/products");

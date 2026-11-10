@@ -123,18 +123,25 @@ const ACCESSORY_FACETS = [
 ] as const;
 
 export const FACET_BY_CATEGORY: Record<string, string[]> = {
+  // English (legacy) + Persian storefront slugs
   necklace: [...NECKLACE_FACETS],
   necklaces: [...NECKLACE_FACETS],
+  گردنبند: [...NECKLACE_FACETS],
   earring: [...EARRING_FACETS],
   earrings: [...EARRING_FACETS],
+  گوشواره: [...EARRING_FACETS],
   ring: [...RING_FACETS],
   rings: [...RING_FACETS],
+  انگشتر: [...RING_FACETS],
   bracelet: [...BRACELET_FACETS],
   bracelets: [...BRACELET_FACETS],
+  دستبند: [...BRACELET_FACETS],
   set: [...SET_FACETS],
   sets: [...SET_FACETS],
+  ست: [...SET_FACETS],
   accessory: [...ACCESSORY_FACETS],
   accessories: [...ACCESSORY_FACETS],
+  اکسسوری: [...ACCESSORY_FACETS],
 };
 
 /** URL keys accepted for attribute facets (shared by PLP / category / brand / search). */
@@ -165,7 +172,12 @@ export function isAllowedJewelryAttrSlug(slug: string): boolean {
 
 export function facetSlugsForCategory(categorySlug?: string): string[] {
   if (!categorySlug) return [...DEFAULT_FACET_SLUGS];
-  return FACET_BY_CATEGORY[categorySlug] ?? [...DEFAULT_FACET_SLUGS];
+  const key = categorySlug.trim();
+  return (
+    FACET_BY_CATEGORY[key] ??
+    FACET_BY_CATEGORY[key.toLowerCase()] ??
+    [...DEFAULT_FACET_SLUGS]
+  );
 }
 
 /** Keep only jewelry-relevant filterable attributes for a category. */

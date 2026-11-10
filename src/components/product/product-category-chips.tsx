@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { productsHref } from "@/lib/seo/storefront-paths";
 
 export type CategoryChip = {
  name: string;
@@ -32,7 +33,7 @@ function buildHref(
  }
  }
  const qs = params.toString();
- return qs ? `/products?${qs}` : "/products";
+ return productsHref(qs || undefined);
 }
 
 export function ProductCategoryChips({

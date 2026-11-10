@@ -127,7 +127,7 @@ export default async function ReviewsAdminPage() {
  </div>
  {r.product?.slug ? (
  <a
- href={`/products/${r.product.slug}`}
+ href={`/محصولات/${r.product.slug}`}
  target="_blank"
  className="text-muted-foreground text-xs hover:underline"
  >
