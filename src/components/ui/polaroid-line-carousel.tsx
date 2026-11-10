@@ -10,8 +10,9 @@ import { createPortal } from "react-dom"
  * overshoot; even at rest they sway in a light breeze. The one in the middle
  * is the one you're looking at.
  *
- * Drag, click a print (opens lightbox), ←/→ and autoplay. Slides without an
- * `image` get a painted landscape, so it works with no assets at all.
+ * Drag, click a print (opens lightbox with zoom/download/close chrome), ←/→
+ * and autoplay. Starts on the middle print so both directions are available.
+ * Slides without an `image` get a painted landscape.
  */
 
 export type LandPalette = "dawn" | "alpine" | "dusk" | "mist"
@@ -265,10 +266,21 @@ const PL_CSS = [
   ".pl-lb-stage{position:relative;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;cursor:default}",
   ".pl-lb-img{max-width:min(92vw,92vh);max-height:min(92vw,92vh);width:auto;height:auto;object-fit:contain;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-select:none;pointer-events:auto;cursor:grab}",
   ".pl-lb-img[data-panning='1']{cursor:grabbing}",
+  ".pl-lb-chrome{position:absolute;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:2;display:flex;align-items:center;gap:8px;cursor:default}",
+  ".pl-lb-tool{appearance:none;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(20,20,20,.72);color:#f5f5f5;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .15s ease,border-color .15s ease}",
+  ".pl-lb-tool:hover{background:rgba(40,40,40,.88);border-color:rgba(255,255,255,.45)}",
+  ".pl-lb-tool:focus-visible{outline:2px solid #fff;outline-offset:2px}",
+  ".pl-lb-tool:disabled{opacity:.35;cursor:default}",
   ".pl-lb-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}",
   "@keyframes pl-in{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}",
   "@media (prefers-reduced-motion:reduce){.pl-cap>*{animation:none}.pl-print{transition:none}}",
 ].join("\n")
+
+/** Middle slide index so the line can scroll both ways from load. */
+export function middleIndex(n: number): number {
+  if (n <= 1) return 0
+  return Math.floor((n - 1) / 2)
+}
 
 function cardWidthFor(r: DOMRectReadOnly, cardWidth: number, showChrome: boolean): number {
   return Math.round(
@@ -279,7 +291,7 @@ function cardWidthFor(r: DOMRectReadOnly, cardWidth: number, showChrome: boolean
   )
 }
 
-/** Fullscreen lightbox: pinch + wheel zoom, pan when zoomed, close on backdrop / Esc. */
+/** Fullscreen lightbox: pinch + wheel zoom, pan when zoomed, chrome controls, close on backdrop / Esc. */
 function PolaroidLightbox({
   src,
   alt,
@@ -294,12 +306,14 @@ function PolaroidLightbox({
   const pan = React.useRef(null as null | { x: number; y: number; px: number; py: number; pointerId: number })
   const pinch = React.useRef(null as null | { dist: number; scale: number })
   const [panning, setPanning] = React.useState(false)
+  const [scale, setScale] = React.useState(1)
 
   const apply = React.useCallback(() => {
     const el = imgRef.current
     if (!el) return
     const v = view.current
     el.style.transform = "translate(" + v.x.toFixed(1) + "px," + v.y.toFixed(1) + "px) scale(" + v.scale.toFixed(3) + ")"
+    setScale(v.scale)
   }, [])
 
   const zoomAt = React.useCallback(
@@ -325,6 +339,43 @@ function PolaroidLightbox({
     [apply],
   )
 
+  const zoomByButton = React.useCallback(
+    (dir: 1 | -1) => {
+      const el = imgRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const cx = rect.left + rect.width / 2
+      const cy = rect.top + rect.height / 2
+      zoomAt(view.current.scale * (dir > 0 ? 1.25 : 1 / 1.25), cx, cy)
+    },
+    [zoomAt],
+  )
+
+  const downloadImage = React.useCallback(async () => {
+    const name = (alt || "polaroid").replace(/[^\w\u0600-\u06FF.-]+/g, "-").replace(/^-|-$/g, "") || "polaroid"
+    try {
+      const res = await fetch(src)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = name + (blob.type.includes("png") ? ".png" : blob.type.includes("webp") ? ".webp" : ".jpg")
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      const a = document.createElement("a")
+      a.href = src
+      a.download = name
+      a.rel = "noopener"
+      a.target = "_blank"
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+    }
+  }, [alt, src])
+
   React.useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = "hidden"
@@ -332,6 +383,12 @@ function PolaroidLightbox({
       if (e.key === "Escape") {
         e.preventDefault()
         onClose()
+      } else if (e.key === "+" || e.key === "=") {
+        e.preventDefault()
+        zoomByButton(1)
+      } else if (e.key === "-" || e.key === "_") {
+        e.preventDefault()
+        zoomByButton(-1)
       }
     }
     window.addEventListener("keydown", onKey)
@@ -339,9 +396,10 @@ function PolaroidLightbox({
       document.body.style.overflow = prev
       window.removeEventListener("keydown", onKey)
     }
-  }, [onClose])
+  }, [onClose, zoomByButton])
 
   React.useEffect(() => {
+    view.current = { scale: 1, x: 0, y: 0 }
     apply()
   }, [apply, src])
 
@@ -436,6 +494,50 @@ function PolaroidLightbox({
       }}
     >
       <div
+        className="pl-lb-chrome"
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="pl-lb-tool"
+          aria-label="Zoom in"
+          disabled={scale >= 4 - 1e-6}
+          onClick={() => zoomByButton(1)}
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.25" stroke="currentColor" strokeWidth="1.4" />
+            <path d="M12 12.5 15.5 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            <path d="M8 5.75v4.5M5.75 8h4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          className="pl-lb-tool"
+          aria-label="Zoom out"
+          disabled={scale <= 1 + 1e-6}
+          onClick={() => zoomByButton(-1)}
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.25" stroke="currentColor" strokeWidth="1.4" />
+            <path d="M12 12.5 15.5 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            <path d="M5.75 8h4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
+        <button type="button" className="pl-lb-tool" aria-label="Download image" onClick={() => void downloadImage()}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M9 3.5v8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            <path d="m5.75 8.75 3.25 3.25 3.25-3.25" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M4 14.5h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
+        <button type="button" className="pl-lb-tool" aria-label="Close" onClick={onClose}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="m5 5 8 8M13 5 5 13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div
         className="pl-lb-stage"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -457,7 +559,7 @@ function PolaroidLightbox({
           onPointerCancel={onPointerUp}
         />
       </div>
-      <span className="pl-lb-sr">Pinch or scroll to zoom. Press Escape to close.</span>
+      <span className="pl-lb-sr">Use zoom buttons, pinch, or scroll to zoom. Download or press Escape to close.</span>
     </div>,
     document.body,
   )
@@ -480,8 +582,9 @@ export default function PolaroidLineCarousel({
   showChrome = true,
 }: PolaroidLineCarouselProps) {
   const n = slides.length
+  const startIndex = middleIndex(n)
   const srcs = useSlideImages(slides)
-  const [active, setActive] = React.useState(0)
+  const [active, setActive] = React.useState(startIndex)
   const [dragging, setDragging] = React.useState(false)
   const [ready, setReady] = React.useState(false)
   const [lightbox, setLightbox] = React.useState(null as number | null)
@@ -492,7 +595,7 @@ export default function PolaroidLineCarousel({
   const sim = React.useRef({ off: 0, vel: 0, target: 0, a: [] as number[], w: [] as number[] })
   const drag = React.useRef(null as null | { x: number; off: number; lx: number; lt: number; v: number; moved: boolean })
   const lastTouch = React.useRef(0)
-  const activeRef = React.useRef(0)
+  const activeRef = React.useRef(startIndex)
   const sizeRef = React.useRef(size)
   const spacingRef = React.useRef(cardWidth * 1.08)
   const lightboxRef = React.useRef(lightbox)
@@ -557,7 +660,7 @@ export default function PolaroidLineCarousel({
     [n],
   )
 
-  // Measure before paint so the first print is centered, not left-stacked.
+  // Measure before paint so the middle print is centered (scroll both ways from load).
   React.useLayoutEffect(() => {
     const root = rootRef.current
     if (!root) return
@@ -566,9 +669,10 @@ export default function PolaroidLineCarousel({
       if (r.width <= 0 || r.height <= 0) return
       const cw = cardWidthFor(r, cardWidth, showChrome)
       const next = { w: r.width, h: r.height, cw }
+      const i = middleIndex(n)
       sizeRef.current = next
-      syncCenter(cw, 0)
-      setActive(0)
+      syncCenter(cw, i)
+      setActive(i)
       setSize(next)
       setReady(true)
       // paint after refs attach; microtask keeps it before the next frame
@@ -589,7 +693,7 @@ export default function PolaroidLineCarousel({
     })
     ro.observe(root)
     return () => ro.disconnect()
-  }, [cardWidth, showChrome, syncCenter, paintOnce])
+  }, [cardWidth, showChrome, n, syncCenter, paintOnce])
 
   React.useEffect(() => {
     onChange?.(active)
