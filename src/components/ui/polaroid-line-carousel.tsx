@@ -11,8 +11,9 @@ import { createPortal } from "react-dom"
  * is the one you're looking at.
  *
  * Drag, click a print (opens lightbox with zoom/download/close chrome), ←/→
- * and autoplay. Starts on the middle print so both directions are available.
- * Slides without an `image` get a painted landscape.
+ * and autoplay. The line loops forever (arrows, drag, and autoplay wrap both
+ * ways). Starts on the middle print. Slides without an `image` get a painted
+ * landscape.
  */
 
 export type LandPalette = "dawn" | "alpine" | "dusk" | "mist"
@@ -79,9 +80,30 @@ export function swingStep(a: number, w: number, lineVel: number, dt: number, gai
   return [clamp(a + nw * dt, -0.6, 0.6), nw]
 }
 
-/** Index of the print nearest the centre for a line offset. */
+/** Index of the print nearest the centre for a line offset (wraps). */
 export function nearestAt(off: number, spacing: number, n: number): number {
-  return clamp(Math.round(off / spacing), 0, Math.max(0, n - 1))
+  if (n <= 0) return 0
+  return wrap(Math.round(off / spacing), n)
+}
+
+/**
+ * Horizontal offset of print `i` from the viewport centre for a looping line.
+ * Picks the nearest copy of the print so the string reads as infinite.
+ */
+export function cardRelX(i: number, off: number, spacing: number, n: number): number {
+  if (n <= 0) return 0
+  const period = n * spacing
+  let rel = i * spacing - off
+  rel = ((rel % period) + period) % period
+  if (rel >= period / 2) rel -= period
+  return rel
+}
+
+/** Snap `off`/`target` into a stable band without changing the visible slide. */
+export function normalizeLoopOffset(off: number, spacing: number, n: number): number {
+  if (n <= 0 || spacing <= 0) return 0
+  const period = n * spacing
+  return ((off % period) + period) % period
 }
 
 export function pad2(n: number): string {
@@ -656,15 +678,25 @@ export default function PolaroidLineCarousel({
   const spacing = size.cw * 1.08
   spacingRef.current = spacing
 
+  /** Move to slide `i` (any integer; wraps). Chooses the nearest loop copy so motion keeps direction. */
   const goTo = React.useCallback((i: number) => {
+    if (n <= 0) return
     const sp = spacingRef.current
-    sim.current.target = clamp(i, 0, n - 1) * sp
+    const period = n * sp
+    const targetIdx = wrap(i, n)
+    const currentOff = sim.current.off
+    let desired = targetIdx * sp
+    if (period > 0) {
+      const k = Math.round((currentOff - desired) / period)
+      desired = desired + k * period
+    }
+    sim.current.target = desired
   }, [n])
 
   const syncCenter = React.useCallback(
     (cw: number, index = activeRef.current) => {
       const sp = cw * 1.08
-      const i = clamp(index, 0, Math.max(0, n - 1))
+      const i = n > 0 ? wrap(index, n) : 0
       // off/target 0 centers slide 0; i * spacing centers slide i
       sim.current.target = i * sp
       sim.current.off = i * sp
@@ -687,7 +719,8 @@ export default function PolaroidLineCarousel({
       for (let i = 0; i < n; i++) {
         const el = cards.current[i]
         if (!el) continue
-        const x = w / 2 + i * sp - S.off
+        const rel = cardRelX(i, S.off, sp, n)
+        const x = w / 2 + rel
         if (x < -cw * 1.5 || x > w + cw * 1.5) {
           el.style.visibility = "hidden"
           continue
@@ -697,7 +730,11 @@ export default function PolaroidLineCarousel({
         const y = stringY(x, w, y0, o.sag) - 6
         el.style.transform =
           "translate(" + (x - cw / 2).toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + a.toFixed(4) + "rad)"
-        el.style.zIndex = String(i === near ? n + 1 : n - Math.abs(i - near))
+        const dist = Math.min(
+          Math.abs(i - near),
+          n - Math.abs(i - near),
+        )
+        el.style.zIndex = String(i === near ? n + 1 : n - dist)
       }
       pathRef.current?.setAttribute("d", "M0 " + y0 + " Q" + w / 2 + " " + (y0 + 2 * o.sag) + " " + w + " " + y0)
       if (near !== activeRef.current) {
@@ -768,6 +805,7 @@ export default function PolaroidLineCarousel({
         return
       }
       const sp = cw * 1.08
+      const period = n * sp
       const y0 = Math.max(40, h * 0.2)
       const d = drag.current
       let lineVel: number
@@ -777,6 +815,16 @@ export default function PolaroidLineCarousel({
         const before = S.off
         ;[S.off, S.vel] = springStep(S.off, S.vel, S.target, dt)
         lineVel = -(S.off - before) / Math.max(dt, 1e-3)
+        // Keep offsets bounded once the spring has settled on a loop copy.
+        if (
+          period > 0 &&
+          Math.abs(S.vel) < 8 &&
+          Math.abs(S.off - S.target) < 0.5
+        ) {
+          const norm = normalizeLoopOffset(S.off, sp, n)
+          S.off = norm
+          S.target = norm
+        }
       }
       const o = opts.current
       const g = reduce ? 0 : o.swing
@@ -784,7 +832,8 @@ export default function PolaroidLineCarousel({
       for (let i = 0; i < n; i++) {
         const el = cards.current[i]
         if (!el) continue
-        const x = w / 2 + i * sp - S.off
+        const rel = cardRelX(i, S.off, sp, n)
+        const x = w / 2 + rel
         if (x < -cw * 1.5 || x > w + cw * 1.5) {
           el.style.visibility = "hidden"
           continue
@@ -798,7 +847,8 @@ export default function PolaroidLineCarousel({
         S.w[i] = av
         const y = stringY(x, w, y0, o.sag) - 6
         el.style.transform = "translate(" + (x - cw / 2).toFixed(1) + "px," + y.toFixed(1) + "px) rotate(" + a.toFixed(4) + "rad)"
-        el.style.zIndex = String(i === near ? n + 1 : n - Math.abs(i - near))
+        const dist = Math.min(Math.abs(i - near), n - Math.abs(i - near))
+        el.style.zIndex = String(i === near ? n + 1 : n - dist)
       }
       pathRef.current?.setAttribute("d", "M0 " + y0 + " Q" + w / 2 + " " + (y0 + 2 * o.sag) + " " + w + " " + y0)
       if (near !== activeRef.current) {
@@ -822,7 +872,7 @@ export default function PolaroidLineCarousel({
     }
   }, [ready, n])
 
-  // autoplay, back to the first print after the last
+  // autoplay forever — advances one print each tick and wraps both ends
   React.useEffect(() => {
     if (!autoplay || n < 2) return
     const t = window.setInterval(() => {
@@ -834,7 +884,9 @@ export default function PolaroidLineCarousel({
       ) {
         return
       }
-      goTo(activeRef.current >= n - 1 ? 0 : activeRef.current + 1)
+      // Step from the spring target (not active) so a mid-wrap frame cannot skip.
+      const sp = spacingRef.current || 1
+      goTo(Math.round(sim.current.target / sp) + 1)
     }, autoplay)
     return () => window.clearInterval(t)
   }, [autoplay, n, goTo])
@@ -859,11 +911,8 @@ export default function PolaroidLineCarousel({
     d.v = 0.7 * ((e.clientX - d.lx) / dt) + 0.3 * d.v
     d.lx = e.clientX
     d.lt = e.timeStamp
-    const max = (n - 1) * spacingRef.current
-    let off = d.off - dx
-    if (off < 0) off *= 0.35
-    if (off > max) off = max + (off - max) * 0.35
-    sim.current.off = off
+    // Free drag — loop positioning handles both ends (no rubber band).
+    sim.current.off = d.off - dx
   }
   const onUp = (e: React.PointerEvent) => {
     const d = drag.current
@@ -873,7 +922,10 @@ export default function PolaroidLineCarousel({
     if (d.moved) {
       setDragging(false)
       sim.current.vel = -d.v * 1000
-      goTo(nearestAt(sim.current.off - d.v * 180, spacingRef.current, n))
+      // Aim at the nearest print in the fling direction (index may leave [0, n)).
+      const sp = spacingRef.current
+      const aimed = Math.round((sim.current.off - d.v * 180) / sp)
+      goTo(aimed)
       return
     }
     // Click (not drag): center that print and open the lightbox.
@@ -886,7 +938,7 @@ export default function PolaroidLineCarousel({
   }
   const step = (dir: number) => {
     lastTouch.current = performance.now()
-    goTo(clamp(activeRef.current + dir, 0, n - 1))
+    goTo(activeRef.current + dir)
   }
   const onKey = (e: React.KeyboardEvent) => {
     if (lightbox != null) return
