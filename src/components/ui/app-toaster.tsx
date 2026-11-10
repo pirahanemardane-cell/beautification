@@ -33,12 +33,12 @@ const toastTypes = [
  "bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 dark:bg-yellow-50 dark:text-yellow-800 dark:border-yellow-500",
  iconColor: "text-yellow-500",
  },
- {
+  {
  type: "info" as const,
  icon: Info,
  colors:
- "bg-blue-50 border-l-4 border-blue-500 text-blue-800 dark:bg-blue-50 dark:text-blue-800 dark:border-blue-500",
- iconColor: "text-blue-500",
+ "bg-[#fce8eb] border-l-4 border-[#f5a3af] text-[#5c3a42] dark:bg-[#3d2a2e] dark:text-[#fdedef] dark:border-[#fdedef]",
+ iconColor: "text-[#f5a3af] dark:text-[#fdedef]",
  },
 ];
 

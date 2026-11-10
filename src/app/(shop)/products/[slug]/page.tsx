@@ -269,7 +269,7 @@ export default async function ProductDetailPage({ params }: Props) {
  ) : null}
  {product.category?.slug ? (
  <Link href={`/products?category=${encodeURIComponent(product.category.slug)}`} className="no-underline hover:no-underline hover:opacity-100">
- <Badge className="inline-flex h-6 items-center border-0 bg-sky-100 px-2.5 text-xs text-sky-800 shadow-none transition-none hover:bg-sky-100 hover:text-sky-800 dark:bg-sky-900/40 dark:text-sky-200 dark:hover:bg-sky-900/40 dark:hover:text-sky-200">
+ <Badge className="inline-flex h-6 items-center border-0 bg-[#fce8eb] px-2.5 text-xs text-[#5c3a42] shadow-none transition-none hover:bg-[#fce8eb] hover:text-[#5c3a42] dark:bg-[#fdedef]/20 dark:text-[#fdedef] dark:hover:bg-[#fdedef]/20 dark:hover:text-[#fdedef]">
  {product.category.name}
  </Badge>
  </Link>
