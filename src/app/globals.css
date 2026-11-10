@@ -55,10 +55,10 @@ h4, .h4 {
 }
 
 :root {
- --secondary-foreground: #212529;
+ --secondary-foreground: #111111;
  --secondary: #f5a3af;
  --foreground: #212529;
- --primary-foreground: #212529;
+ --primary-foreground: #111111;
  --surface-primary: #F8F9FA;
  --surface-muted: #e9ecef;
  --font-sans: "IRANYekanX", Tahoma, sans-serif;
@@ -182,9 +182,9 @@ h4, .h4 {
  --popover: #FFFFFF;
  --popover-foreground: #5c3a42;
  --primary: #f5a3af;
- --primary-foreground: #212529;
+ --primary-foreground: #111111;
  --secondary: #f5a3af;
- --secondary-foreground: #212529;
+ --secondary-foreground: #111111;
  --muted: #DEE2E6;
  --muted-foreground: #495057;
  --accent: #DEE2E6;
@@ -202,7 +202,7 @@ h4, .h4 {
  --sidebar: #FFFFFF;
  --sidebar-foreground: #5c3a42;
  --sidebar-primary: #f5a3af;
- --sidebar-primary-foreground: #212529;
+ --sidebar-primary-foreground: #111111;
  --sidebar-accent: #DEE2E6;
  --sidebar-accent-foreground: #5c3a42;
  --sidebar-border: #DEE2E6;
@@ -374,9 +374,9 @@ h4, .h4 { font-weight: 600 !important; }
  --popover: #FFFFFF;
  --popover-foreground: #212529;
  --primary: #f5a3af;
- --primary-foreground: #212529;
+ --primary-foreground: #111111;
  --secondary: #f5a3af;
- --secondary-foreground: #212529;
+ --secondary-foreground: #111111;
  --muted: #E9ECEF;
  --muted-foreground: #495057;
  --accent: #DEE2E6;

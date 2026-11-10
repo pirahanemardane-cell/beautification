@@ -264,7 +264,8 @@ const PL_CSS = [
   ".pl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
   ".pl-lb{position:fixed;inset:0;z-index:100;background:rgba(10,10,10,.92);display:grid;place-items:center;touch-action:none;cursor:zoom-out}",
   ".pl-lb-stage{position:relative;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;cursor:default}",
-  ".pl-lb-img{max-width:min(92vw,92vh);max-height:min(92vw,92vh);width:auto;height:auto;object-fit:contain;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-select:none;pointer-events:auto;cursor:grab}",
+  ".pl-lb-img{max-width:min(92vw,92vh);max-height:min(92vw,92vh);width:auto;height:auto;object-fit:contain;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-select:none;pointer-events:auto;cursor:zoom-in}",
+  ".pl-lb-img[data-zoomed='1']{cursor:grab}",
   ".pl-lb-img[data-panning='1']{cursor:grabbing}",
   ".pl-lb-chrome{position:absolute;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:2;display:flex;align-items:center;gap:8px;cursor:default}",
   ".pl-lb-tool{appearance:none;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(20,20,20,.72);color:#f5f5f5;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .15s ease,border-color .15s ease}",
@@ -305,6 +306,9 @@ function PolaroidLightbox({
   const view = React.useRef({ scale: 1, x: 0, y: 0 })
   const pan = React.useRef(null as null | { x: number; y: number; px: number; py: number; pointerId: number })
   const pinch = React.useRef(null as null | { dist: number; scale: number })
+  /** Tracks a potential click/tap-to-zoom (ignored once the gesture pans or pinches). */
+  const tap = React.useRef(null as null | { x: number; y: number; pointerId: number; moved: boolean })
+  const didPinch = React.useRef(false)
   const [panning, setPanning] = React.useState(false)
   const [scale, setScale] = React.useState(1)
 
@@ -416,51 +420,87 @@ function PolaroidLightbox({
     return () => stage.removeEventListener("wheel", onWheel)
   }, [zoomAt, src])
 
+  const toggleZoomAt = React.useCallback(
+    (cx: number, cy: number) => {
+      if (view.current.scale > 1.05) {
+        view.current = { scale: 1, x: 0, y: 0 }
+        apply()
+        return
+      }
+      zoomAt(2, cx, cy)
+    },
+    [apply, zoomAt],
+  )
+
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "touch") return
+    tap.current = { x: e.clientX, y: e.clientY, pointerId: e.pointerId, moved: false }
     if (view.current.scale <= 1) return
     pan.current = { x: e.clientX, y: e.clientY, px: view.current.x, py: view.current.y, pointerId: e.pointerId }
     setPanning(true)
     ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId)
   }
   const onPointerMove = (e: React.PointerEvent) => {
+    const t = tap.current
+    if (t && t.pointerId === e.pointerId) {
+      if (Math.hypot(e.clientX - t.x, e.clientY - t.y) > 6) t.moved = true
+    }
     const p = pan.current
     if (!p || p.pointerId !== e.pointerId) return
     view.current.x = p.px + (e.clientX - p.x)
     view.current.y = p.py + (e.clientY - p.y)
     apply()
   }
-  const onPointerUp = (e: React.PointerEvent) => {
+  const endPointer = (e: React.PointerEvent, allowTap: boolean) => {
+    const t = tap.current
+    const wasTap = allowTap && t && t.pointerId === e.pointerId && !t.moved
     if (pan.current?.pointerId === e.pointerId) {
       pan.current = null
       setPanning(false)
     }
+    tap.current = null
+    if (wasTap) toggleZoomAt(e.clientX, e.clientY)
   }
+  const onPointerUp = (e: React.PointerEvent) => endPointer(e, true)
+  const onPointerCancel = (e: React.PointerEvent) => endPointer(e, false)
 
   const onTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const [a, b] = [e.touches[0], e.touches[1]]
       const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
       pinch.current = { dist, scale: view.current.scale }
+      didPinch.current = true
       pan.current = null
+      tap.current = null
       setPanning(false)
       return
     }
-    if (e.touches.length === 1 && view.current.scale > 1) {
+    if (e.touches.length === 1) {
       const t = e.touches[0]
-      pan.current = { x: t.clientX, y: t.clientY, px: view.current.x, py: view.current.y, pointerId: -1 }
-      setPanning(true)
+      didPinch.current = false
+      tap.current = { x: t.clientX, y: t.clientY, pointerId: -1, moved: false }
+      if (view.current.scale > 1) {
+        pan.current = { x: t.clientX, y: t.clientY, px: view.current.x, py: view.current.y, pointerId: -1 }
+        setPanning(true)
+      }
     }
   }
   const onTouchMove = (e: React.TouchEvent) => {
     e.preventDefault()
     if (e.touches.length === 2 && pinch.current) {
+      didPinch.current = true
+      tap.current = null
       const [a, b] = [e.touches[0], e.touches[1]]
       const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
       const cx = (a.clientX + b.clientX) / 2
       const cy = (a.clientY + b.clientY) / 2
       zoomAt(pinch.current.scale * (dist / Math.max(1, pinch.current.dist)), cx, cy)
       return
+    }
+    const t0 = e.touches[0]
+    const tapState = tap.current
+    if (t0 && tapState && Math.hypot(t0.clientX - tapState.x, t0.clientY - tapState.y) > 8) {
+      tapState.moved = true
     }
     const p = pan.current
     if (e.touches.length === 1 && p) {
@@ -473,10 +513,18 @@ function PolaroidLightbox({
   const onTouchEnd = (e: React.TouchEvent) => {
     if (e.touches.length < 2) pinch.current = null
     if (e.touches.length === 0) {
+      const tapState = tap.current
+      const wasTap = Boolean(tapState && !tapState.moved && !didPinch.current)
+      const x = tapState?.x
+      const y = tapState?.y
       pan.current = null
       setPanning(false)
+      tap.current = null
+      didPinch.current = false
+      if (wasTap && x != null && y != null) toggleZoomAt(x, y)
     } else if (e.touches.length === 1 && view.current.scale > 1) {
       const t = e.touches[0]
+      tap.current = null
       pan.current = { x: t.clientX, y: t.clientY, px: view.current.x, py: view.current.y, pointerId: -1 }
     }
   }
@@ -551,15 +599,16 @@ function PolaroidLightbox({
           src={src}
           alt={alt}
           draggable={false}
+          data-zoomed={scale > 1.05 ? "1" : "0"}
           data-panning={panning ? "1" : "0"}
           onClick={(e) => e.stopPropagation()}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerCancel={onPointerCancel}
         />
       </div>
-      <span className="pl-lb-sr">Use zoom buttons, pinch, or scroll to zoom. Download or press Escape to close.</span>
+      <span className="pl-lb-sr">Use zoom buttons, click or tap the image, pinch, or scroll to zoom. Download or press Escape to close.</span>
     </div>,
     document.body,
   )
