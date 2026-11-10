@@ -4,14 +4,20 @@ Source: src/app/globals.css
 
 ## Colors (light)
 - background #F8F9FA
-- foreground / primary #023047
-- primary-foreground #F8F9FA
-- muted #DEE2E6
+- foreground #212529 (readable body); brand-tinted text #5c3a42 where accented
+- primary / secondary / ring #f5a3af
+- primary-foreground #212529
+- muted #DEE2E6 / #E9ECEF
 - muted-foreground #495057
-- destructive #DC2626
-- accent highlight (toman) #13ABC4
+- destructive #DC2626 / #B3261E
+- chart companion pastel #f9c5cd
 
-Dark: html.dark variant
+## Colors (dark)
+- background #212529
+- foreground / primary / secondary / ring #fdedef
+- primary-foreground #212529
+- accent #f5a3af (soft pastel derivative)
+- No turquoise/teal/cyan brand accents
 
 ## Radius
 --radius and sm/md/lg/xl/2xl from CSS theme
