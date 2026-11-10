@@ -21,7 +21,7 @@ export const productFilterSchema = paginationSchema.extend({
  .enum(["newest", "price_asc", "price_desc", "popular"])
  .default("newest")
  .optional(),
- /** فیلتر facet: { "fit": "slim-fit", "fabric": "cotton" } */
+ /** فیلتر facet جواهر: { "material": "gold", "ring-size": "54" } */
  attrs: z.record(z.string(), z.string()).optional(),
 });
 

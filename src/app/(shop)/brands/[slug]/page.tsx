@@ -11,27 +11,18 @@ import { SizeRepository } from "@/repositories/size.repository";
 import { ProductInfiniteList } from "@/components/product/product-infinite-list";
 import { ProductFiltersSidebar } from "@/components/product/product-filters-sidebar";
 import { ProductFiltersMobile } from "@/components/product/product-filters-mobile";
-import { facetSlugsForCategory } from "@/lib/facet-map";
+import {
+ filterJewelryFacets,
+ filterJewelrySizeChips,
+ parseAttrFacetsFromParams,
+ parseInStockParam,
+} from "@/lib/facet-map";
 import { toPersianDigits } from "@/lib/numbers";
 import { JsonLd } from "@/components/seo/json-ld";
 import { brandPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { applySeoTemplate } from "@/lib/seo/template";
 
 export const revalidate = 60;
-
-const FACET_KEYS = [
- "fabric",
- "pattern",
- "season",
- "collar-type",
- "sleeve-type",
- "button-type",
- "fit",
- "tie-width",
- "tie-length",
- "bow-tie-type",
- "cufflink-material",
-] as const;
 
 type Props = {
  params: Promise<{ slug: string }>;
@@ -112,12 +103,9 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  typeof sp.color === "string" && sp.color ? sp.color : undefined;
  const sizeSlug =
  typeof sp.size === "string" && sp.size ? sp.size : undefined;
+ const inStock = parseInStockParam(sp.inStock);
 
- const attrs: Record<string, string> = {};
- for (const key of FACET_KEYS) {
- const v = sp[key];
- if (typeof v === "string" && v) attrs[key] = v;
- }
+ const attrs = parseAttrFacetsFromParams(sp);
 
  const rootsResult = await categoryService.getRoots();
  const categories = rootsResult.success
@@ -126,8 +114,7 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
 
  const facetsResult = await attributeService.getFilterableFacets();
  const allFacets = facetsResult.success ? (facetsResult.data ?? []) : [];
- const allowed = new Set(facetSlugsForCategory(categorySlug));
- const facets = allFacets.filter((f) => allowed.has(f.slug));
+ const facets = filterJewelryFacets(allFacets, categorySlug);
 
  const colorAttr = allFacets.find((f) => f.slug === "color");
  const sizeAttr = allFacets.find((f) => f.slug === "size");
@@ -162,6 +149,7 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  sizes = legacySizes.map((s) => ({ id: s.id, name: s.name, slug: s.slug }));
  }
  }
+ sizes = filterJewelrySizeChips(sizes);
  const colorOpt = colorSlug
  ? colors.find((c) => c.slug === colorSlug || c.name === colorSlug)
  : undefined;
@@ -196,6 +184,7 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  maxPrice: maxPrice && !Number.isNaN(maxPrice) ? maxPrice : undefined,
  colorId,
  sizeId,
+ inStock,
  });
 
  if (!result.success || !result.data) {
@@ -260,6 +249,7 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  sizes={sizes}
  colorSlug={colorSlug}
  sizeSlug={sizeSlug}
+ inStock={inStock}
  facets={facets}
  current={attrs}
  categories={categories}
@@ -283,6 +273,7 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  sizes={sizes}
  colorSlug={colorSlug}
  sizeSlug={sizeSlug}
+ inStock={inStock}
  facets={facets}
  current={attrs}
  categories={categories}
@@ -299,6 +290,9 @@ export default async function BrandListingPage({ params, searchParams }: Props) 
  <ProductInfiniteList
  colorId={colorId}
  sizeId={sizeId}
+ colorValue={colorValue}
+ sizeValue={sizeValue}
+ inStock={inStock}
  initialProducts={products}
  initialPage={page}
  initialHasMore={page < totalPages}

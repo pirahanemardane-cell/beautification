@@ -8,7 +8,12 @@ import { ColorRepository } from "@/repositories/color.repository";
 import { SizeRepository } from "@/repositories/size.repository";
 import { ProductFiltersSidebar } from "@/components/product/product-filters-sidebar";
 import { ProductFiltersMobile } from "@/components/product/product-filters-mobile";
-import { facetSlugsForCategory } from "@/lib/facet-map";
+import {
+ filterJewelryFacets,
+ filterJewelrySizeChips,
+ parseAttrFacetsFromParams,
+ parseInStockParam,
+} from "@/lib/facet-map";
 import { toPersianDigits } from "@/lib/numbers";
 import { Suspense } from "react";
 import { metadataFromSeoPage } from "@/lib/seo/page-settings";
@@ -62,33 +67,9 @@ export default async function ProductsPage({
  typeof params.color === "string" && params.color ? params.color : undefined;
  const sizeSlug =
  typeof params.size === "string" && params.size ? params.size : undefined;
+ const inStock = parseInStockParam(params.inStock);
 
- const FACET_KEYS = [
- "fabric",
- "pattern",
- "season",
- "collar",
- "collar-type",
- "sleeve",
- "sleeve-type",
- "button-type",
- "fit",
- "thickness",
- "closure",
- "pocket",
- "occasion",
- "origin",
- "tie-width",
- "tie-length",
- "bow-tie-type",
- "cufflink-material",
- ] as const;
-
- const attrs: Record<string, string> = {};
- for (const key of FACET_KEYS) {
- const v = params[key];
- if (typeof v === "string" && v) attrs[key] = v;
- }
+ const attrs = parseAttrFacetsFromParams(params);
 
  const attributeService = new AttributeService();
  const facetsResult = await attributeService.getFilterableFacets();
@@ -96,10 +77,8 @@ export default async function ProductsPage({
  facetsResult.success && Array.isArray(facetsResult.data)
  ? facetsResult.data
  : [];
- const allowed = new Set(facetSlugsForCategory(categorySlug));
- const facets = allFacets.filter((f) => allowed.has(f.slug));
+ const facets = filterJewelryFacets(allFacets, categorySlug);
 
- 
  // منبع اصلی: attribute options (size/color) — fallback: جداول sizes/colors
  const colorAttr = allFacets.find((f) => f.slug === "color");
  const sizeAttr = allFacets.find((f) => f.slug === "size");
@@ -137,6 +116,7 @@ export default async function ProductsPage({
  sizes = legacySizes.map((s) => ({ id: s.id, name: s.name, slug: s.slug }));
  }
  }
+ sizes = filterJewelrySizeChips(sizes);
  const colorOpt = colorSlug
  ? colors.find((c) => c.slug === colorSlug || c.name === colorSlug)
  : undefined;
@@ -171,6 +151,7 @@ export default async function ProductsPage({
  sizeId,
  sizeValue,
  colorValue,
+ inStock,
  maxPrice: maxPrice && !Number.isNaN(maxPrice) ? maxPrice : undefined,
  });
 
@@ -211,6 +192,7 @@ export default async function ProductsPage({
  sizes={sizes}
  colorSlug={colorSlug}
  sizeSlug={sizeSlug}
+ inStock={inStock}
  facets={facets}
  current={attrs}
  categories={categories}
@@ -230,6 +212,7 @@ export default async function ProductsPage({
  sizes={sizes}
  colorSlug={colorSlug}
  sizeSlug={sizeSlug}
+ inStock={inStock}
  facets={facets}
  current={attrs}
  categories={categories}
@@ -246,6 +229,9 @@ export default async function ProductsPage({
  <ProductInfiniteList
  colorId={colorId}
  sizeId={sizeId}
+ colorValue={colorValue}
+ sizeValue={sizeValue}
+ inStock={inStock}
  initialProducts={products}
  initialPage={page}
  initialHasMore={page < totalPages}

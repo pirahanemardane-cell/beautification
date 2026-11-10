@@ -23,6 +23,9 @@ export async function loadProductsPage(input: {
  attrs?: Record<string, string>;
  colorId?: string;
  sizeId?: string;
+ colorValue?: string;
+ sizeValue?: string;
+ inStock?: boolean;
  minPrice?: number;
  maxPrice?: number;
 }): Promise<LoadProductsResult> {
@@ -40,6 +43,9 @@ export async function loadProductsPage(input: {
  attrs: input.attrs,
  colorId: input.colorId,
  sizeId: input.sizeId,
+ colorValue: input.colorValue,
+ sizeValue: input.sizeValue,
+ inStock: input.inStock,
  minPrice: input.minPrice,
  maxPrice: input.maxPrice,
  });

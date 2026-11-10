@@ -231,26 +231,24 @@ if (filters.sizeId) {
  const variants = (p.variants ?? []).filter((v) => v.is_active);
  return variants.some((v) => {
  if (filters.sizeId || filters.sizeValue) {
- const wantSize = resolvedSizeName;
- if (wantSize && String(v.size || "").toLowerCase() !== String(wantSize).toLowerCase()) return false;
- if (!sizeLabel) return false;
+ const wantSize = (resolvedSizeName || sizeLabel || "").trim();
+ if (!wantSize) return false;
  const sn = (
  typeof (v as { size?: string | null }).size === "string"
  ? (v as { size: string }).size
  : ""
  ).trim();
- if (!sn || sn.toLowerCase() !== sizeLabel.toLowerCase()) return false;
+ if (!sn || sn.toLowerCase() !== wantSize.toLowerCase()) return false;
  }
  if (filters.colorId || filters.colorValue) {
- const wantColor = resolvedColorName;
- if (wantColor && String(v.color_name || "").toLowerCase() !== String(wantColor).toLowerCase()) return false;
- if (!colorName) return false;
+ const wantColor = (resolvedColorName || colorName || "").trim();
+ if (!wantColor) return false;
  const cn = (
  typeof (v as { color_name?: string | null }).color_name === "string"
  ? (v as { color_name: string }).color_name
  : ""
  ).trim();
- if (!cn || cn.toLowerCase() !== colorName.toLowerCase()) return false;
+ if (!cn || cn.toLowerCase() !== wantColor.toLowerCase()) return false;
  }
  if (filters.inStock && v.stock_quantity <= 0) return false;
  if (filters.minPrice != null && Number(v.price) < filters.minPrice)

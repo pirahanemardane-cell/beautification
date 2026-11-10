@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Search, SlidersHorizontal, X, LayoutGrid, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PriceRangeSlider06 } from "@/components/ui/price-range-slider-06";
+import { MATERIAL_FACET_SLUGS } from "@/lib/facet-map";
 
 type SuggestProduct = {
  name: string;
@@ -69,6 +70,7 @@ export function SmartSearch({ className }: { className?: string }) {
  const [brand, setBrand] = useState("");
  const [color, setColor] = useState("");
  const [size, setSize] = useState("");
+ const [inStock, setInStock] = useState(false);
  const [sort, setSort] = useState("");
  const [minPrice, setMinPrice] = useState("");
  const [maxPrice, setMaxPrice] = useState("");
@@ -83,17 +85,33 @@ export function SmartSearch({ className }: { className?: string }) {
  const [facetsLoaded, setFacetsLoaded] = useState(false);
  const [recent, setRecent] = useState<string[]>([]);
 
+ const materialAttrs = useMemo(
+  () =>
+   facetAttrs.filter((a) =>
+    MATERIAL_FACET_SLUGS.has(String(a.slug || "").toLowerCase()),
+   ),
+  [facetAttrs],
+ );
+ const moreAttrs = useMemo(
+  () =>
+   facetAttrs.filter(
+    (a) => !MATERIAL_FACET_SLUGS.has(String(a.slug || "").toLowerCase()),
+   ),
+  [facetAttrs],
+ );
+
  const activeFilters = useMemo(() => {
  let n = 0;
  if (category) n++;
  if (brand) n++;
  if (color) n++;
  if (size) n++;
+ if (inStock) n++;
  if (sort) n++;
  if (minPrice || maxPrice) n++;
  n += Object.keys(attrSel).length;
  return n;
- }, [category, brand, color, size, sort, minPrice, maxPrice, attrSel]);
+ }, [category, brand, color, size, inStock, sort, minPrice, maxPrice, attrSel]);
 
  const hasSuggest =
  products.length > 0 ||
@@ -110,6 +128,7 @@ export function SmartSearch({ className }: { className?: string }) {
  if (brand) params.set("brand", brand);
  if (color) params.set("color", color);
  if (size) params.set("size", size);
+ if (inStock) params.set("inStock", "1");
  if (sort) params.set("sort", sort);
  if (minPrice) params.set("minPrice", minPrice);
  if (maxPrice) params.set("maxPrice", maxPrice);
@@ -127,7 +146,7 @@ export function SmartSearch({ className }: { className?: string }) {
  }).catch(() => {});
  }
  const hasFilter =
- Boolean(category || brand || color || size || sort || minPrice || maxPrice) ||
+ Boolean(category || brand || color || size || inStock || sort || minPrice || maxPrice) ||
  Object.keys(attrSel).length > 0;
  if (text && !hasFilter) {
  router.push(`/search?q=${encodeURIComponent(text)}`);
@@ -137,7 +156,7 @@ export function SmartSearch({ className }: { className?: string }) {
  setSuggestOpen(false);
  setFilterOpen(false);
  },
- [q, category, brand, color, size, sort, minPrice, maxPrice, attrSel, router]
+ [q, category, brand, color, size, inStock, sort, minPrice, maxPrice, attrSel, router]
  );
 
  function submit(e?: React.FormEvent) {
@@ -150,6 +169,7 @@ export function SmartSearch({ className }: { className?: string }) {
  setBrand("");
  setColor("");
  setSize("");
+ setInStock(false);
  setSort("");
  setMinPrice("");
  setMaxPrice("");
@@ -598,7 +618,42 @@ export function SmartSearch({ className }: { className?: string }) {
 
  <div>
  <p className="text-muted-foreground mb-1.5 text-xs font-medium">
- رنگ
+ موجودی
+ </p>
+ <div className="flex flex-wrap gap-2">
+ <button
+ type="button"
+ onClick={() => setInStock((v) => !v)}
+ className={chip(inStock)}
+ >
+ فقط کالاهای موجود
+ </button>
+ </div>
+ </div>
+
+ {materialAttrs.map((attr) => (
+ <div key={attr.id}>
+ <p className="text-muted-foreground mb-1.5 text-xs font-medium">
+ {attr.name}
+ </p>
+ <div className="flex flex-wrap gap-2">
+ {attr.options.map((opt) => (
+ <button
+ key={opt.id}
+ type="button"
+ onClick={() => toggleAttr(attr.slug, opt.slug)}
+ className={chip(attrSel[attr.slug] === opt.slug)}
+ >
+ {opt.value}
+ </button>
+ ))}
+ </div>
+ </div>
+ ))}
+
+ <div>
+ <p className="text-muted-foreground mb-1.5 text-xs font-medium">
+ رنگ / فلز
  </p>
  <div className="flex flex-wrap gap-2">
  {facetColors.map((c) => (
@@ -614,9 +669,10 @@ export function SmartSearch({ className }: { className?: string }) {
  </div>
  </div>
 
+ {facetSizes.length > 0 ? (
  <div>
  <p className="text-muted-foreground mb-1.5 text-xs font-medium">
- سایز
+ سایز (انگشتر / دستبند)
  </p>
  <div className="flex flex-wrap gap-2">
  {facetSizes.map((s) => (
@@ -631,8 +687,9 @@ export function SmartSearch({ className }: { className?: string }) {
  ))}
  </div>
  </div>
+ ) : null}
 
- {facetAttrs.length > 0 ? (
+ {moreAttrs.length > 0 ? (
  <div className="border-border border-t pt-3">
  <button
  type="button"
@@ -641,9 +698,9 @@ export function SmartSearch({ className }: { className?: string }) {
  >
  <span className="flex items-center gap-2">
  فیلترهای بیشتر
- {Object.keys(attrSel).length > 0 ? (
+ {moreAttrs.some((f) => attrSel[f.slug]) ? (
  <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] leading-none">
- {Object.keys(attrSel).length}
+ {moreAttrs.filter((f) => attrSel[f.slug]).length}
  </span>
  ) : null}
  </span>
@@ -653,7 +710,7 @@ export function SmartSearch({ className }: { className?: string }) {
  </button>
  {moreOpen ? (
  <div className="mt-3 space-y-4">
- {facetAttrs.map((attr) => (
+ {moreAttrs.map((attr) => (
  <div key={attr.id}>
  <p className="text-muted-foreground mb-1.5 text-xs font-medium">
  {attr.name}
