@@ -27,7 +27,6 @@ export function SiteFooter() {
  return (
  <Footer
  brandName="اکسسوری شاد"
- watermarkName="ShadJewel"
  brandDescription="فروشگاه تخصصی اکسسوری دست ساز"
  socialLinks={[
  
