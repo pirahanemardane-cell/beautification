@@ -477,6 +477,7 @@ export type CreateOrderPayload = {
  city?: string;
  province?: string;
  postal?: string;
+ email?: string;
  note?: string;
  giftPackaging?: boolean;
  giftMessage?: string;
@@ -485,6 +486,13 @@ export type CreateOrderPayload = {
  paymentMethod?: "cod" | "online";
  shippingMethodId?: string;
 };
+
+function normalizeOrderEmail(raw: string | undefined | null): string | null {
+ const v = String(raw ?? "").trim().toLowerCase();
+ if (!v) return null;
+ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || v.length > 254) return null;
+ return v;
+}
 
 export async function createOrderAction(payload: CreateOrderPayload) {
  try {
@@ -619,6 +627,15 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  const noteOk = assertNoLinkOrImage(payload.note ?? "", "یادداشت");
  if (!noteOk.ok) return { ok: false as const, error: noteOk.error };
 
+ const emailRaw = String(payload.email ?? "").trim();
+ let shippingEmail: string | null = null;
+ if (emailRaw) {
+ shippingEmail = normalizeOrderEmail(emailRaw);
+ if (!shippingEmail) {
+ return { ok: false as const, error: "ایمیل نامعتبر است" };
+ }
+ }
+
  const addressLine = [
  provinceOk.text.trim() || null,
  cityOk.text.trim() || null,
@@ -684,6 +701,7 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  address: addressLine,
  city: cityOk.text || undefined,
  postal: postalNorm,
+ email: shippingEmail,
  },
  shippingFee,
  shippingMethodId: methodId,
@@ -740,11 +758,11 @@ export async function createOrderAction(payload: CreateOrderPayload) {
  }
 
  try {
- const emailTo =
- String((payload as { email?: string }).email ?? "").trim() ||
- (user && typeof user === "object" && "email" in user
- ? String((user as { email?: string }).email ?? "")
- : "");
+ const accountEmail =
+ user && typeof user === "object" && "email" in user
+ ? String((user as { email?: string }).email ?? "").trim()
+ : "";
+ const emailTo = shippingEmail || normalizeOrderEmail(accountEmail);
  if (emailTo) {
  await emailOrderPlaced({
  to: emailTo,

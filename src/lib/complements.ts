@@ -9,14 +9,38 @@ export type ComplementCard = {
   kind: "buy_with" | "set";
 };
 
-const BUY_WITH_CATEGORY: Record<string, string[]> = {
-  necklace: ["earring", "bracelet", "ring"],
-  earring: ["necklace", "bracelet"],
-  ring: ["bracelet", "necklace", "earring"],
-  bracelet: ["ring", "necklace", "earring"],
-  set: ["necklace", "earring", "bracelet", "ring"],
-  accessory: ["necklace", "earring", "bracelet", "ring"],
+/** Canonical Persian category slug → complementary category slugs (post-067). */
+const BUY_WITH_TARGETS: Record<string, string[]> = {
+  گردنبند: ["گوشواره", "دستبند", "انگشتر"],
+  گوشواره: ["گردنبند", "دستبند"],
+  انگشتر: ["دستبند", "گردنبند", "گوشواره"],
+  دستبند: ["انگشتر", "گردنبند", "گوشواره"],
+  ست: ["گردنبند", "گوشواره", "دستبند", "انگشتر"],
+  اکسسوری: ["گردنبند", "گوشواره", "دستبند", "انگشتر"],
 };
+
+/** Map legacy English (and FA) category slugs to canonical FA keys. */
+const CATEGORY_CANONICAL: Record<string, string> = {
+  گردنبند: "گردنبند",
+  گوشواره: "گوشواره",
+  انگشتر: "انگشتر",
+  دستبند: "دستبند",
+  ست: "ست",
+  اکسسوری: "اکسسوری",
+  necklace: "گردنبند",
+  earring: "گوشواره",
+  ring: "انگشتر",
+  bracelet: "دستبند",
+  set: "ست",
+  accessory: "اکسسوری",
+};
+
+const SET_CATEGORY_SLUGS = ["ست", "set"] as const;
+
+function buyWithTargetsFor(categorySlug: string): string[] {
+  const canonical = CATEGORY_CANONICAL[categorySlug] ?? categorySlug;
+  return BUY_WITH_TARGETS[canonical] ?? [];
+}
 
 async function hydrateCards(
   products: { id: string; name: string; slug: string }[],
@@ -114,7 +138,7 @@ export async function getProductComplements(
 
     // Fallback: complementary categories for با این بخر
     if (buyWith.length < buyWithLimit && categorySlug) {
-      const targets = BUY_WITH_CATEGORY[categorySlug] ?? [];
+      const targets = buyWithTargetsFor(categorySlug);
       if (targets.length) {
         const { data: cats } = await supabase
           .from("categories")
@@ -142,20 +166,20 @@ export async function getProductComplements(
       }
     }
 
-    // Fallback: products in «ست» category
+    // Fallback: products in «ست» category (FA slug after 067; EN kept for legacy DBs)
     if (sets.length < setLimit) {
-      const { data: setCat } = await supabase
+      const { data: setCats } = await supabase
         .from("categories")
         .select("id")
-        .eq("slug", "set")
-        .eq("is_active", true)
-        .maybeSingle();
-      if (setCat?.id) {
+        .in("slug", [...SET_CATEGORY_SLUGS])
+        .eq("is_active", true);
+      const setCatIds = (setCats ?? []).map((c) => c.id);
+      if (setCatIds.length) {
         const exclude = new Set([productId, ...sets.map((s) => s.id)]);
         const { data: more } = await supabase
           .from("products")
           .select("id, name, slug")
-          .eq("category_id", setCat.id)
+          .in("category_id", setCatIds)
           .eq("status", "published")
           .is("deleted_at", null)
           .neq("id", productId)

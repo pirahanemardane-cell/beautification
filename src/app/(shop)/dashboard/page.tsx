@@ -281,8 +281,19 @@ export default function BuyerDashboardPage() {
  const [returnLoading, setReturnLoading] = useState(false);
  const [returnOrderId, setReturnOrderId] = useState("");
  const [returnReason, setReturnReason] = useState("");
+ const [returnSelectedItemIds, setReturnSelectedItemIds] = useState<string[]>([]);
  const [returnOrderOptions, setReturnOrderOptions] = useState<
- { id: string; label: string }[]
+ {
+ id: string;
+ label: string;
+ items: {
+ id: string;
+ title: string;
+ quantity: number;
+ size_name?: string | null;
+ color_name?: string | null;
+ }[];
+ }[]
  >([]);
 
 useEffect(() => {
@@ -579,7 +590,19 @@ useEffect(() => {
  setReturnLoading(false);
  if (ret.ok) setReturnItems(ret.items as typeof returnItems);
  if (ord.ok && Array.isArray((ord as { items?: unknown }).items)) {
- const items = (ord as unknown as { items: { id: string; status?: string; created_at?: string; total?: number }[] }).items;
+ type OrdRow = {
+ id: string;
+ status?: string;
+ created_at?: string;
+ order_items?: {
+ id: string;
+ title?: string;
+ quantity?: number;
+ size_name?: string | null;
+ color_name?: string | null;
+ }[];
+ };
+ const items = (ord as unknown as { items: OrdRow[] }).items;
  const eligible = items.filter((o) =>
  ["shipped", "delivered"].includes(String(o.status || "")),
  );
@@ -593,6 +616,13 @@ useEffect(() => {
  ? "تحویل‌شده"
  : (o.status ?? "—")
  } · ${o.created_at ? formatJalaliDate(o.created_at) : ""}`,
+ items: (o.order_items ?? []).map((it) => ({
+ id: String(it.id),
+ title: String(it.title || "قلم"),
+ quantity: Math.max(1, Number(it.quantity) || 1),
+ size_name: it.size_name ?? null,
+ color_name: it.color_name ?? null,
+ })),
  })),
  );
  }
@@ -1898,7 +1928,14 @@ useEffect(() => {
  <select
  className="border-border bg-background w-full rounded-xl border px-3 py-2 text-sm"
  value={returnOrderId}
- onChange={(e) => setReturnOrderId(e.target.value)}
+ onChange={(e) => {
+ const id = e.target.value;
+ setReturnOrderId(id);
+ const opt = returnOrderOptions.find((o) => o.id === id);
+ const lineIds = (opt?.items ?? []).map((it) => it.id);
+ // سفارش تک‌قلمه: همه را پیش‌فرض انتخاب کن
+ setReturnSelectedItemIds(lineIds.length === 1 ? lineIds : []);
+ }}
  >
  <option value="">انتخاب سفارش…</option>
  {returnOrderOptions.map((o) => (
@@ -1910,6 +1947,54 @@ useEffect(() => {
  <p className="text-muted-foreground text-xs leading-6">
  فقط سفارش‌های ارسال‌شده یا تحویل‌شده تا ۷ روز قابل مرجوعی هستند.
  </p>
+ {returnOrderId ? (
+ <div className="border-border space-y-2 rounded-xl border p-3">
+ <p className="text-sm font-medium">قلم‌های مرجوعی</p>
+ {(returnOrderOptions.find((o) => o.id === returnOrderId)?.items ?? [])
+ .length ? (
+ <ul className="space-y-2 text-sm">
+ {(
+ returnOrderOptions.find((o) => o.id === returnOrderId)?.items ??
+ []
+ ).map((it) => {
+ const meta = [it.size_name, it.color_name].filter(Boolean).join(" · ");
+ return (
+ <li key={it.id}>
+ <label className="flex cursor-pointer items-start gap-2">
+ <input
+ type="checkbox"
+ className="mt-1"
+ checked={returnSelectedItemIds.includes(it.id)}
+ onChange={() => {
+ setReturnSelectedItemIds((prev) =>
+ prev.includes(it.id)
+ ? prev.filter((x) => x !== it.id)
+ : [...prev, it.id],
+ );
+ }}
+ />
+ <span>
+ {it.title}
+ {meta ? (
+ <span className="text-muted-foreground"> — {meta}</span>
+ ) : null}
+ <span className="text-muted-foreground">
+ {" "}
+ × {it.quantity}
+ </span>
+ </span>
+ </label>
+ </li>
+ );
+ })}
+ </ul>
+ ) : (
+ <p className="text-muted-foreground text-xs">
+ قلمی برای این سفارش یافت نشد.
+ </p>
+ )}
+ </div>
+ ) : null}
  <select
  className="border-border bg-background w-full rounded-xl border px-3 py-2 text-sm"
  value={
@@ -1951,9 +2036,17 @@ useEffect(() => {
  type="button"
  className="bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm"
  onClick={async () => {
+ const opt = returnOrderOptions.find((o) => o.id === returnOrderId);
+ const selected = (opt?.items ?? []).filter((it) =>
+ returnSelectedItemIds.includes(it.id),
+ );
  const res = await createReturnAction({
  orderId: returnOrderId,
  reason: returnReason,
+ items: selected.map((it) => ({
+ orderItemId: it.id,
+ quantity: it.quantity,
+ })),
  });
  if (!res.ok) {
  const map: Record<string, string> = {
@@ -1967,6 +2060,10 @@ useEffect(() => {
  return_already_open:
  "برای این سفارش درخواست باز دارید",
  reason_short: "دلیل را کامل‌تر بنویسید",
+ items_required: "حداقل یک قلم را برای مرجوعی انتخاب کنید",
+ invalid_item: "قلم انتخاب‌شده متعلق به این سفارش نیست",
+ invalid_quantity: "تعداد مرجوعی نامعتبر است",
+ order_items_missing: "اقلام سفارش یافت نشد",
  };
  toast.error(map[res.error] || res.error || "خطا");
  return;
@@ -1974,6 +2071,7 @@ useEffect(() => {
  toast.success("درخواست مرجوعی ثبت شد");
  setReturnOrderId("");
  setReturnReason("");
+ setReturnSelectedItemIds([]);
  const list = await listMyReturnsAction();
  if (list.ok) setReturnItems(list.items as typeof returnItems);
  window.dispatchEvent(new Event("pm:returns-changed"));

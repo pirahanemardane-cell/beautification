@@ -122,6 +122,7 @@ export default function CheckoutPage() {
  firstName: "",
  lastName: "",
  phone: "",
+ email: "",
  address: "",
  province: "",
  city: "",
@@ -470,6 +471,11 @@ export default function CheckoutPage() {
  if (!normalizeIranPostalCode(form.postal.trim())) {
  return "کد پستی باید دقیقاً ۱۰ رقم باشد.";
  }
+ const email = form.email.trim();
+ if (email) {
+ const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
+ if (!ok) return "ایمیل نامعتبر است.";
+ }
  return null;
  }
 
@@ -532,6 +538,7 @@ export default function CheckoutPage() {
  const res = await createOrderAction({
  name: fullName(),
  phone: normalizeIranMobile(form.phone.trim()) || form.phone.trim(),
+ email: form.email.trim() || undefined,
  address: form.address.trim(),
  city: form.city.trim() || undefined,
  province: form.province.trim() || undefined,
@@ -852,6 +859,7 @@ export default function CheckoutPage() {
  ["firstName", "نام *", "text"],
  ["lastName", "نام خانوادگی *", "text"],
  ["phone", "شماره موبایل *", "tel"],
+ ["email", "ایمیل (برای تأیید سفارش)", "email"],
  ["postal", "کد پستی ۱۰ رقمی *", "text"],
  ["city", "شهر *", "text"],
  ] as const
@@ -865,13 +873,19 @@ export default function CheckoutPage() {
  setForm((f) => ({ ...f, [key]: e.target.value }))
  }
  className="border-input bg-background h-10 w-full rounded-xl border px-3"
- dir={key === "phone" || key === "postal" ? "ltr" : "rtl"}
+ dir={
+ key === "phone" || key === "postal" || key === "email"
+ ? "ltr"
+ : "rtl"
+ }
  inputMode={key === "phone" || key === "postal" ? "numeric" : undefined}
  placeholder={
  key === "phone"
  ? "09121234567"
  : key === "postal"
  ? "1234567890"
+ : key === "email"
+ ? "you@example.com"
  : undefined
  }
  autoComplete={
@@ -879,9 +893,11 @@ export default function CheckoutPage() {
  ? "tel"
  : key === "postal"
  ? "postal-code"
+ : key === "email"
+ ? "email"
  : undefined
  }
- required
+ required={key !== "email"}
  />
  </label>
  ))}

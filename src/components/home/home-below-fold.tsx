@@ -9,7 +9,6 @@ import { CategoryService } from "@/services/category.service";
 import { BrandService } from "@/services/brand.service";
 import { FlashSalePromoCard } from "@/components/home/flash-sale-promo-card";
 import { getFlashSaleEndsAtAction } from "@/app/admin/actions/flash-sale";
-import { NewsletterSmsBox } from "@/components/home/newsletter-sms-box";
 import { OrderTrackBox } from "@/components/home/order-track-box";
 import { CarouselLinks } from "@/components/ui/carousel-cards";
 import { ProductCarousel } from "@/components/ui/product-carousel";
@@ -220,8 +219,8 @@ export async function HomeBelowFold() {
           <p className="text-muted-foreground text-sm">پرفروش‌ترین‌ها فعلاً خالی است.</p>
         </section>
       )}
+      {/* Newsletter SMS box hidden until Melipayamak/email channel is wired */}
       <section className="grid gap-6 md:grid-cols-2">
-        <NewsletterSmsBox />
         <OrderTrackBox />
       </section>
     </main>

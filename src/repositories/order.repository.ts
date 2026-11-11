@@ -18,6 +18,7 @@ export type CreateOrderInput = {
  address: string;
  city?: string;
  postal?: string;
+ email?: string | null;
  };
  shippingFee?: number;
  shippingMethodId?: string | null;
@@ -143,6 +144,7 @@ export class OrderRepository extends BaseRepository {
  shipping_address: input.shipping.address,
  shipping_city: input.shipping.city ?? null,
  shipping_postal: input.shipping.postal ?? null,
+ shipping_email: input.shipping.email?.trim() || null,
  note: input.note ?? null,
  gift_packaging: Boolean(input.giftPackaging),
  gift_message: input.giftMessage?.trim() || null,
@@ -167,6 +169,7 @@ export class OrderRepository extends BaseRepository {
  gift_packaging: _g,
  gift_message: _gm,
  scheduled_delivery_date: _sd,
+ shipping_email: _se,
  ...basicPayload
  } = orderPayloadFull;
  const basicIns = await service
