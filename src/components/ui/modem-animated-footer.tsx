@@ -16,27 +16,23 @@ interface SocialLink {
 }
 
 interface FooterProps {
-  brandName?: string;
   brandDescription?: string;
   socialLinks?: SocialLink[];
   navLinks?: FooterLink[];
   creatorName?: string;
   creatorUrl?: string;
+  /** Lower in-box brand mark only */
   brandIcon?: React.ReactNode;
-  /** Full brand mark (icon + wordmark) shown above the description */
-  brandLogo?: React.ReactNode;
   className?: string;
 }
 
 export function Footer({
-  brandName = "اکسسوری شاد",
   brandDescription = "فروشگاه تخصصی اکسسوری دست ساز — رسمی، اسپرت، دستبند، ست و اکسسوری",
   socialLinks = [],
   navLinks = [],
   creatorName,
   creatorUrl,
   brandIcon,
-  brandLogo,
   className,
 }: FooterProps) {
   void creatorName;
@@ -45,25 +41,12 @@ export function Footer({
   return (
     <section className={cn("relative mt-0 w-full overflow-hidden", className)}>
       <footer className="border-t bg-background relative mt-20">
-        <div className="relative mx-auto flex min-h-[22rem] w-full max-w-7xl flex-col justify-between p-4 py-8 sm:min-h-[24rem] md:min-h-[26rem] md:py-10">
+        <div className="relative mx-auto flex min-h-[20rem] w-full max-w-7xl flex-col justify-between p-4 py-8 sm:min-h-[22rem] md:min-h-[24rem] md:py-10">
           <div className="mb-8 flex w-full flex-col sm:mb-10 md:mb-6">
             <div className="flex w-full flex-col items-center">
-              <div className="flex flex-1 flex-col items-center space-y-2">
-                <div className="flex items-center justify-center gap-2">
-                  {brandLogo ? (
-                    <div className="flex max-w-[min(100%,14rem)] items-center justify-center">
-                      {brandLogo}
-                    </div>
-                  ) : (
-                    <span className="text-primary whitespace-nowrap text-6xl font-thin tracking-tight">
-                      {brandName}
-                    </span>
-                  )}
-                </div>
-                <p className="text-muted-foreground max-w-4xl px-4 text-center text-sm font-semibold whitespace-nowrap sm:text-base">
-                  {brandDescription}
-                </p>
-              </div>
+              <p className="text-muted-foreground max-w-4xl px-4 text-center text-sm font-semibold sm:text-base">
+                {brandDescription}
+              </p>
 
               {socialLinks.length > 0 && (
                 <div className="mt-3 mb-8 flex gap-4">
@@ -101,14 +84,14 @@ export function Footer({
           </div>
         </div>
 
-        {/* Logo + side borders — watermark text removed */}
+        {/* Lower in-box logo only (+ side borders). No upper logo, no watermark text. */}
         <div
           dir="ltr"
           className="pointer-events-none absolute bottom-10 left-1/2 z-10 flex w-[min(100%,42rem)] -translate-x-1/2 items-center px-4 sm:bottom-12 md:bottom-14 md:w-[min(100%,56rem)] lg:w-[min(100%,64rem)]"
         >
           <div className="bg-gradient-to-r from-transparent to-primary/70 h-px min-w-0 flex-1" />
           <div
-            className="border-border/60 bg-background/70 pointer-events-auto relative mx-0 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border p-2 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary supports-[backdrop-filter]:bg-background/60 sm:h-[4.5rem] sm:w-[4.5rem]"
+            className="border-border/60 bg-background/70 pointer-events-auto relative mx-0 flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border p-2.5 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary supports-[backdrop-filter]:bg-background/60 sm:h-24 sm:w-24"
           >
             {brandIcon}
           </div>

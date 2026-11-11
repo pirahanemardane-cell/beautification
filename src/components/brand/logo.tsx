@@ -29,7 +29,7 @@ const markBox = {
   sm: { className: "h-7 w-7", width: 28, height: 28 },
   md: { className: "h-8 w-8", width: 32, height: 32 },
   lg: { className: "h-9 w-9", width: 36, height: 36 },
-  footer: { className: "h-12 w-12", width: 48, height: 48 },
+  footer: { className: "h-16 w-16", width: 64, height: 64 },
 } as const;
 
 export function Logo({
