@@ -49,7 +49,20 @@ export function SiteFooter() {
  { label: "حریم خصوصی", href: "/حریم-خصوصی" },
  { label: "تماس", href: "/تماس" },
  ]}
- brandIcon={<Logo size="footer" className="pointer-events-none" />}
+ brandIcon={
+ <Logo
+ variant="mark"
+ size="footer"
+ className="pointer-events-none"
+ />
+ }
+ brandLogo={
+ <Logo
+ size="footer"
+ priority
+ className="pointer-events-none"
+ />
+ }
  />
  );
 }

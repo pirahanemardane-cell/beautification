@@ -16,7 +16,7 @@ export function organizationSchema() {
  url: SITE,
  logo: {
  "@type": "ImageObject",
- url: `${SITE}/icon.png`,
+ url: `${SITE}/brand/logo-light-transparent.png`,
  },
  sameAs: [] as string[],
  };
@@ -125,7 +125,7 @@ export function articleSchema(input: {
  name: "اکسسوری شاد",
  logo: {
  "@type": "ImageObject",
- url: `${SITE}/icon.png`,
+ url: `${SITE}/brand/logo-light-transparent.png`,
  },
  },
  mainEntityOfPage: {

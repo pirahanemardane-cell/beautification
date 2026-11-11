@@ -31,6 +31,7 @@ import {
  FileSpreadsheet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/brand/logo";
 
 const NAV = [
  { href: "/admin/dashboard", label: "داشبورد", icon: Home },
@@ -118,7 +119,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
  {/* —— موبایل/تبلت: نوار بالا + منوی افقی/بازشونده —— */}
  <div className="border-border sticky top-0 z-40 border-b bg-background lg:hidden">
  <div className="flex items-center justify-between gap-2 p-3">
- <span className="text-sm font-bold">CMS مدیریت</span>
+ <div className="flex min-w-0 items-center gap-2">
+ <Logo variant="mark" size="sm" className="pointer-events-none" />
+ <span className="truncate text-sm font-bold">CMS مدیریت</span>
+ </div>
  <div className="flex items-center gap-2">
  <Link href="/" className="text-muted-foreground text-xs">
  فروشگاه
@@ -156,7 +160,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
  )}
  >
  <div className="flex items-center justify-between gap-2 border-b p-3">
- {open ? <span className="text-sm font-bold">CMS مدیریت</span> : null}
+ {open ? (
+ <div className="flex min-w-0 items-center gap-2">
+ <Logo variant="mark" size="sm" className="pointer-events-none" />
+ <span className="truncate text-sm font-bold">CMS مدیریت</span>
+ </div>
+ ) : (
+ <Logo variant="mark" size="sm" className="pointer-events-none" />
+ )}
  <button
  type="button"
  className="border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border"

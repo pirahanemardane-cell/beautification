@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/brand/logo";
 
 interface About3Props {
  title?: string;
@@ -70,12 +71,9 @@ export function About3({
  <p className="text-foreground mb-3 text-lg font-semibold">
  {breakout.title}
  </p>
- <p
- className="text-primary mb-3 text-2xl font-black tracking-tight"
- aria-label={breakout.alt || "اکسسوری شاد"}
- >
- اکسسوری شاد
- </p>
+ <div className="mb-3" aria-label={breakout.alt || "اکسسوری شاد"}>
+ <Logo size="lg" className="pointer-events-none" />
+ </div>
  {breakout.description ? (
  <p className="text-muted-foreground">{breakout.description}</p>
  ) : null}
