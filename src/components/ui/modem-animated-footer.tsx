@@ -121,11 +121,11 @@ export function Footer({
               className={cn(
                 "pointer-events-auto relative mx-0 flex shrink-0 items-center justify-center overflow-hidden",
                 "h-16 w-16 rounded-2xl p-1.5 sm:h-20 sm:w-20 sm:p-2 md:h-24 md:w-24 md:p-2.5",
-                /* Matte frosted glass — coral/peach tint, watermark readable underneath */
-                "border border-primary/30 bg-primary/[0.08] shadow-[0_6px_20px_-10px_rgba(240,128,128,0.45)]",
-                "backdrop-blur-xl backdrop-saturate-150",
-                "supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]",
-                "transition-colors duration-300 hover:border-primary/55"
+                /* Colorless matte frosted glass — white/neutral only, no coral/peach tint */
+                "border border-white/55 bg-white/40 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.18)]",
+                "backdrop-blur-xl backdrop-saturate-100",
+                "supports-[backdrop-filter]:bg-white/25",
+                "transition-colors duration-300 hover:border-white/70"
               )}
             >
               <div className="flex h-full w-full items-center justify-center overflow-hidden [&_a]:!h-full [&_a]:!w-full [&_img]:!h-full [&_img]:!w-full">
