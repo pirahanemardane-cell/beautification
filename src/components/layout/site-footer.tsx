@@ -4,65 +4,31 @@ import { Mail } from "lucide-react";
 import { Footer } from "@/components/ui/modem-animated-footer";
 import { Logo } from "@/components/brand/logo";
 
-function InstagramIcon({ className }: { className?: string }) {
- return (
- <svg
- viewBox="0 0 24 24"
- fill="none"
- stroke="currentColor"
- strokeWidth="2"
- strokeLinecap="round"
- strokeLinejoin="round"
- className={className}
- aria-hidden
- >
- <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
- <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
- <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
- </svg>
- );
-}
-
 export function SiteFooter() {
- return (
- <Footer
- brandName="اکسسوری شاد"
- watermarkName="ShadJewel"
- brandDescription="فروشگاه تخصصی اکسسوری دست ساز"
- socialLinks={[
- 
- {
- icon: <Mail className="h-6 w-6" />,
- href: "mailto:info@shadjewel.ir",
- label: "ایمیل",
- },
- 
- ]}
- navLinks={[
- { label: "درباره ما", href: "/درباره-ما" },
- { label: "راهنمای سایز", href: "/راهنمای-سایز" },
- { label: "ارسال", href: "/ارسال" },
- { label: "مرجوعی", href: "/مرجوعی" },
- { label: "ضمانت و اصالت", href: "/ضمانت" },
- { label: "سوالات متداول", href: "/سوالات-متداول" },
- { label: "شرایط استفاده", href: "/شرایط-استفاده" },
- { label: "حریم خصوصی", href: "/حریم-خصوصی" },
- { label: "تماس", href: "/تماس" },
- ]}
- brandIcon={
- <Logo
- variant="mark"
- size="footer"
- className="pointer-events-none"
- />
- }
- brandLogo={
- <Logo
- size="footer"
- priority
- className="pointer-events-none"
- />
- }
- />
- );
+  return (
+    <Footer
+      brandDescription="فروشگاه تخصصی اکسسوری دست ساز"
+      socialLinks={[
+        {
+          icon: <Mail className="h-6 w-6" />,
+          href: "mailto:info@shadjewel.ir",
+          label: "ایمیل",
+        },
+      ]}
+      navLinks={[
+        { label: "درباره ما", href: "/درباره-ما" },
+        { label: "راهنمای سایز", href: "/راهنمای-سایز" },
+        { label: "ارسال", href: "/ارسال" },
+        { label: "مرجوعی", href: "/مرجوعی" },
+        { label: "ضمانت و اصالت", href: "/ضمانت" },
+        { label: "سوالات متداول", href: "/سوالات-متداول" },
+        { label: "شرایط استفاده", href: "/شرایط-استفاده" },
+        { label: "حریم خصوصی", href: "/حریم-خصوصی" },
+        { label: "تماس", href: "/تماس" },
+      ]}
+      brandIcon={
+        <Logo variant="mark" size="footer" className="pointer-events-none" />
+      }
+    />
+  );
 }

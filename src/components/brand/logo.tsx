@@ -14,19 +14,22 @@ const FULL_SRC_LIGHT = "/brand/logo-light-transparent.webp";
 const FULL_SRC_DARK = "/brand/logo-dark-transparent.webp";
 const MARK_SRC = "/brand/mark-flower-transparent.webp";
 
-/** Standard ecommerce nav heights: ~28–36px full mark */
+/**
+ * Full mark is ~744×537. Use explicit width+height (not w-auto) so RTL
+ * overflow-x:clip on the document cannot shave the trailing letter.
+ */
 const fullBox = {
-  sm: { className: "h-7 w-[auto]", width: 97, height: 28 },
-  md: { className: "h-8 w-[auto]", width: 111, height: 32 },
-  lg: { className: "h-9 w-[auto]", width: 125, height: 36 },
-  footer: { className: "h-8 w-[auto]", width: 111, height: 32 },
+  sm: { className: "h-7 w-[39px]", width: 39, height: 28 },
+  md: { className: "h-8 w-[44px]", width: 44, height: 32 },
+  lg: { className: "h-9 w-[50px]", width: 50, height: 36 },
+  footer: { className: "h-10 w-[55px]", width: 55, height: 40 },
 } as const;
 
 const markBox = {
   sm: { className: "h-7 w-7", width: 28, height: 28 },
   md: { className: "h-8 w-8", width: 32, height: 32 },
   lg: { className: "h-9 w-9", width: 36, height: 36 },
-  footer: { className: "h-8 w-8 sm:h-9 sm:w-9", width: 36, height: 36 },
+  footer: { className: "h-16 w-16", width: 64, height: 64 },
 } as const;
 
 export function Logo({
@@ -41,7 +44,7 @@ export function Logo({
     <Link
       href="/"
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center",
+        "relative inline-flex shrink-0 items-center justify-center overflow-visible",
         box.className,
         className
       )}
@@ -54,7 +57,8 @@ export function Logo({
           width={box.width}
           height={box.height}
           priority={priority}
-          className="h-full w-full object-contain"
+          sizes={`${box.width}px`}
+          className="!h-full !w-full max-w-none object-contain"
         />
       ) : (
         <>
@@ -64,7 +68,8 @@ export function Logo({
             width={box.width}
             height={box.height}
             priority={priority}
-            className="h-full w-auto object-contain dark:hidden"
+            sizes={`${box.width}px`}
+            className="!h-full !w-full max-w-none object-contain dark:hidden"
           />
           <Image
             src={FULL_SRC_DARK}
@@ -73,7 +78,8 @@ export function Logo({
             width={box.width}
             height={box.height}
             priority={priority}
-            className="hidden h-full w-auto object-contain dark:block"
+            sizes={`${box.width}px`}
+            className="hidden !h-full !w-full max-w-none object-contain dark:block"
           />
         </>
       )}
