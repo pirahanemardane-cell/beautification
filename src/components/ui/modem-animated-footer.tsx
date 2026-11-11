@@ -24,6 +24,8 @@ interface FooterProps {
  creatorName?: string;
  creatorUrl?: string;
  brandIcon?: React.ReactNode;
+ /** Full brand mark (icon + wordmark) shown above the description */
+ brandLogo?: React.ReactNode;
  className?: string;
 }
 
@@ -36,6 +38,7 @@ export function Footer({
  creatorName,
  creatorUrl,
  brandIcon,
+ brandLogo,
  className,
 }: FooterProps) {
  return (
@@ -45,10 +48,16 @@ export function Footer({
  <div className="mb-8 flex w-full flex-col sm:mb-10 md:mb-6">
  <div className="flex w-full flex-col items-center">
  <div className="flex flex-1 flex-col items-center space-y-2">
- <div className="flex items-center gap-2">
+ <div className="flex items-center justify-center gap-2">
+ {brandLogo ? (
+ <div className="flex max-w-[min(100%,18rem)] items-center justify-center sm:max-w-[22rem]">
+ {brandLogo}
+ </div>
+ ) : (
  <span className="text-primary whitespace-nowrap text-6xl font-thin tracking-tight">
  {brandName}
  </span>
+ )}
  </div>
  <p className="text-muted-foreground max-w-4xl px-4 text-center text-sm font-semibold whitespace-nowrap sm:text-base">
  {brandDescription}

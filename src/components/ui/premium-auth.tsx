@@ -18,6 +18,7 @@ import {
  Loader2,
  MessageSquare,
 } from "lucide-react";
+import { Logo } from "@/components/brand/logo";
 
 type AuthMode = "login" | "signup" | "reset";
 
@@ -426,6 +427,9 @@ export function AuthForm({
  ) : null}
 
  <div className="mb-6 text-center">
+ <div className="mb-4 flex justify-center">
+ <Logo size="lg" />
+ </div>
  <h2 className="mb-2 text-2xl font-bold text-primary">
  {authMode === "login"
  ? "ورود"
