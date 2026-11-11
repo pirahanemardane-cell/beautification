@@ -28,7 +28,11 @@ export function SiteFooter() {
         { label: "تماس", href: "/تماس" },
       ]}
       brandIcon={
-        <Logo variant="mark" size="footer" className="pointer-events-none" />
+        <Logo
+          variant="mark"
+          size="footer"
+          className="pointer-events-none !h-full !w-full"
+        />
       }
     />
   );

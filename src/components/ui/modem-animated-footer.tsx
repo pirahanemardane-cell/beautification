@@ -42,8 +42,8 @@ export function Footer({
   void creatorUrl;
 
   return (
-    <section className={cn("relative mt-0 w-full overflow-hidden", className)}>
-      <footer className="border-t bg-background relative mt-20">
+    <section className={cn("relative mt-0 w-full overflow-x-clip", className)}>
+      <footer className="border-t bg-background relative mt-20 overflow-hidden">
         <div className="relative mx-auto flex min-h-[20rem] w-full max-w-7xl flex-col justify-between p-4 py-8 sm:min-h-[22rem] md:min-h-[24rem] md:py-10">
           <div className="mb-8 flex w-full flex-col sm:mb-10 md:mb-6">
             <div className="flex w-full flex-col items-center">
@@ -87,31 +87,54 @@ export function Footer({
           </div>
         </div>
 
+        {/* Soft fade above watermark — kept above the chip so glass can read text */}
+        <div
+          aria-hidden
+          className="from-background via-background/50 pointer-events-none absolute inset-x-0 bottom-[7.5rem] z-0 h-16 bg-gradient-to-t to-transparent sm:bottom-32"
+        />
+
         {/* Large faint English watermark outside the box */}
         <div
-          className="text-primary/35 pointer-events-none absolute bottom-8 left-1/2 z-0 max-w-[95vw] -translate-x-1/2 whitespace-nowrap px-4 text-center leading-none font-extrabold select-none sm:bottom-8 md:bottom-0"
+          className="text-primary/40 pointer-events-none absolute inset-x-0 bottom-6 z-[1] overflow-hidden px-3 text-center leading-none font-extrabold select-none sm:bottom-8 md:bottom-2"
           style={{
-            fontSize: "clamp(1.35rem, 9vw, 9.5rem)",
+            fontSize: "clamp(1.25rem, 8.5vw, 9.5rem)",
             letterSpacing: "-0.02em",
           }}
         >
-          {watermarkName}
+          <span className="inline-block max-w-full truncate whitespace-nowrap">
+            {watermarkName}
+          </span>
         </div>
 
-        {/* Lower in-box flower logo (+ side borders). No upper full logo. */}
+        {/*
+          Logo chip + side borders.
+          inset-x + padding (no left-1/2/-translate-x) keeps the chip fully inside
+          the footer on tablet/mobile; glass fill lets the watermark show through.
+        */}
         <div
           dir="ltr"
-          className="pointer-events-none absolute bottom-10 left-1/2 z-10 flex w-[min(100%,42rem)] -translate-x-1/2 items-center px-4 sm:bottom-12 md:bottom-14 md:w-[min(100%,56rem)] lg:w-[min(100%,64rem)]"
+          className="pointer-events-none absolute inset-x-0 bottom-5 z-10 flex justify-center px-3 sm:bottom-7 sm:px-4 md:bottom-9"
         >
-          <div className="bg-gradient-to-r from-transparent to-primary/70 h-px min-w-0 flex-1" />
-          <div
-            className="border-border/60 bg-background/70 pointer-events-auto relative mx-0 flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border p-2.5 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary supports-[backdrop-filter]:bg-background/60 sm:h-24 sm:w-24"
-          >
-            {brandIcon}
+          <div className="flex w-full max-w-xl items-center md:max-w-3xl lg:max-w-4xl">
+            <div className="bg-gradient-to-r from-transparent to-primary/70 h-px min-w-0 flex-1" />
+            <div
+              className={cn(
+                "pointer-events-auto relative mx-0 flex shrink-0 items-center justify-center overflow-hidden",
+                "h-16 w-16 rounded-2xl p-1.5 sm:h-20 sm:w-20 sm:p-2 md:h-24 md:w-24 md:p-2.5",
+                /* Matte frosted glass — coral/peach tint, watermark readable underneath */
+                "border border-primary/30 bg-primary/[0.08] shadow-[0_6px_20px_-10px_rgba(240,128,128,0.45)]",
+                "backdrop-blur-xl backdrop-saturate-150",
+                "supports-[backdrop-filter]:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]",
+                "transition-colors duration-300 hover:border-primary/55"
+              )}
+            >
+              <div className="flex h-full w-full items-center justify-center overflow-hidden [&_a]:!h-full [&_a]:!w-full [&_img]:!h-full [&_img]:!w-full">
+                {brandIcon}
+              </div>
+            </div>
+            <div className="bg-gradient-to-l from-transparent to-primary/70 h-px min-w-0 flex-1" />
           </div>
-          <div className="bg-gradient-to-l from-transparent to-primary/70 h-px min-w-0 flex-1" />
         </div>
-        <div className="from-background via-background/80 to-background/40 absolute bottom-24 h-20 w-full bg-gradient-to-t blur-[1em]" />
       </footer>
     </section>
   );
