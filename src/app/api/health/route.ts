@@ -47,7 +47,8 @@ export async function GET(request: NextRequest) {
  process.env.R2_BUCKET_NAME,
  );
  const sentryConfigured = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
- const cronConfigured = Boolean(process.env.CRON_SECRET);
+ const cronConfigured = Boolean(process.env.CRON_SECRET?.trim());
+ const resendConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
 
  const body = {
  ok: supabase !== "error",
@@ -63,6 +64,7 @@ export async function GET(request: NextRequest) {
  r2: r2Configured ? "ok" : "missing-env",
  sentry: sentryConfigured ? "ok" : "missing-env",
  cronBackup: cronConfigured ? "ok" : "missing-env",
+ resend: resendConfigured ? "ok" : "missing-env",
  },
  };
 

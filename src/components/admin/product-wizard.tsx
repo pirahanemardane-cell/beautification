@@ -12,7 +12,12 @@ import {
  adminAddProductGalleryImageAction,
  adminUpdateProductImageRoleAction,
  adminCheckProductSlugAction,
+ adminListProductsAction,
 } from "@/app/admin/actions/products";
+import {
+ adminGetProductComplementIdsAction,
+ adminSaveProductComplementsAction,
+} from "@/app/admin/actions/complements";
 import {
  PRODUCT_IMAGE_ROLES,
  PRODUCT_IMAGE_ROLE_LABELS,
@@ -179,15 +184,21 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  const [publishedAt, setPublishedAt] = useState("");
  const [publishMode, setPublishMode] = useState<"draft" | "now" | "schedule">("draft");
  const [slugStatus, setSlugStatus] = useState<"idle" | "checking" | "ok" | "taken" | "err">("idle");
+ const [complementCatalog, setComplementCatalog] = useState<
+ { id: string; name: string }[]
+ >([]);
+ const [buyWithIds, setBuyWithIds] = useState<string[]>([]);
+ const [setComplementIds, setSetComplementIds] = useState<string[]>([]);
 
  useEffect(() => {
  void (async () => {
- const [c, b, t, a, g] = await Promise.all([
+ const [c, b, t, a, g, prods] = await Promise.all([
  adminListCategoriesAction(),
  adminListBrandsAction(),
  adminListProductTagsAction(),
  adminListAttributesAction(),
  adminListSizeGuidesAction(),
+ adminListProductsAction(200, { status: "published" }),
  ]);
  const pickOpts = (res: { ok?: boolean; items?: { id: string; name: string }[]; data?: { id: string; name: string }[] }) =>
  ((res.items ?? res.data ?? []) as { id: string; name: string }[]).map((x) => ({ id: x.id, name: x.name }));
@@ -196,8 +207,32 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  if (t.ok) setTags(pickOpts(t as { items?: { id: string; name: string }[]; data?: { id: string; name: string }[] }));
  if (a.ok) setAttrDefs((((a as { items?: AttrWithOptions[]; data?: AttrWithOptions[] }).items) ?? ((a as { data?: AttrWithOptions[] }).data) ?? []) as AttrWithOptions[]);
  if (g.ok) setGuides(pickOpts(g as { items?: { id: string; name: string }[]; data?: { id: string; name: string }[] }));
+ if (prods.ok) {
+ setComplementCatalog(
+ ((prods.items ?? []) as { id: string; name: string }[]).map((p) => ({
+ id: p.id,
+ name: p.name,
+ })),
+ );
+ }
  })();
  }, []);
+
+ useEffect(() => {
+ if (!productId) {
+ setBuyWithIds([]);
+ setSetComplementIds([]);
+ return;
+ }
+ void (async () => {
+ const [buy, setKind] = await Promise.all([
+ adminGetProductComplementIdsAction(productId, "buy_with"),
+ adminGetProductComplementIdsAction(productId, "set"),
+ ]);
+ if (buy.ok) setBuyWithIds(buy.ids);
+ if (setKind.ok) setSetComplementIds(setKind.ids);
+ })();
+ }, [productId]);
 
  useEffect(() => {
  if (!initialId) return;
@@ -633,13 +668,34 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  };
  }
  }
+
+ // complements (با این بخر / ست) — best-effort after product exists
+ {
+ const buyRes = await adminSaveProductComplementsAction({
+ productId: id,
+ kind: "buy_with",
+ complementProductIds: buyWithIds,
+ });
+ if (!buyRes.ok) {
+ console.error("[wizard complements buy_with]", buyRes);
+ }
+ const setRes = await adminSaveProductComplementsAction({
+ productId: id,
+ kind: "set",
+ complementProductIds: setComplementIds,
+ });
+ if (!setRes.ok) {
+ console.error("[wizard complements set]", setRes);
+ }
+ }
+
  return { ok: true as const, id };
  },
  [
  productId, name, slug, categoryId, brandId, shortDesc, description, status,
  featured, isNew, isActive, imageUrl, selectedTags, attrValues, productType, pickedSizeIds, pickedColorIds, sizeAttr, colorAttr, colorOpts,
  simpleSku, simpleStock, variants, sellingPrice, originalPrice,
- sizeGuideId, publishedAt, publishMode,
+ sizeGuideId, publishedAt, publishMode, buyWithIds, setComplementIds,
  ],
  );
 
@@ -1637,6 +1693,62 @@ export function ProductWizard({ productId: initialId = null }: ProductWizardProp
  <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
  فعال در فروشگاه
  </label>
+
+ <div className="border-border space-y-3 rounded-xl border border-dashed p-3">
+ <div className="flex flex-wrap items-center justify-between gap-2">
+ <p className="text-sm font-medium text-primary">مکمل‌ها و ست‌ها</p>
+ <Link
+ href="/admin/complements"
+ className="text-muted-foreground text-xs underline"
+ >
+ مدیریت کامل
+ </Link>
+ </div>
+ {!productId ? (
+ <p className="text-muted-foreground text-xs">
+ پس از اولین ذخیره، می‌توانید مکمل‌ها را اینجا تنظیم کنید.
+ </p>
+ ) : (
+ <>
+ {(
+ [
+ ["buy_with", "با این بخر", buyWithIds, setBuyWithIds],
+ ["set", "ست پیشنهادی", setComplementIds, setSetComplementIds],
+ ] as const
+ ).map(([kind, label, ids, setIds]) => (
+ <div key={kind} className="space-y-1">
+ <p className="text-xs font-medium">{label}</p>
+ <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border p-2 text-xs">
+ {complementCatalog
+ .filter((p) => p.id !== productId)
+ .map((p) => (
+ <label
+ key={`${kind}-${p.id}`}
+ className="flex cursor-pointer items-center gap-2 px-1 py-0.5"
+ >
+ <input
+ type="checkbox"
+ checked={ids.includes(p.id)}
+ onChange={() => {
+ setIds((prev) =>
+ prev.includes(p.id)
+ ? prev.filter((x) => x !== p.id)
+ : [...prev, p.id].slice(0, 12),
+ );
+ }}
+ />
+ <span>{p.name}</span>
+ </label>
+ ))}
+ {!complementCatalog.filter((p) => p.id !== productId).length ? (
+ <p className="text-muted-foreground">محصول منتشرشدهٔ دیگری نیست.</p>
+ ) : null}
+ </div>
+ </div>
+ ))}
+ </>
+ )}
+ </div>
  </div>
  )}
  </div>

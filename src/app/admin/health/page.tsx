@@ -21,9 +21,10 @@ const LABEL: Record<string, string> = {
  rateLimit: "محدودیت نرخ",
  r2: "فایل‌ها (R2)",
  sentry: "مانیتورینگ (Sentry)",
- cronBackup: "کرون بک‌آپ",
+ cronBackup: "کرون بک‌آپ (CRON_SECRET)",
+ resend: "ایمیل تراکنشی (Resend)",
  sms: "پیامک (ملی‌پیامک)",
- searchIndex: "ایندکس گوگل",
+ searchIndex: "ایندکس گوگل (ALLOW_INDEX)",
 };
 
 function badge(v: string) {
@@ -34,6 +35,7 @@ function badge(v: string) {
  v === "indexable";
  const warn =
  v === "missing-env" ||
+ v === "missing-from" ||
  v === "memory-fallback" ||
  v === "noindex" ||
  v === "skip";

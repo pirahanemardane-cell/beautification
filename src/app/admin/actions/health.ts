@@ -38,8 +38,12 @@ export async function adminHealthCheckAction() {
  process.env.R2_BUCKET_NAME,
  );
  const sentryConfigured = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
- const cronConfigured = Boolean(process.env.CRON_SECRET);
+ const cronConfigured = Boolean(process.env.CRON_SECRET?.trim());
  const smsConfigured = Boolean(process.env.MELIPAYAMAK_USERNAME?.trim());
+ const resendConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
+ const emailFromConfigured = Boolean(
+ (process.env.EMAIL_FROM || process.env.RESEND_FROM || "").trim(),
+ );
  const indexAllowed =
  ["1", "true", "yes"].includes(
  (process.env.NEXT_PUBLIC_ALLOW_INDEX || "").trim().toLowerCase(),
@@ -59,6 +63,11 @@ export async function adminHealthCheckAction() {
  r2: r2Configured ? "ok" : "missing-env",
  sentry: sentryConfigured ? "ok" : "missing-env",
  cronBackup: cronConfigured ? "ok" : "missing-env",
+ resend: resendConfigured
+ ? emailFromConfigured
+ ? "ok"
+ : "missing-from"
+ : "missing-env",
  sms: smsConfigured ? "configured" : "missing-env",
  searchIndex: indexAllowed ? "indexable" : "noindex",
  },

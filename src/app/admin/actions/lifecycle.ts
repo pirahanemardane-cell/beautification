@@ -683,7 +683,7 @@ export async function adminHardDeleteReturnsAction(ids: string[]) {
  const list = cleanIds(ids);
  if (!list.length) return { ok: false as const, error: "empty" as const };
  try {
- try { await gate.supabase.from("return_items").delete().in("return_request_id", list); } catch { /* ignore */ }
+ try { await gate.supabase.from("return_items").delete().in("return_id", list); } catch { /* ignore */ }
  const { error } = await gate.supabase.from("return_requests").delete().in("id", list);
  if (error) throw error;
  return { ok: true as const, count: list.length };

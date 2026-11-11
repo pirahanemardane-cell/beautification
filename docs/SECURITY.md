@@ -5,8 +5,9 @@
 - **Rate Limiting توزیع‌شده با Upstash** روی contact + آماده برای auth/API
  - fallback حافظه‌ای وقتی Upstash تنظیم نباشد
 - Security headers قوی در middleware + next.config (CSP, HSTS, X-Frame-Options و ...)
-- Health check کامل: `/api/health` (Supabase + RateLimit + R2 + Sentry + Cron)
+- Health check کامل: `/api/health` (Supabase + RateLimit + R2 + Sentry + Cron + Resend)
 - بک‌آپ روزانه: `/api/cron/backup` → R2 (نیاز به `CRON_SECRET`)
+- ایمیل تراکنشی Resend (تأیید سفارش / هشدارها) — fail-soft بدون `RESEND_API_KEY`
 - RLS hardening: `supabase/migrations/030_rls_hardening.sql`
 - Gitleaks secret scanning
 - Edge cache برای APIهای عمومی
@@ -22,7 +23,9 @@
  - `UPSTASH_REDIS_REST_URL`
  - `UPSTASH_REDIS_REST_TOKEN`
  - `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` / `R2_PUBLIC_BASE_URL`
- - `CRON_SECRET`
+ - `CRON_SECRET` (برای cron بک‌آپ / expire / jobs)
+ - `RESEND_API_KEY` + `EMAIL_FROM` (تأیید سفارش و هشدار ایمیل؛ دامنهٔ فرستنده را در Resend verify کنید)
+ - `NEXT_PUBLIC_ALLOW_INDEX=true` فقط وقتی آمادهٔ ایندکس عمومی هستید (پیش‌فرض robots disallow)
  - `NEXT_PUBLIC_SENTRY_DSN` (این یکی public است)
 4. در **Cloudflare**:
  - SSL/TLS → Full (strict)

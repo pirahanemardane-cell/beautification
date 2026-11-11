@@ -61,6 +61,7 @@ const NAV = [
  { href: "/admin/price-alerts", label: "هشدار قیمت", icon: Bell },
  { href: "/admin/reports", label: "گزارش فروش", icon: FileSpreadsheet },
  { href: "/admin/analytics", label: "آمار", icon: BarChart3 },
+ { href: "/admin/search-analytics", label: "آمار جستجو", icon: BarChart3 },
  { href: "/admin/health", label: "سلامت سیستم", icon: Activity },
  { href: "/admin/seo", label: "سئو", icon: FileText },
  { href: "/admin/seo/redirects", label: "ریدایرکت‌ها", icon: FileText },
