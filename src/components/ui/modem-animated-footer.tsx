@@ -17,6 +17,8 @@ interface SocialLink {
 
 interface FooterProps {
   brandDescription?: string;
+  /** Large faint English background watermark (outside the box) */
+  watermarkName?: string;
   socialLinks?: SocialLink[];
   navLinks?: FooterLink[];
   creatorName?: string;
@@ -28,6 +30,7 @@ interface FooterProps {
 
 export function Footer({
   brandDescription = "فروشگاه تخصصی اکسسوری دست ساز — رسمی، اسپرت، دستبند، ست و اکسسوری",
+  watermarkName = "ShadJewel",
   socialLinks = [],
   navLinks = [],
   creatorName,
@@ -84,7 +87,18 @@ export function Footer({
           </div>
         </div>
 
-        {/* Lower in-box logo only (+ side borders). No upper logo, no watermark text. */}
+        {/* Large faint English watermark outside the box */}
+        <div
+          className="text-primary/35 pointer-events-none absolute bottom-8 left-1/2 z-0 max-w-[95vw] -translate-x-1/2 whitespace-nowrap px-4 text-center leading-none font-extrabold select-none sm:bottom-8 md:bottom-0"
+          style={{
+            fontSize: "clamp(1.35rem, 9vw, 9.5rem)",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {watermarkName}
+        </div>
+
+        {/* Lower in-box flower logo (+ side borders). No upper full logo. */}
         <div
           dir="ltr"
           className="pointer-events-none absolute bottom-10 left-1/2 z-10 flex w-[min(100%,42rem)] -translate-x-1/2 items-center px-4 sm:bottom-12 md:bottom-14 md:w-[min(100%,56rem)] lg:w-[min(100%,64rem)]"

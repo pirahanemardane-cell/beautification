@@ -8,6 +8,7 @@ export function SiteFooter() {
   return (
     <Footer
       brandDescription="فروشگاه تخصصی اکسسوری دست ساز"
+      watermarkName="ShadJewel"
       socialLinks={[
         {
           icon: <Mail className="h-6 w-6" />,
