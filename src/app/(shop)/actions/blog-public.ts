@@ -16,7 +16,13 @@ export async function listPublishedPostsAction(limit = 20) {
  if (error) throw error;
  return { ok: true as const, items: data ?? [] };
  } catch (e) {
- console.error("[listPublishedPosts]", e);
+ const msg = e instanceof Error ? e.message : String(e);
+ // Preview/CI often use placeholder.supabase.co — avoid scary stack dumps
+ if (/ENOTFOUND|fetch failed|placeholder\.supabase/i.test(msg)) {
+ console.warn("[listPublishedPosts] skipped (supabase unreachable)");
+ } else {
+ console.error("[listPublishedPosts]", msg);
+ }
  return { ok: false as const, items: [] };
  }
 }
@@ -37,7 +43,12 @@ export async function getPublishedPostBySlugAction(slug: string) {
  // cast: generated DB types may lag behind real columns (robots_*, og_*)
  return { ok: true as const, post: data as Record<string, unknown> };
  } catch (e) {
- console.error("[getPublishedPost]", e);
+ const msg = e instanceof Error ? e.message : String(e);
+ if (/ENOTFOUND|fetch failed|placeholder\.supabase/i.test(msg)) {
+ console.warn("[getPublishedPost] skipped (supabase unreachable)");
+ } else {
+ console.error("[getPublishedPost]", msg);
+ }
  return { ok: false as const, post: null, error: "server" };
  }
 }

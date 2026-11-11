@@ -50,7 +50,7 @@ export function Footer({
  <div className="flex flex-1 flex-col items-center space-y-2">
  <div className="flex items-center justify-center gap-2">
  {brandLogo ? (
- <div className="flex max-w-[min(100%,18rem)] items-center justify-center sm:max-w-[22rem]">
+ <div className="flex max-w-[min(100%,12rem)] items-center justify-center">
  {brandLogo}
  </div>
  ) : (
@@ -118,7 +118,7 @@ export function Footer({
  >
  <div className="bg-gradient-to-r from-transparent to-primary/70 h-px min-w-0 flex-1" />
  <div
- className="border-border/60 bg-background/70 pointer-events-auto relative mx-0 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border p-2 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary supports-[backdrop-filter]:bg-background/60 sm:h-20 sm:w-20 md:h-24 md:w-24"
+ className="border-border/60 bg-background/70 pointer-events-auto relative mx-0 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border p-1.5 shadow-sm backdrop-blur-md transition-colors duration-300 hover:border-primary supports-[backdrop-filter]:bg-background/60 sm:h-11 sm:w-11"
  >
  {brandIcon}
  </div>

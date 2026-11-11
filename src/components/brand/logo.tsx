@@ -14,18 +14,19 @@ const FULL_SRC_LIGHT = "/brand/logo-light-transparent.webp";
 const FULL_SRC_DARK = "/brand/logo-dark-transparent.webp";
 const MARK_SRC = "/brand/mark-flower-transparent.webp";
 
+/** Standard ecommerce nav heights: ~28–36px full mark */
 const fullBox = {
-  sm: { className: "h-8 w-[auto]", width: 110, height: 32 },
-  md: { className: "h-9 w-[auto]", width: 124, height: 36 },
-  lg: { className: "h-11 w-[auto]", width: 152, height: 44 },
-  footer: { className: "h-14 w-[auto] sm:h-16", width: 200, height: 64 },
+  sm: { className: "h-7 w-[auto]", width: 97, height: 28 },
+  md: { className: "h-8 w-[auto]", width: 111, height: 32 },
+  lg: { className: "h-9 w-[auto]", width: 125, height: 36 },
+  footer: { className: "h-8 w-[auto]", width: 111, height: 32 },
 } as const;
 
 const markBox = {
-  sm: { className: "h-8 w-8", width: 32, height: 32 },
-  md: { className: "h-9 w-9", width: 36, height: 36 },
-  lg: { className: "h-11 w-11", width: 44, height: 44 },
-  footer: { className: "h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16", width: 64, height: 64 },
+  sm: { className: "h-7 w-7", width: 28, height: 28 },
+  md: { className: "h-8 w-8", width: 32, height: 32 },
+  lg: { className: "h-9 w-9", width: 36, height: 36 },
+  footer: { className: "h-8 w-8 sm:h-9 sm:w-9", width: 36, height: 36 },
 } as const;
 
 export function Logo({
