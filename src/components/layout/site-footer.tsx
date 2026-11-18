@@ -1,6 +1,7 @@
 "use client";
 
-import StrobeDivaFooter from "@/components/ui/strobe-diva-footer";
+import Image from "next/image";
+import { WordmarkRevealFooter } from "@/components/ui/wordmark-reveal-footer";
 import { STOREFRONT_PATHS } from "@/lib/seo/storefront-paths";
 
 const FOOTER_COLUMNS = [
@@ -39,25 +40,28 @@ const LEGAL_LINKS = [
 
 export function SiteFooter() {
   return (
-    <StrobeDivaFooter
+    <WordmarkRevealFooter
       wordmark="SHADJEWEL"
-      mark="S"
-      sealText="Shad Jewel · اکسسوری شاد ·"
-      established="2024"
-      barcode="14030118"
-      preset="shadjewel"
-      figure={null}
-      columns={FOOTER_COLUMNS}
-      legalLinks={LEGAL_LINKS}
-      copyright="© شاد جول"
-      labels={{
-        established: "تأسیس",
-        backToTop: "بالا",
-        replay: "پخش دوباره",
+      brand={{
+        name: "شاد جول",
+        mark: (
+          <Image
+            src="/brand/mark-flower-transparent.webp"
+            alt=""
+            width={28}
+            height={28}
+            className="size-7 object-contain"
+          />
+        ),
+        blurb:
+          "ShadJewel — فروشگاه تخصصی اکسسوری دست‌ساز؛ گردنبند، گوشواره، انگشتر، دستبند و ست.",
       }}
-      fontFamily='"IRANYekanX", Impact, Haettenschweiler, "Arial Narrow", sans-serif'
-      monoFamily='"IRANYekanX", "JetBrains Mono", Menlo, Consolas, monospace'
-      backToTop
+      columns={FOOTER_COLUMNS}
+      legal={LEGAL_LINKS}
+      offices={[{ city: "Tehran", timeZone: "Asia/Tehran" }]}
+      status={{ label: "فروشگاه آنلاین", tone: "ok" }}
+      reveal="inView"
+      className="border-t border-border"
     />
   );
 }
