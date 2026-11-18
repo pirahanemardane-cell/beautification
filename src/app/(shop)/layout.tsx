@@ -25,7 +25,6 @@ export default function ShopLayout({
  </main>
  </div>
  </div>
- <div className="border-border border-t">
  <div className="mx-auto flex w-full max-w-6xl flex-wrap items-start justify-between gap-4 px-4 py-4">
  {/* Defer contact fetch so it cannot block/stream ahead of page hero */}
  <Suspense fallback={null}>
@@ -33,7 +32,6 @@ export default function ShopLayout({
  </Suspense>
  </div>
  <SiteFooter />
- </div>
  <BackToTop />
  </div>
  </NotificationsProvider>
