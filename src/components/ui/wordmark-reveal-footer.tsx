@@ -363,13 +363,14 @@ export function WordmarkRevealFooter({
         <div
           ref={wordmarkRef}
           data-wordmark
+          dir="ltr"
           role="img"
           aria-label={wordmark}
           onPointerLeave={() => setHover(-1)}
           className="relative mt-auto select-none pt-8 font-extrabold @3xl:pt-12 leading-none tracking-[-0.04em] [--glint:color-mix(in_oklch,var(--color-foreground)_42%,var(--color-background))] [--wm:var(--color-foreground)] dark:[--glint:var(--color-foreground)] dark:[--wm:color-mix(in_oklch,var(--color-foreground)_90%,transparent)]"
-          style={{ fontSize }}
+          style={{ fontSize, unicodeBidi: "isolate" }}
         >
-          <div ref={rowRef} data-row className="relative whitespace-nowrap" style={{ clipPath: `inset(-100% 0 ${descent}px 0)`, marginBottom: `${-descent}px` }}>
+          <div ref={rowRef} data-row dir="ltr" className="relative whitespace-nowrap" style={{ clipPath: `inset(-100% 0 ${descent}px 0)`, marginBottom: `${-descent}px`, unicodeBidi: "isolate" }}>
             {letters.map((letter, i) => (
               <span
                 key={`${i}-${letter}`}
