@@ -1,27 +1,26 @@
-/** دسته‌بندی‌های استاندارد اکسسوری شاد (slugs map to CategorySvgIcon) */
+/** دسته‌بندی‌های فروشگاه — همان شکل قبلی، مقادیر آرایشی و بهداشتی */
 export const JEWELRY_CATEGORIES = [
-  { name: "گردنبند", slug: "گردنبند", icon: "necklace" },
-  { name: "گوشواره", slug: "گوشواره", icon: "earring" },
-  { name: "انگشتر", slug: "انگشتر", icon: "ring" },
-  { name: "دستبند", slug: "دستبند", icon: "bracelet" },
-  { name: "ست", slug: "ست", icon: "set" },
-  { name: "اکسسوری", slug: "اکسسوری", icon: "default" },
+  { name: "مراقبت پوست", slug: "مراقبت-پوست", icon: "default" },
+  { name: "آرایش", slug: "آرایش", icon: "default" },
+  { name: "مو", slug: "مو", icon: "default" },
+  { name: "بدن", slug: "بدن", icon: "default" },
+  { name: "عطر", slug: "عطر", icon: "default" },
+  { name: "بهداشت", slug: "بهداشت", icon: "default" },
 ] as const;
 
-/** متریال‌های رایج — slug فارسی برای URL facet */
+/** نوع پوست — fallback وقتی کاتالوگ خالی است */
 export const JEWELRY_MATERIALS = [
-  { name: "طلا", slug: "طلا" },
-  { name: "نقره", slug: "نقره" },
-  { name: "استیل", slug: "استیل" },
-  { name: "رزگلد", slug: "رزگلد" },
-  { name: "پلاتین", slug: "پلاتین" },
+  { name: "خشک", slug: "dry" },
+  { name: "چرب", slug: "oily" },
+  { name: "مختلط", slug: "combination" },
+  { name: "معمولی", slug: "normal" },
+  { name: "حساس", slug: "sensitive" },
 ] as const;
 
-/** رنگ‌های رایج — slug فارسی برای URL facet */
 export const JEWELRY_COLORS = [
-  { name: "طلایی", slug: "طلایی", hex: "#D4AF37" },
-  { name: "نقره‌ای", slug: "نقره-ای", hex: "#C0C0C0" },
-  { name: "رزگلد", slug: "رزگلد", hex: "#B76E79" },
-  { name: "سفید", slug: "سفید", hex: "#F5F5F5" },
-  { name: "مشکی", slug: "مشکی", hex: "#1a1a1a" },
+  { name: "نود", slug: "nude", hex: "#E6C2A6" },
+  { name: "صورتی", slug: "pink", hex: "#E7A6B5" },
+  { name: "قرمز", slug: "red", hex: "#C23B3B" },
+  { name: "قهوه‌ای", slug: "brown", hex: "#6B3E2E" },
+  { name: "شفاف", slug: "clear", hex: "#F5F5F5" },
 ] as const;

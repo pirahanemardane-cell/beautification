@@ -14,25 +14,25 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://shadjewel.ir";
 export const metadata: Metadata = {
  metadataBase: new URL(siteUrl),
  title: {
- default: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
- template: "%s | اکسسوری شاد",
+ default: "بیوتی‌فیکیشن | فروشگاه آرایشی و بهداشتی",
+ template: "%s | بیوتی‌فیکیشن",
  },
  description:
- "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری اکسسوری دست ساز",
- applicationName: "اکسسوری شاد",
- authors: [{ name: "اکسسوری شاد" }],
+ "فروشگاه آرایشی و بهداشتی — مراقبت پوست، آرایش، مو، بدن، عطر و بهداشت",
+ applicationName: "بیوتی‌فیکیشن",
+ authors: [{ name: "بیوتی‌فیکیشن" }],
  generator: "Next.js",
  keywords: [
- "اکسسوری شاد",
- "گردنبند",
- "گوشواره",
- "دستبند",
- "ست",
- "اکسسوری",
+ "بیوتی‌فیکیشن",
+ "مراقبت پوست",
+ "آرایش",
+ "مو",
+ "عطر",
+ "بهداشت",
  ],
  manifest: "/site.webmanifest",
  appleWebApp: {
- title: "اکسسوری شاد",
+ title: "بیوتی‌فیکیشن",
  },
  icons: {
  icon: [
@@ -46,24 +46,24 @@ export const metadata: Metadata = {
  type: "website",
  locale: "fa_IR",
  url: siteUrl,
- siteName: "اکسسوری شاد",
- title: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
+ siteName: "بیوتی‌فیکیشن",
+ title: "بیوتی‌فیکیشن | فروشگاه آرایشی و بهداشتی",
  description:
- "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری",
+ "فروشگاه آرایشی و بهداشتی — مراقبت پوست، آرایش، مو، بدن، عطر و بهداشت",
  images: [
  {
  url: "/og-image.webp",
  width: 1200,
  height: 630,
- alt: "Shad Jewel — اکسسوری شاد",
+ alt: "بیوتی‌فیکیشن",
  },
  ],
  },
  twitter: {
  card: "summary_large_image",
- title: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
+ title: "بیوتی‌فیکیشن | فروشگاه آرایشی و بهداشتی",
  description:
- "فروشگاه تخصصی اکسسوری دست ساز — گردنبند، اسپرت، دستبند، ست و اکسسوری",
+ "فروشگاه آرایشی و بهداشتی — مراقبت پوست، آرایش، مو، بدن، عطر و بهداشت",
  images: ["/og-image.webp"],
  },
  robots: isSiteIndexable()
@@ -128,8 +128,8 @@ export default function RootLayout({
  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
  <link rel="manifest" href="/site.webmanifest" />
- <meta name="apple-mobile-web-app-title" content="اکسسوری شاد" />
- <meta name="application-name" content="اکسسوری شاد" />
+ <meta name="apple-mobile-web-app-title" content="بیوتی‌فیکیشن" />
+ <meta name="application-name" content="بیوتی‌فیکیشن" />
  <meta name="theme-color" content="#f08080" />
  </head>
  <body className="min-h-screen font-sans antialiased max-w-full" suppressHydrationWarning>

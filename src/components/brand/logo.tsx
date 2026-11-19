@@ -48,12 +48,12 @@ export function Logo({
         box.className,
         className
       )}
-      aria-label="اکسسوری شاد — Shad Jewel"
+      aria-label="بیوتی‌فیکیشن"
     >
       {variant === "mark" ? (
         <Image
           src={MARK_SRC}
-          alt="Shad Jewel"
+          alt="بیوتی‌فیکیشن"
           width={box.width}
           height={box.height}
           priority={priority}
@@ -64,7 +64,7 @@ export function Logo({
         <>
           <Image
             src={FULL_SRC_LIGHT}
-            alt="Shad Jewel"
+            alt="بیوتی‌فیکیشن"
             width={box.width}
             height={box.height}
             priority={priority}

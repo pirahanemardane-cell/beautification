@@ -25,6 +25,7 @@ type Props = {
   categories?: { name: string; slug: string }[];
   categorySlug?: string;
   brandSlug?: string;
+  brands?: { name: string; slug: string }[];
   q?: string;
   sort?: string;
   featured?: boolean;
@@ -37,6 +38,7 @@ export function ProductFiltersMobile(props: Props) {
   const count = useMemo(() => {
     let n = Object.keys(props.current).length;
     if (props.categorySlug) n++;
+    if (props.brandSlug) n++;
     if (props.colorSlug) n++;
     if (props.sizeSlug) n++;
     if (props.inStock) n++;

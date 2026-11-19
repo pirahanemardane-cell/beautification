@@ -9,7 +9,7 @@ import {
   parseInStockParam,
 } from "@/lib/facet-map";
 
-describe("facet-map jewelry standards", () => {
+describe("facet-map cosmetics", () => {
   it("blocks apparel leftover attribute slugs", () => {
     for (const slug of APPAREL_ATTR_BLOCKLIST) {
       expect(isApparelAttrSlug(slug)).toBe(true);
@@ -17,57 +17,58 @@ describe("facet-map jewelry standards", () => {
     }
   });
 
-  it("allows jewelry material / metal / ring-size facets", () => {
-    expect(isAllowedJewelryAttrSlug("material")).toBe(true);
-    expect(isAllowedJewelryAttrSlug("metal")).toBe(true);
-    expect(isAllowedJewelryAttrSlug("ring-size")).toBe(true);
-    expect(isAllowedJewelryAttrSlug("necklace-length")).toBe(true);
+  it("allows skin type, skin concern, and gender", () => {
+    expect(isAllowedJewelryAttrSlug("skin-type")).toBe(true);
+    expect(isAllowedJewelryAttrSlug("skin-concern")).toBe(true);
+    expect(isAllowedJewelryAttrSlug("gender")).toBe(true);
+    expect(isAllowedJewelryAttrSlug("material")).toBe(false);
+    expect(isAllowedJewelryAttrSlug("ring-size")).toBe(false);
+    expect(isAllowedJewelryAttrSlug("karat")).toBe(false);
   });
 
-  it("filters facets by jewelry category", () => {
+  it("filters facets to the cosmetics set", () => {
     const facets = [
       { slug: "fabric" },
+      { slug: "skin-type" },
+      { slug: "gender" },
       { slug: "material" },
+      { slug: "skin-concern" },
       { slug: "ring-size" },
-      { slug: "fit" },
-      { slug: "necklace-length" },
     ];
-    const ring = filterJewelryFacets(facets, "ring").map((f) => f.slug);
-    expect(ring).toContain("material");
-    expect(ring).toContain("ring-size");
-    expect(ring).not.toContain("fabric");
-    expect(ring).not.toContain("fit");
-    expect(ring).not.toContain("necklace-length");
+    const skin = filterJewelryFacets(facets, "مراقبت-پوست").map((f) => f.slug);
+    expect(skin).toEqual(["skin-type", "gender", "skin-concern"]);
 
-    const ringFa = filterJewelryFacets(facets, "انگشتر").map((f) => f.slug);
-    expect(ringFa).toContain("ring-size");
-    expect(ringFa).not.toContain("necklace-length");
+    const makeup = filterJewelryFacets(facets, "آرایش").map((f) => f.slug);
+    expect(makeup).toContain("gender");
+    expect(makeup).not.toContain("material");
+    expect(makeup).not.toContain("ring-size");
 
     const all = filterJewelryFacets(facets).map((f) => f.slug);
-    expect(all).toContain("material");
-    expect(all).toContain("ring-size");
-    expect(all).toContain("necklace-length");
+    expect(all).toContain("skin-type");
+    expect(all).toContain("skin-concern");
+    expect(all).toContain("gender");
     expect(all).not.toContain("fabric");
+    expect(all).not.toContain("material");
   });
 
   it("drops apparel letter sizes from chips", () => {
     const sizes = filterJewelrySizeChips([
       { slug: "m", name: "M" },
-      { slug: "54", name: "۵۴" },
+      { slug: "50ml", name: "۵۰ میل" },
       { slug: "xl", name: "XL" },
-      { slug: "58", name: "۵۸" },
     ]);
-    expect(sizes.map((s) => s.slug)).toEqual(["54", "58"]);
+    expect(sizes.map((s) => s.slug)).toEqual(["50ml"]);
   });
 
-  it("parses jewelry attr + inStock URL params", () => {
+  it("parses cosmetics attr + inStock URL params", () => {
     expect(
       parseAttrFacetsFromParams({
+        "skin-type": "dry",
         material: "gold",
+        gender: "women",
         fabric: "cotton",
-        "ring-size": "54",
       }),
-    ).toEqual({ material: "gold", "ring-size": "54" });
+    ).toEqual({ "skin-type": "dry", gender: "women" });
     expect(parseInStockParam("1")).toBe(true);
     expect(parseInStockParam("0")).toBeUndefined();
   });

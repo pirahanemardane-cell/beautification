@@ -326,7 +326,7 @@ export default function AdminMediaPage() {
  onChange={(e) =>
  setDraftAlt((prev) => ({ ...prev, [item.id]: e.target.value }))
  }
- placeholder="مثلاً اکسسوری دست ساز آبی کلاسیک"
+ placeholder="مثلاً کرم آبرسان"
  />
  </div>
  <div className="flex flex-wrap gap-2">

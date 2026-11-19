@@ -53,7 +53,7 @@ import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_N
  فروش ویژه
  </span>
  <span className="text-xl font-black tracking-tight">تخفیف‌های امروز</span>
- <span className="text-muted-foreground text-sm">بهترین قیمت روی اکسسوری‌های دست‌ساز منتخب</span>
+ <span className="text-muted-foreground text-sm">مراقبت پوست، آرایش و بهداشت روزمره</span>
  <span className="text-primary mt-1 text-sm font-medium group-hover:underline">مشاهده محصولات ←</span>
  </Link>
  </div>
@@ -73,7 +73,7 @@ import { CategorySvgIcon } from "@/components/home/category-icons"; const MAIN_N
  <div className="mb-4 flex items-center justify-between gap-3">
  <div>
  <p className="text-sm font-bold">دسته‌بندی‌ها</p>
- <p className="text-muted-foreground text-xs">گردنبند، گوشواره، انگشتر و دستبند</p>
+ <p className="text-muted-foreground text-xs">مراقبت پوست، آرایش، مو، بدن، عطر و بهداشت</p>
  </div>
  <Link
  href="/محصولات"

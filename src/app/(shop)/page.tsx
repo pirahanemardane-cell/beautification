@@ -7,35 +7,35 @@ import PolaroidLineCarousel from "@/components/ui/polaroid-line-carousel";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "اکسسوری شاد | فروشگاه تخصصی اکسسوری دست ساز",
+  title: "بیوتی‌فیکیشن | فروشگاه آرایشی و بهداشتی",
   description:
-    "خرید گردنبند، گوشواره، انگشتر، دستبند و ست‌های اکسسوری دست ساز از فروشگاه تخصصی اکسسوری دست ساز",
+    "خرید مراقبت پوست، آرایش، مو، بدن، عطر و بهداشت از بیوتی‌فیکیشن",
 };
 
 const HERO_SLIDES = [
   {
     image: "/hero/polaroid-earring.webp",
-    alt: "گوشواره دست‌ساز",
+    alt: "مراقبت پوست",
   },
   {
     image: "/hero/polaroid-01.webp",
-    alt: "اکسسوری دست‌ساز",
+    alt: "آرایش",
   },
   {
     image: "/hero/polaroid-02.webp",
-    alt: "جواهرات دست‌ساز",
+    alt: "محصولات بهداشتی",
   },
   {
     image: "/hero/polaroid-03.webp",
-    alt: "گردنبند دست‌ساز",
+    alt: "مراقبت مو",
   },
   {
     image: "/hero/polaroid-04.webp",
-    alt: "دستبند دست‌ساز",
+    alt: "مراقبت بدن",
   },
   {
     image: "/hero/polaroid-05.webp",
-    alt: "انگشتر دست‌ساز",
+    alt: "عطر",
   },
 ] as const;
 

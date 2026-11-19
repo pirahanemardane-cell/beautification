@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "دسته‌ها",
-  description: "دسته‌بندی‌های فروشگاه تخصصی اکسسوری دست ساز",
+  description: "دسته‌بندی محصولات آرایشی و بهداشتی",
   alternates: { canonical: STOREFRONT_PATHS.categories },
 };
 
@@ -47,7 +47,7 @@ export default async function CategoriesIndexPage() {
           دسته‌ها
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          گردنبند، گوشواره، انگشتر، دستبند و بیشتر
+          مراقبت پوست، آرایش، مو، بدن، عطر و بهداشت
         </p>
       </div>
 

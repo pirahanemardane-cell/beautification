@@ -24,7 +24,7 @@ function pickKeyphrase(input: SuggestInput): string {
 
 /** عنوان پیشنهادی با رعایت پیکسل دسکتاپ */
 export function suggestMetaTitle(input: SuggestInput): string {
- const site = input.siteName || "اکسسوری شاد";
+ const site = input.siteName || "بیوتی‌فیکیشن";
  const kp = pickKeyphrase(input);
  const name = (input.pageName || "").trim() || kp;
  const candidates = [
@@ -50,7 +50,7 @@ export function suggestMetaDescription(input: SuggestInput): string {
 
  let base = fromBody;
  if (!base) {
- base = `خرید ${name} با کیفیت عالی و ارسال سریع از فروشگاه تخصصی اکسسوری دست ساز.`;
+ base = `خرید ${name} از فروشگاه آرایشی و بهداشتی بیوتی‌فیکیشن.`;
  }
  if (kp && !base.includes(kp)) {
  base = `${kp} — ${base}`;
