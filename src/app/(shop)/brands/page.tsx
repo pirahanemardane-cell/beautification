@@ -8,7 +8,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
  title: "برندها",
- description: "همه برندهای فروشگاه تخصصی اکسسوری دست ساز",
+ description: "برندهای آرایشی و بهداشتی",
 };
 
 export default async function BrandsIndexPage() {

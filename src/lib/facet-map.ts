@@ -1,34 +1,15 @@
 /**
- * Jewelry/accessory PLP facets — Farfetch / Net-a-Porter / Nordstrom style.
- * Apparel leftovers (fabric, fit, collar, gender tee, etc.) are blocked.
+ * PLP facets — same allowlist used by products, category, brand, and search.
+ * Cosmetics set (Khanoumi / Digikala beauty / Roja): skin type, skin concern, gender.
+ * Category, brand, and price are first-class filters, not attribute slugs.
+ * Apparel leftovers stay blocked.
  */
 
 /** Attribute slugs allowed as URL facet params (color/size are first-class, not here). */
 export const JEWELRY_ATTR_FACET_SLUGS = [
-  "material",
-  "material-type",
-  "metal",
-  "plating",
-  "karat",
-  "purity",
-  "stone",
-  "gemstone",
-  "finish",
-  "style",
-  "hypoallergenic",
-  "clasp",
-  "chain-type",
-  "chain-length",
-  "necklace-length",
-  "bracelet-size",
-  "bracelet-length",
-  "ring-size",
-  "ring-size-type",
-  "earring-type",
-  "occasion",
-  "origin",
-  "thickness",
-  "closure",
+  "skin-type",
+  "skin-concern",
+  "gender",
 ] as const;
 
 export type JewelryAttrFacetSlug = (typeof JEWELRY_ATTR_FACET_SLUGS)[number];
@@ -49,7 +30,6 @@ export const APPAREL_ATTR_BLOCKLIST = [
   "tie-length",
   "bow-tie-type",
   "cufflink-material",
-  "gender",
   "gender-tee",
   "tee-size",
   "waist",
@@ -66,97 +46,37 @@ const ALLOWED_ATTR = new Set<string>(
   JEWELRY_ATTR_FACET_SLUGS.map((s) => s.toLowerCase()),
 );
 
-/** Core facets shown for every jewelry category (when present in catalog). */
-const CORE_JEWELRY_FACETS = [
-  "material",
-  "material-type",
-  "metal",
-  "plating",
-  "karat",
-  "stone",
-  "gemstone",
-  "finish",
-  "style",
-  "hypoallergenic",
-  "occasion",
-  "origin",
-] as const;
-
-const RING_FACETS = [
-  ...CORE_JEWELRY_FACETS,
-  "ring-size",
-  "ring-size-type",
-] as const;
-
-const NECKLACE_FACETS = [
-  ...CORE_JEWELRY_FACETS,
-  "necklace-length",
-  "chain-length",
-  "chain-type",
-  "clasp",
-  "closure",
-] as const;
-
-const BRACELET_FACETS = [
-  ...CORE_JEWELRY_FACETS,
-  "bracelet-size",
-  "bracelet-length",
-  "clasp",
-  "closure",
-  "thickness",
-] as const;
-
-const EARRING_FACETS = [
-  ...CORE_JEWELRY_FACETS,
-  "earring-type",
-  "closure",
-  "clasp",
-] as const;
-
-const SET_FACETS = [...CORE_JEWELRY_FACETS, "clasp", "closure"] as const;
-
-const ACCESSORY_FACETS = [
-  ...CORE_JEWELRY_FACETS,
-  "clasp",
-  "closure",
-  "thickness",
-] as const;
+/** Shown for every cosmetics category (when present in catalog). */
+const CORE_FACETS = ["skin-type", "skin-concern", "gender"] as const;
 
 export const FACET_BY_CATEGORY: Record<string, string[]> = {
-  // English (legacy) + Persian storefront slugs
-  necklace: [...NECKLACE_FACETS],
-  necklaces: [...NECKLACE_FACETS],
-  گردنبند: [...NECKLACE_FACETS],
-  earring: [...EARRING_FACETS],
-  earrings: [...EARRING_FACETS],
-  گوشواره: [...EARRING_FACETS],
-  ring: [...RING_FACETS],
-  rings: [...RING_FACETS],
-  انگشتر: [...RING_FACETS],
-  bracelet: [...BRACELET_FACETS],
-  bracelets: [...BRACELET_FACETS],
-  دستبند: [...BRACELET_FACETS],
-  set: [...SET_FACETS],
-  sets: [...SET_FACETS],
-  ست: [...SET_FACETS],
-  accessory: [...ACCESSORY_FACETS],
-  accessories: [...ACCESSORY_FACETS],
-  اکسسوری: [...ACCESSORY_FACETS],
+  "مراقبت-پوست": [...CORE_FACETS],
+  "مراقبت پوست": [...CORE_FACETS],
+  skincare: [...CORE_FACETS],
+  "skin-care": [...CORE_FACETS],
+  آرایش: [...CORE_FACETS],
+  makeup: [...CORE_FACETS],
+  مو: [...CORE_FACETS],
+  hair: [...CORE_FACETS],
+  بدن: [...CORE_FACETS],
+  body: [...CORE_FACETS],
+  عطر: [...CORE_FACETS],
+  fragrance: [...CORE_FACETS],
+  perfume: [...CORE_FACETS],
+  بهداشت: [...CORE_FACETS],
+  hygiene: [...CORE_FACETS],
 };
 
 /** URL keys accepted for attribute facets (shared by PLP / category / brand / search). */
 export const FACET_KEYS = [...JEWELRY_ATTR_FACET_SLUGS] as const;
 
-export const DEFAULT_FACET_SLUGS = [...CORE_JEWELRY_FACETS] as const;
+export const DEFAULT_FACET_SLUGS = [...CORE_FACETS] as const;
 
-/** First-class material facet slugs (promoted above “more filters”). */
+/** Facets promoted above “more filters”. */
 export const MATERIAL_FACET_SLUGS = new Set([
-  "material",
-  "material-type",
-  "metal",
-  "plating",
-  "karat",
-  "purity",
+  "skin-type",
+  "skin-concern",
+  "gender",
 ]);
 
 export function isApparelAttrSlug(slug: string): boolean {
@@ -180,7 +100,7 @@ export function facetSlugsForCategory(categorySlug?: string): string[] {
   );
 }
 
-/** Keep only jewelry-relevant filterable attributes for a category. */
+/** Keep only cosmetics filterable attributes for a category. */
 export function filterJewelryFacets<T extends { slug: string }>(
   facets: T[],
   categorySlug?: string,
@@ -198,7 +118,7 @@ export function filterJewelryFacets<T extends { slug: string }>(
   });
 }
 
-/** Legacy apparel letter sizes — hide from jewelry PLP size chips. */
+/** Legacy apparel letter sizes — hide from size chips. */
 const APPAREL_SIZE_SLUGS = new Set([
   "xxs",
   "xs",
@@ -250,7 +170,7 @@ export function filterJewelrySizeChips<
   return sizes.filter((s) => !isApparelSizeChip(s));
 }
 
-/** Parse jewelry attr facets from URL search params. */
+/** Parse cosmetics attr facets from URL search params. */
 export function parseAttrFacetsFromParams(
   params: Record<string, string | string[] | undefined>,
 ): Record<string, string> {

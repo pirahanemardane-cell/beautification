@@ -17,7 +17,7 @@ const FOOTER_COLUMNS = [
   {
     title: "راهنما",
     links: [
-      { label: "راهنمای سایز", href: STOREFRONT_PATHS.sizeGuide },
+      { label: "راهنمای انتخاب", href: STOREFRONT_PATHS.sizeGuide },
       { label: "ارسال", href: STOREFRONT_PATHS.shipping },
       { label: "مرجوعی", href: STOREFRONT_PATHS.returns },
       { label: "ضمانت و اصالت", href: STOREFRONT_PATHS.warranty },
@@ -41,9 +41,9 @@ const LEGAL_LINKS = [
 export function SiteFooter() {
   return (
     <WordmarkRevealFooter
-      wordmark="SHADJEWEL"
+      wordmark="BEAUTY"
       brand={{
-        name: "شاد جول",
+        name: "بیوتی‌فیکیشن",
         mark: (
           <Image
             src="/brand/mark-flower-transparent.webp"
@@ -54,7 +54,7 @@ export function SiteFooter() {
           />
         ),
         blurb:
-          "ShadJewel — فروشگاه تخصصی اکسسوری دست‌ساز؛ گردنبند، گوشواره، انگشتر، دستبند و ست.",
+          "بیوتی‌فیکیشن — فروشگاه آرایشی و بهداشتی؛ مراقبت پوست، آرایش، مو، بدن، عطر و بهداشت.",
       }}
       columns={FOOTER_COLUMNS}
       legal={LEGAL_LINKS}

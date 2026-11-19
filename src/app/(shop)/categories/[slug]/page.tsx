@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CategoryService } from "@/services/category.service";
+import { BrandService } from "@/services/brand.service";
 import { ProductService } from "@/services/product.service";
 import { AttributeService } from "@/services/attribute.service";
 import { ColorRepository } from "@/repositories/color.repository";
@@ -89,6 +90,11 @@ export default async function CategoryListingPage({
  const rootsResult = await categoryService.getRoots();
  const categories = rootsResult.success
  ? (rootsResult.data ?? []).map((c) => ({ name: c.name, slug: c.slug }))
+ : [];
+ const brandsResult = await new BrandService().getActive();
+ const brands =
+ brandsResult.success && Array.isArray(brandsResult.data)
+ ? brandsResult.data.map((b) => ({ name: b.name, slug: b.slug }))
  : [];
 
  const brandSlug = typeof sp.brand === "string" ? sp.brand : undefined;
@@ -242,6 +248,7 @@ export default async function CategoryListingPage({
  categories={categories}
  categorySlug={slug}
  brandSlug={brandSlug}
+ brands={brands}
  q={q}
  sort={sort}
  featured={featured}
@@ -266,6 +273,7 @@ export default async function CategoryListingPage({
  categories={categories}
  categorySlug={slug}
  brandSlug={brandSlug}
+ brands={brands}
  q={q}
  sort={sort}
  featured={featured}

@@ -9,33 +9,35 @@ export type ComplementCard = {
   kind: "buy_with" | "set";
 };
 
-/** Canonical Persian category slug → complementary category slugs (post-067). */
+/** Canonical category slug → complementary category slugs. */
 const BUY_WITH_TARGETS: Record<string, string[]> = {
-  گردنبند: ["گوشواره", "دستبند", "انگشتر"],
-  گوشواره: ["گردنبند", "دستبند"],
-  انگشتر: ["دستبند", "گردنبند", "گوشواره"],
-  دستبند: ["انگشتر", "گردنبند", "گوشواره"],
-  ست: ["گردنبند", "گوشواره", "دستبند", "انگشتر"],
-  اکسسوری: ["گردنبند", "گوشواره", "دستبند", "انگشتر"],
+  "مراقبت-پوست": ["آرایش", "بهداشت"],
+  آرایش: ["مراقبت-پوست"],
+  مو: ["بدن", "بهداشت"],
+  بدن: ["مو", "بهداشت"],
+  عطر: ["بدن"],
+  بهداشت: ["مراقبت-پوست", "بدن"],
 };
 
-/** Map legacy English (and FA) category slugs to canonical FA keys. */
+/** Map English (and FA) category slugs to canonical FA keys. */
 const CATEGORY_CANONICAL: Record<string, string> = {
-  گردنبند: "گردنبند",
-  گوشواره: "گوشواره",
-  انگشتر: "انگشتر",
-  دستبند: "دستبند",
-  ست: "ست",
-  اکسسوری: "اکسسوری",
-  necklace: "گردنبند",
-  earring: "گوشواره",
-  ring: "انگشتر",
-  bracelet: "دستبند",
-  set: "ست",
-  accessory: "اکسسوری",
+  "مراقبت-پوست": "مراقبت-پوست",
+  skincare: "مراقبت-پوست",
+  "skin-care": "مراقبت-پوست",
+  آرایش: "آرایش",
+  makeup: "آرایش",
+  مو: "مو",
+  hair: "مو",
+  بدن: "بدن",
+  body: "بدن",
+  عطر: "عطر",
+  fragrance: "عطر",
+  perfume: "عطر",
+  بهداشت: "بهداشت",
+  hygiene: "بهداشت",
 };
 
-const SET_CATEGORY_SLUGS = ["ست", "set"] as const;
+const SET_CATEGORY_SLUGS = ["آرایش", "makeup"] as const;
 
 function buyWithTargetsFor(categorySlug: string): string[] {
   const canonical = CATEGORY_CANONICAL[categorySlug] ?? categorySlug;

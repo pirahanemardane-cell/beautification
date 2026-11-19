@@ -12,7 +12,7 @@ export function organizationSchema() {
  "@context": "https://schema.org",
  "@type": "Organization",
  "@id": `${SITE}/#organization`,
- name: "اکسسوری شاد",
+ name: "بیوتی‌فیکیشن",
  url: SITE,
  logo: {
  "@type": "ImageObject",
@@ -28,7 +28,7 @@ export function websiteSchema() {
  "@type": "WebSite",
  "@id": `${SITE}/#website`,
  url: SITE,
- name: "اکسسوری شاد",
+ name: "بیوتی‌فیکیشن",
  inLanguage: "fa-IR",
  publisher: { "@id": `${SITE}/#organization` },
  potentialAction: {
@@ -118,11 +118,11 @@ export function articleSchema(input: {
  dateModified: input.dateModified || input.datePublished || undefined,
  author: {
  "@type": "Person",
- name: input.authorName || "اکسسوری شاد",
+ name: input.authorName || "بیوتی‌فیکیشن",
  },
  publisher: {
  "@type": "Organization",
- name: "اکسسوری شاد",
+ name: "بیوتی‌فیکیشن",
  logo: {
  "@type": "ImageObject",
  url: `${SITE}/brand/logo-light-transparent.png`,

@@ -21,6 +21,7 @@ type Props = {
   categories?: CategoryChip[];
   categorySlug?: string;
   brandSlug?: string;
+  brands?: CategoryChip[];
   q?: string;
   sort?: string;
   featured?: boolean;
@@ -49,6 +50,7 @@ const SORTS = [
 function buildHref(
   next: {
     category?: string | null;
+    brand?: string | null;
     sort?: string | null;
     attrs?: Record<string, string>;
     minPrice?: number | null;
@@ -60,7 +62,13 @@ function buildHref(
   base: Props,
 ) {
   const params = new URLSearchParams();
-  if (base.brandSlug) params.set("brand", base.brandSlug);
+  const brand =
+    next.brand === null
+      ? undefined
+      : next.brand !== undefined
+        ? next.brand ?? undefined
+        : base.brandSlug;
+  if (brand) params.set("brand", brand);
   if (base.q) params.set("q", base.q);
 
   const color =
@@ -244,6 +252,8 @@ export function ProductFiltersSidebar(props: Props) {
     current,
     categories: categoriesProp = [],
     categorySlug,
+    brandSlug,
+    brands = [],
     sort = "newest",
     featured,
     minPrice,
@@ -305,6 +315,9 @@ export function ProductFiltersSidebar(props: Props) {
     if (pendingKey?.startsWith("cat:") && key.startsWith("cat:")) {
       return pendingKey === key;
     }
+    if (pendingKey?.startsWith("brand:") && key.startsWith("brand:")) {
+      return pendingKey === key;
+    }
     if (pendingKey?.startsWith("stock:") && key.startsWith("stock:")) {
       return pendingKey === key;
     }
@@ -314,6 +327,7 @@ export function ProductFiltersSidebar(props: Props) {
   const clearAll = buildHref(
     {
       category: null,
+      brand: null,
       sort: null,
       attrs: {},
       minPrice: null,
@@ -327,6 +341,7 @@ export function ProductFiltersSidebar(props: Props) {
 
   const activeCount =
     (categorySlug ? 1 : 0) +
+    (brandSlug ? 1 : 0) +
     (featured ? 1 : 0) +
     (sort && sort !== "newest" ? 1 : 0) +
     (minPrice ? 1 : 0) +
@@ -410,6 +425,34 @@ export function ProductFiltersSidebar(props: Props) {
           </div>
         ) : null}
 
+        {brands.length > 0 ? (
+          <div>
+            <p className="mb-2 text-xs font-medium">برند</p>
+            <ul className="space-y-0.5">
+              {brands.map((b) => {
+                const server = brandSlug === b.slug;
+                const key = `brand:${b.slug}`;
+                const href = buildHref(
+                  { brand: server ? null : b.slug },
+                  props,
+                );
+                return (
+                  <li key={b.slug}>
+                    <FilterLink
+                      href={href}
+                      active={optActive(key, server)}
+                      onNavigate={(h) => navigate(h, key)}
+                    >
+                      <CheckBox active={optActive(key, server)} />
+                      {b.name}
+                    </FilterLink>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
+
         <div>
           <p className="mb-2 text-xs font-medium">مرتب‌سازی</p>
           <ul className="space-y-0.5">
@@ -437,7 +480,7 @@ export function ProductFiltersSidebar(props: Props) {
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-medium">محدوده قیمت (تومان)</p>
+          <p className="mb-2 text-xs font-medium">قیمت (تومان)</p>
           <PriceRangeSlider06
             min={0}
             max={50_000_000}
@@ -493,7 +536,7 @@ export function ProductFiltersSidebar(props: Props) {
 
         {(props.colors?.length ?? 0) > 0 ? (
           <div>
-            <p className="mb-2 text-xs font-medium">رنگ / فلز</p>
+            <p className="mb-2 text-xs font-medium">رنگ</p>
             <ul className="space-y-0.5">
               {props.colors!.map((c) => {
                 const server = props.colorSlug === c.slug;
@@ -527,7 +570,7 @@ export function ProductFiltersSidebar(props: Props) {
 
         {sizes.length > 0 ? (
           <div>
-            <p className="mb-2 text-xs font-medium">سایز (انگشتر / دستبند)</p>
+            <p className="mb-2 text-xs font-medium">حجم</p>
             <ul className="space-y-0.5">
               {sizes.map((s) => {
                 const server = props.sizeSlug === s.slug;

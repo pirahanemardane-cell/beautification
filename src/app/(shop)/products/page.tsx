@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ProductService } from "@/services/product.service";
 import { ProductInfiniteList } from "@/components/product/product-infinite-list";
 import { CategoryService } from "@/services/category.service";
+import { BrandService } from "@/services/brand.service";
 import { AttributeService } from "@/services/attribute.service";
 import { ColorRepository } from "@/repositories/color.repository";
 import { SizeRepository } from "@/repositories/size.repository";
@@ -24,7 +25,7 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
  return metadataFromSeoPage("shop_plp", {
  title: "محصولات",
- description: "لیست محصولات فروشگاه تخصصی اکسسوری دست ساز",
+ description: "لیست محصولات آرایشی و بهداشتی",
  });
 }
 
@@ -42,6 +43,11 @@ export default async function ProductsPage({
  const categories =
  rootsResult.success && Array.isArray(rootsResult.data)
  ? rootsResult.data.map((c) => ({ name: c.name, slug: c.slug }))
+ : [];
+ const brandsResult = await new BrandService().getActive();
+ const brands =
+ brandsResult.success && Array.isArray(brandsResult.data)
+ ? brandsResult.data.map((b) => ({ name: b.name, slug: b.slug }))
  : [];
 
  const categorySlug =
@@ -198,6 +204,7 @@ export default async function ProductsPage({
  categories={categories}
  categorySlug={categorySlug}
  brandSlug={brandSlug}
+ brands={brands}
  q={q}
  sort={sort}
  featured={featured}
@@ -218,6 +225,7 @@ export default async function ProductsPage({
  categories={categories}
  categorySlug={categorySlug}
  brandSlug={brandSlug}
+ brands={brands}
  q={q}
  sort={sort}
  featured={featured}

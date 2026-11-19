@@ -15,7 +15,7 @@ export async function adminSeoSuggestAction(input: SuggestInput) {
  }
 
  try {
- const prompt = `تو متخصص SEO فارسی برای فروشگاه پوشاک اکسسوری دست ساز هستی.
+ const prompt = `تو متخصص SEO فارسی برای فروشگاه آرایشی و بهداشتی هستی.
 نام صفحه: ${input.pageName || "—"}
 کلیدواژه‌ها: ${(input.focusKeyphrases || []).join("، ") || "—"}
 توضیح کوتاه: ${(input.shortDescription || "").slice(0, 400)}
