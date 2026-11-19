@@ -43,6 +43,9 @@ export async function adminListUsersAction(
 export async function adminUpdateUserRoleAction(userId: string, role: Role) {
  const gate = await requireAdmin();
  if (!gate.ok) return { ok: false as const, error: gate.error };
+ if (!userId || typeof userId !== "string") {
+ return { ok: false as const, error: "bad_user" };
+ }
  if (!["customer", "admin", "staff"].includes(role)) {
  return { ok: false as const, error: "bad_role" };
  }
@@ -51,6 +54,7 @@ export async function adminUpdateUserRoleAction(userId: string, role: Role) {
  return { ok: false as const, error: "cannot_demote_self" };
  }
  try {
+ // gate.supabase is service_role — only path that may mutate profiles.role
  const { error } = await gate.supabase
  .from("profiles")
  .update({ role })

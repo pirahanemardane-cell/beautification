@@ -141,6 +141,7 @@ export async function signUpAction(
     // Prefer service role — customer INSERT RLS may be missing on live
     try {
       const service = createServiceClient();
+      // role only via service_role; never trust client role claims (migration 069).
       const { error: profileError } = await service.from("profiles").upsert({
         id: userId,
         full_name: fullName ?? null,
@@ -148,11 +149,11 @@ export async function signUpAction(
         role: "customer",
       } as never);
       if (profileError) {
+        // User-scoped fallback: omit role (RLS/trigger force customer).
         const { error: fallbackErr } = await supabase.from("profiles").upsert({
           id: userId,
           full_name: fullName ?? null,
           phone: phoneNorm,
-          role: "customer",
         } as never);
         if (fallbackErr) console.error("[signUp profile]", fallbackErr);
       }
@@ -162,7 +163,6 @@ export async function signUpAction(
         id: userId,
         full_name: fullName ?? null,
         phone: phoneNorm,
-        role: "customer",
       } as never);
       if (profileError) console.error("[signUp profile]", profileError);
     }
@@ -259,10 +259,11 @@ export async function verifyOtpAction(phone: string, code: string) {
  if (created.user?.email) authEmail = created.user.email;
  }
  if (userId) {
+ // New OTP users are always customer; never copy elevated roles from client claims.
  await admin.from("profiles").upsert({
  id: userId,
  phone: normalized,
- role: role === "admin" ? "admin" : "customer",
+ role: "customer",
  } as never);
  }
  } else {

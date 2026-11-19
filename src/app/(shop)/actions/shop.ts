@@ -938,16 +938,11 @@ export async function updateMyProfileAction(input: {
  if (!Object.keys(patch).length) {
  return { ok: false as const, error: "nothing_to_update" };
  }
+ // Never write role here — role is service_role/admin only (see migration 069).
  const { data: updated, error } = await supabase
  .from("profiles")
- .upsert(
- {
- id: user.id,
- ...patch,
- role: "customer",
- } as never,
- { onConflict: "id" },
- )
+ .update(patch as never)
+ .eq("id", user.id)
  .select("id")
  .maybeSingle();
  if (error) throw error;
@@ -955,12 +950,25 @@ export async function updateMyProfileAction(input: {
  try {
  const { createServiceClient } = await import("@/lib/supabase/service");
  const service = createServiceClient();
- const { error: sErr } = await service.from("profiles").upsert({
+ const { data: existing } = await service
+ .from("profiles")
+ .select("id")
+ .eq("id", user.id)
+ .maybeSingle();
+ if (existing) {
+ const { error: sErr } = await service
+ .from("profiles")
+ .update(patch as never)
+ .eq("id", user.id);
+ if (sErr) throw sErr;
+ } else {
+ const { error: sErr } = await service.from("profiles").insert({
  id: user.id,
  ...patch,
  role: "customer",
  } as never);
  if (sErr) throw sErr;
+ }
  } catch (se) {
  console.error("[updateMyProfile service]", se);
  return { ok: false as const, error: "profile_write_failed" };
